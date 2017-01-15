@@ -15,3 +15,6 @@ dependencies:
 test:
   override:
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py.test.xml
+  post:
+    python setup.py sdist
+    mv ./dist $CIRCLE_TEST_REPORTS/
