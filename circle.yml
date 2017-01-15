@@ -1,0 +1,17 @@
+# Circle.yml For stable.world.backend
+machine:
+  python:
+    version: 3.5.1
+
+dependencies:
+  pre:
+    - sudo apt-get update
+    - pip install --upgrade pip setuptools
+  override:
+    - pip install .
+    - pip install -r test-requirements.txt
+    - python setup.py develop
+
+test:
+  override:
+    - py.test --junitxml $CIRCLE_TEST_REPORTS/py.test.xml
