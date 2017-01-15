@@ -41,5 +41,8 @@ def setup_user(email, password, token):
             continue
 
     # TODO: follow up on this
-    click.confirm('    forgot password? (yes)', default=True)
-    raise Exception('?')
+    forgot = click.confirm('    forgot password? (yes)', default=True)
+    if forgot:
+        raise Exception('?')
+    else:
+        raise errors.UserError("Bye")
