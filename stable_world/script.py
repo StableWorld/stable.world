@@ -61,7 +61,7 @@ def login(ctx, email, password, token=None):
 
 @main.command()
 def logout():
-    "only performs authentication step"
+    "expire local token"
     update_config(token=None, email=None)
     click.echo(
         '\n\n    '
@@ -85,7 +85,7 @@ def whoami(client):
 @click.option('-p', '--project')
 @utils.login_required
 def space_create(client, project):
-    "Create a new cache space"
+    "Create a new project"
     if project:
         client.add_project(project)
         click.echo('    Project %s added!' % project)
@@ -140,6 +140,8 @@ def space_url_add(client, project, url, type, name):
 def use(client, tag, project):
     "Activate and record all usage for a project"
     print(tag, project)
+
+    client.space()
 
 
 @main.command()
