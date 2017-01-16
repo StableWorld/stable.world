@@ -116,7 +116,7 @@ def teardown(client, project):
     click.echo('    Project %s removed' % project)
 
 
-@main.command('project:url:add')
+@main.command('project:url:set')
 @click.option('-p', '--project', required=True)
 @click.option('--url')
 @click.option('--type', type=click.Choice(['pypi', 'npm']))
@@ -129,6 +129,16 @@ def space_url_add(client, project, url, type, name):
         click.echo('    Caching url %s as %s' % (url, name))
     else:
         setup_urls(client, project, url, type, name)
+
+
+@main.command('tag:create')
+@click.option('-p', '--project', required=True)
+@click.option('-n', '--name', required=True)
+@utils.login_required
+def tag_create(client, project, name):
+    "Add a tag to a project"
+    client.tag(project, name)
+    click.echo("Tag added")
 
 
 @main.command()

@@ -80,3 +80,7 @@ class Client:
     def delete_project(self, project):
         self.delete('/spaces/%s' % project)
         return
+
+    def tag(self, project, name):
+        self.post('/tags/%s/%s' % (project, name))
+        return
