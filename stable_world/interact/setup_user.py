@@ -1,7 +1,7 @@
 import click
-from .config import update_config
-from . import errors
-from .client import Client
+from ..config import update_config
+from .. import errors
+from ..client import Client
 from getpass import getpass
 
 try:

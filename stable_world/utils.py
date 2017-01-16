@@ -4,7 +4,7 @@ import click
 
 from .client import Client
 from .config import config
-from .setup_user import setup_user
+from .interact.setup_user import setup_user
 
 
 email_option = click.option(
@@ -21,9 +21,10 @@ token_option = click.option(
 def ensure_login(email, password, token):
 
     if email and token:
-        print('\n')
-        print(' %20s: %s' % ('email', email))
-        print(' %20s: %s' % ('token', '*' * 10))
+        click.echo('\n')
+        click.echo(' %20s: %s' % ('email', email))
+        click.echo(' %20s: %s' % ('token', '*' * 10))
+        click.echo('\n')
         return Client(email, token)
 
     return setup_user(email, password, token)

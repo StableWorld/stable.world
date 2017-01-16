@@ -4,7 +4,11 @@ class StableWorldError(Exception):
     pass
 
 
-class UserError(Exception):
+class UserError(StableWorldError):
+    pass
+
+
+class DuplicateKeyError(UserError):
     pass
 
 

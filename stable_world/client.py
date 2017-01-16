@@ -27,6 +27,11 @@ class Client:
         self._check_response(res)
         return res.json()
 
+    def delete(self, path):
+        res = self._session.delete('%s%s' % (config['url'], path))
+        self._check_response(res)
+        return res.json()
+
     def post(self, path, payload=None):
         res = self._session.post('%s%s' % (config['url'], path), json=payload)
         self._check_response(res)
@@ -58,3 +63,20 @@ class Client:
     def whoami(self):
         res = self.get('/account/user')
         return res['user'].get('email', 'anonymous')
+
+    def add_project(self, project):
+        self.post('/spaces/%s' % project)
+        return
+
+    def add_url(self, project, url, type, name):
+        to = '/spaces/%s/url/%s' % (project, name)
+        self.post(to, {'url': url, 'type': type})
+        return
+
+    def projects(self):
+        res = self.get('/spaces')
+        return res['spaces']
+
+    def delete_project(self, project):
+        self.delete('/spaces/%s' % project)
+        return
