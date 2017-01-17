@@ -11,11 +11,11 @@ from .config import config_filename, update_config
 from .interact.setup_user import setup_user
 from .interact.setup_space import setup_space
 from .interact.setup_urls import setup_urls
-from . import utils
-from . import errors
+from . import utils, errors, output
 
 original_excepthook = sys.excepthook
 
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 def brief_excepthook(exctype, value, tb):
 
@@ -26,7 +26,7 @@ def brief_excepthook(exctype, value, tb):
         original_excepthook(exctype, value, tb)
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.option('--debug/--no-debug', default=False)
 @click.option('--hide-traceback/--no-full-traceback', default=False)
 @click.version_option(sw_version)
@@ -99,12 +99,7 @@ def space_create(client, project):
 def list(client):
     "list all projects you have access to"
     projects = client.projects()
-    for project in projects:
-        if project['urls']:
-            urls = '(%s)' % ', '.join(project['urls'].keys())
-        else:
-            urls = 'empty'
-        click.echo('    %-20s %s' % (project['name'], urls))
+    output.projects.print_projects(projects)
 
 
 @main.command()
@@ -116,13 +111,13 @@ def teardown(client, project):
     click.echo('    Project %s removed' % project)
 
 
-@main.command('project:url:set')
+@main.command('project:cache:add')
 @click.option('-p', '--project', required=True)
 @click.option('--url')
-@click.option('--type', type=click.Choice(['pypi', 'npm']))
+@click.option('--type', type=click.Choice(['pypi', 'npm', 'conda']))
 @click.option('--name')
 @utils.login_required
-def space_url_add(client, project, url, type, name):
+def project_cache_add(client, project, url, type, name):
     "Add a cache to the project"
     if url and type and name:
         client.add_url(project, url, type, name)
@@ -141,6 +136,16 @@ def tag_create(client, project, name):
     click.echo("Tag added")
 
 
+@main.command('tag:list')
+@click.option('-p', '--project', required=True)
+@utils.login_optional
+def tag_list(client, project):
+    "List tags in a project"
+    info = client.project(project)
+
+    output.tags.print_tags(info['tags'][::-1])
+
+
 @main.command()
 @click.option('-t', '--tag', required=True,
     help='Tag all requests with this tag')
@@ -155,13 +160,20 @@ def use(client, tag, project):
 
 
 @main.command()
-def success():
-    """Simple program that greets NAME for a total of COUNT times."""
+@click.option('-t', '--tags', required=True,
+    help='Tag all requests with this tag')
+@click.option('-p', '--project', required=True,
+    help='Project to source from')
+@utils.login_optional
+def diff(client, project, tags):
+    """Show the difference between two tags in a project"""
+    if ':' in tags:
+        first, last = tags.split(':')
+    else:
+        first, last = tags, None
 
-
-@main.command()
-def diff():
-    """Simple program that greets NAME for a total of COUNT times."""
+    diff_result = client.diff(project, first, last)
+    output.tags.diff_tags(diff_result)
 
 
 @main.command()

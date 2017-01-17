@@ -77,6 +77,10 @@ class Client:
         res = self.get('/spaces')
         return res['spaces']
 
+    def project(self, project):
+        res = self.get('/spaces/%s' % project)
+        return res
+
     def delete_project(self, project):
         self.delete('/spaces/%s' % project)
         return
@@ -84,3 +88,11 @@ class Client:
     def tag(self, project, name):
         self.post('/tags/%s/%s' % (project, name))
         return
+
+    def diff(self, project, first, last=None):
+        if last:
+            payload = self.get('/tags/%s/%s/diff/%s' % (project, first, last))
+        else:
+            payload = self.get('/tags/%s/%s/diff' % (project, first))
+
+        return payload

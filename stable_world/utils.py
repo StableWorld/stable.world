@@ -21,10 +21,8 @@ token_option = click.option(
 def ensure_login(email, password, token):
 
     if email and token:
-        click.echo('\n')
-        click.echo(' %20s: %s' % ('email', email))
-        click.echo(' %20s: %s' % ('token', '*' * 10))
-        click.echo('\n')
+        click.echo('\n %20s: %s' % ('email', email))
+        click.echo(' %20s: %s\n' % ('token', '*' * 10))
         return Client(email, token)
 
     return setup_user(email, password, token)
