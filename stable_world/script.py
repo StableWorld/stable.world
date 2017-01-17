@@ -17,8 +17,11 @@ original_excepthook = sys.excepthook
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-def brief_excepthook(exctype, value, tb):
 
+def brief_excepthook(exctype, value, tb):
+    """
+    Shorten exeptions with the base class errors.UserError
+    """
     if issubclass(exctype, errors.UserError):
         print('My Error Information:')
         print('Value:', value)
