@@ -6,7 +6,7 @@ machine:
 dependencies:
   pre:
     - sudo apt-get update
-    - pip install --upgrade pip setuptools
+    - pip install --upgrade pip setuptools wheel
   override:
     - pip install .
     - pip install -r test-requirements.txt
