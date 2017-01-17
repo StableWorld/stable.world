@@ -180,13 +180,24 @@ def diff(client, project, tags):
 
 
 @main.command()
-def pin():
+@utils.project_option(required=True)
+@utils.tag_option(required=True)
+@utils.login_required
+def pin(client, project, tag):
     """Simple program that greets NAME for a total of COUNT times."""
+    client.pin(project, tag)
+    click.secho("  Success: ", nl=False, fg='green')
+    click.echo("Project %s pinned to tag %s" % (project, tag))
 
 
 @main.command()
-def unpin():
+@utils.project_option(required=True)
+@utils.login_required
+def unpin(client, project):
     """Simple program that greets NAME for a total of COUNT times."""
+    client.unpin(project)
+    click.secho("  Success: ", nl=False, fg='green')
+    click.echo("Unpinned Project %s" % (project))
 
 
 if __name__ == '__main__':

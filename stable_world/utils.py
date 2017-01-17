@@ -18,6 +18,20 @@ token_option = click.option(
 )
 
 
+def project_option(required=False):
+    return click.option(
+        '-p', '--project', required=False,
+        help='Name of project'
+    )
+
+
+def tag_option(required=False):
+    return click.option(
+        '-t', '--tag', required=True,
+        help='Name of tag in project'
+    )
+
+
 def ensure_login(email, password, token):
 
     if email and token:

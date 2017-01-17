@@ -96,3 +96,11 @@ class Client:
             payload = self.get('/tags/%s/%s/diff' % (project, first))
 
         return payload
+
+    def pin(self, project, tag):
+        self.post('/spaces/%s/pin/%s' % (project, tag))
+        return
+
+    def unpin(self, project):
+        self.delete('/spaces/%s/pin' % project)
+        return
