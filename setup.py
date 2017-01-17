@@ -19,6 +19,7 @@ setup(
         'click==6.7',
         'pyyaml>=3.12',
         'requests>=2.12',
+        'python-dateutil>=2.6.0',
     ],
     entry_points={
         'console_scripts': [
