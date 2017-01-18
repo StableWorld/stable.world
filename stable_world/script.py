@@ -23,24 +23,24 @@ def brief_excepthook(exctype, value, tb):
     Shorten exeptions with the base class errors.UserError
     """
     if issubclass(exctype, errors.UserError):
-        print('My Error Information:')
-        print('Value:', value)
+        click.secho("  %s: " % exctype.__name__, nl=False, fg='red', bold=True)
+        click.echo(str(value))
     else:
         original_excepthook(exctype, value, tb)
 
 
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.option('--debug/--no-debug', default=False)
-@click.option('--hide-traceback/--no-full-traceback', default=False)
+@click.option('--show-traceback/--dont-show-traceback', default=False)
 @click.version_option(sw_version)
 @utils.email_option
 @utils.password_option
 @utils.token_option
 @click.pass_context
-def main(ctx, email, password, token, debug, hide_traceback):
+def main(ctx, email, password, token, debug, show_traceback):
     """Simple program that greets NAME for a total of COUNT times."""
 
-    if not hide_traceback:
+    if not show_traceback:
         sys.excepthook = brief_excepthook
 
     if ctx.invoked_subcommand:
@@ -106,7 +106,7 @@ def list(client):
 
 
 @main.command()
-@click.option('-p', '--project', required=True)
+@utils.project_option(required=True)
 @utils.login_required
 def teardown(client, project):
     "tear down a published project"
@@ -115,22 +115,34 @@ def teardown(client, project):
 
 
 @main.command('project:cache:add')
-@click.option('-p', '--project', required=True)
+@utils.project_option(required=True)
 @click.option('--url')
-@click.option('--type', type=click.Choice(['pypi', 'npm', 'conda']))
+@click.option('--type')
 @click.option('--name')
 @utils.login_required
 def project_cache_add(client, project, url, type, name):
     "Add a cache to the project"
-    if url and type and name:
-        client.add_url(project, url, type, name)
-        click.echo('    Caching url %s as %s' % (url, name))
-    else:
-        setup_urls(client, project, url, type, name)
+
+    client.add_url(project, url, type, name)
+
+    utils.echo_success()
+    click.echo(' Cache %s was added as %s' % (url, name))
+
+
+@main.command('project:cache:remove')
+@utils.project_option(required=True)
+@click.option('-n', '--name')
+@utils.login_required
+def project_cache_remove(client, project, name):
+    "Remove a cache from the project"
+
+    info = client.remove_url(project, name)
+    utils.echo_success()
+    click.echo(' Cache %s (%s) was removed' % (info['url'], name))
 
 
 @main.command('tag:create')
-@click.option('-p', '--project', required=True)
+@utils.project_option(required=True)
 @click.option('-n', '--name', required=True)
 @utils.login_required
 def tag_create(client, project, name):
@@ -140,7 +152,7 @@ def tag_create(client, project, name):
 
 
 @main.command('tag:list')
-@click.option('-p', '--project', required=True)
+@utils.project_option(required=True)
 @utils.login_optional
 def tag_list(client, project):
     "List tags in a project"
@@ -150,23 +162,19 @@ def tag_list(client, project):
 
 
 @main.command()
-@click.option('-t', '--tag', required=True,
-    help='Tag all requests with this tag')
-@click.option('-p', '--project', required=True,
-    help='Project to source from')
+@utils.tag_option(required=True)
+@utils.project_option(required=True)
 @utils.login_required
 def use(client, tag, project):
     "Activate and record all usage for a project"
     print(tag, project)
-
     client.space()
 
 
 @main.command()
 @click.option('-t', '--tags', required=True,
     help='Tag all requests with this tag')
-@click.option('-p', '--project', required=True,
-    help='Project to source from')
+@utils.project_option(required=True)
 @utils.login_optional
 def diff(client, project, tags):
     """Show the difference between two tags in a project"""
@@ -184,9 +192,9 @@ def diff(client, project, tags):
 @utils.tag_option(required=True)
 @utils.login_required
 def pin(client, project, tag):
-    """Simple program that greets NAME for a total of COUNT times."""
+    "Pin a project to a tag."
     client.pin(project, tag)
-    click.secho("  Success: ", nl=False, fg='green')
+    utils.echo_success()
     click.echo("Project %s pinned to tag %s" % (project, tag))
 
 
@@ -194,9 +202,9 @@ def pin(client, project, tag):
 @utils.project_option(required=True)
 @utils.login_required
 def unpin(client, project):
-    """Simple program that greets NAME for a total of COUNT times."""
+    "Remove pin to tag"
     client.unpin(project)
-    click.secho("  Success: ", nl=False, fg='green')
+    utils.echo_success()
     click.echo("Unpinned Project %s" % (project))
 
 

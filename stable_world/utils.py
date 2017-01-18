@@ -18,6 +18,10 @@ token_option = click.option(
 )
 
 
+def echo_success():
+    click.secho("  Success: ", nl=False, fg='green')
+
+
 def project_option(required=False):
     return click.option(
         '-p', '--project', required=False,

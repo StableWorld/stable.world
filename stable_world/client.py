@@ -42,7 +42,7 @@ class Client:
 
         if 'error' in payload:
             Error = getattr(errors, payload['error'], errors.PZError)
-            raise Error(payload['message'])
+            raise Error(payload['message'], payload)
 
     @classmethod
     def from_login_or_register(cls, email, password):
@@ -72,6 +72,10 @@ class Client:
         to = '/spaces/%s/url/%s' % (project, name)
         self.post(to, {'url': url, 'type': type})
         return
+
+    def remove_url(self, project, name):
+        res = self.delete('/spaces/%s/url/%s' % (project, name))
+        return res
 
     def projects(self):
         res = self.get('/spaces')
