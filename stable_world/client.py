@@ -65,8 +65,8 @@ class Client:
         return res['user'].get('email', 'anonymous')
 
     def add_project(self, project):
-        self.post('/spaces/%s' % project)
-        return
+        res = self.post('/spaces/%s' % project)
+        return res
 
     def add_url(self, project, url, type, name):
         to = '/spaces/%s/url/%s' % (project, name)

@@ -24,7 +24,7 @@ def echo_success():
 
 def project_option(required=False):
     return click.option(
-        '-p', '--project', required=False,
+        '-p', '--project', required=required,
         help='Name of project'
     )
 
@@ -39,8 +39,8 @@ def tag_option(required=False):
 def ensure_login(email, password, token):
 
     if email and token:
-        click.echo('\n %20s: %s' % ('email', email))
-        click.echo(' %20s: %s\n' % ('token', '*' * 10))
+        click.echo('\n %30s: %s' % ('email', email))
+        click.echo(' %30s: %s\n' % ('token', '*' * 10))
         return Client(email, token)
 
     return setup_user(email, password, token)

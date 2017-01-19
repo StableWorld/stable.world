@@ -16,3 +16,16 @@ def print_projects(projects):
         else:
             urls = 'empty'
         click.echo(urls)
+
+
+def print_project(project):
+    if project.get('pinned_to'):
+        pinned = '[pinned:%s]' % project['pinned_to']['name']
+    else:
+        pinned = ''
+
+    click.echo('  Project: %-25s' % (project['name'] + pinned))
+
+    click.echo('  Caches:')
+    for name, info in project['urls'].items():
+        click.echo('    %10s => %s' % (name, info['url']))

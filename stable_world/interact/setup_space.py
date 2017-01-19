@@ -4,28 +4,29 @@ from . import words
 from .. import errors
 
 
+def random_project_name():
+    return '%s-%s' % (choice(words.adjectives), choice(words.nouns))
+
+
 def setup_space(client):
 
-    project_name = '%s-%s' % (choice(words.adjectives), choice(words.nouns))
+    project_name = random_project_name()
 
     # TODO: fix interaction here, should not prompt user after they have entered
     while 1:
         if project_name:
             ok = click.confirm(
-                ' %20s: \'%s\' ?' % ('name your project', project_name),
+                ' %30s: \'%s\' ?' % ('name your project', project_name),
                 default=True
             )
+            click.echo('')
             if ok:
                 try:
-                    client.add_project(project_name)
-                    break
+                    return client.add_project(project_name)
                 except errors.DuplicateKeyError:
                     click.echo('')
-                    tml = '    ERROR: The project "%s" alreadys exists'
+                    tml = '  ERROR: The project "%s" alreadys exists'
                     click.echo(tml % project_name)
-                    click.echo('    Project names must be unique')
+                    click.echo('  Project names must be unique')
 
-        project_name = click.prompt(' %20s' % 'name your project')
-
-    click.echo('    Project %s added!' % project_name)
-    return project_name
+        project_name = click.prompt(' %30s' % 'name your project')

@@ -10,7 +10,6 @@ from stable_world import __version__ as sw_version
 from .config import config_filename, update_config
 from .interact.setup_user import setup_user
 from .interact.setup_space import setup_space
-from .interact.setup_urls import setup_urls
 from . import utils, errors, output
 
 original_excepthook = sys.excepthook
@@ -47,9 +46,7 @@ def main(ctx, email, password, token, debug, show_traceback):
         return
 
     client = utils.ensure_login(email, password, token)
-
-    space = setup_space(client)
-    setup_urls(client, space)
+    setup_space(client)
 
 
 @main.command()
@@ -90,11 +87,12 @@ def whoami(client):
 def space_create(client, project):
     "Create a new project"
     if project:
-        client.add_project(project)
-        click.echo('    Project %s added!' % project)
+        info = client.add_project(project)
     else:
-        setup_space(client)
-    return
+        info = setup_space(client)
+    output.projects.print_project(info['space'])
+    utils.echo_success()
+    click.echo('Project %s added!' % info['space']['name'])
 
 
 @main.command()
@@ -105,13 +103,23 @@ def list(client):
     output.projects.print_projects(projects)
 
 
-@main.command()
+@main.command('project')
 @utils.project_option(required=True)
 @utils.login_required
-def teardown(client, project):
+def project(client, project):
+    "show a published project"
+    info = client.project(project)
+    output.projects.print_project(info['space'])
+
+
+@main.command('project:destroy')
+@utils.project_option(required=True)
+@utils.login_required
+def project_destroy(client, project):
     "tear down a published project"
     client.delete_project(project)
-    click.echo('    Project %s removed' % project)
+    utils.echo_success()
+    click.echo(' Project %s removed' % project)
 
 
 @main.command('project:cache:add')

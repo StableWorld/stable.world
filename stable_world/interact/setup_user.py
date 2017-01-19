@@ -2,7 +2,7 @@ import click
 from ..config import update_config
 from .. import errors
 from ..client import Client
-from getpass import getpass
+# from getpass import getpass
 
 try:
     raw_input
@@ -22,14 +22,14 @@ def setup_user(email, password, token):
     )
 
     if not email:
-        email = raw_input(' %20s: ' % 'email')
+        email = click.prompt(' %30s' % 'email')
     else:
-        click.echo(' %20s: %s' % ('email', email))
+        click.echo(' %30s: %s' % ('email', email))
 
     for i in range(3):
 
         if not password:
-            password = getpass(' %20s: ' % 'password')
+            password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
             client = Client.from_login_or_register(email, password)

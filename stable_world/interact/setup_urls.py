@@ -1,4 +1,3 @@
 
-
-def setup_urls(client, space):
-    pass
+import click
+from ..url_defaults import urls_defaults
