@@ -11,7 +11,7 @@ from .config import config_filename, update_config
 from .interact.setup_user import setup_user
 from .interact.setup_space import setup_space
 from . import utils, errors, output
-
+from . import managers
 original_excepthook = sys.excepthook
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -176,7 +176,13 @@ def tag_list(client, project):
 def use(client, tag, project):
     "Activate and record all usage for a project"
     print(tag, project)
-    client.space()
+    info = client.project(project)
+    pinned_to = info['space']['pinned_to']
+    print('pinned_to', pinned_to['name'])
+
+    urls = info['space']['urls']
+    for name, cache_info in urls.items():
+        managers.setup(name, cache_info, pinned_to)
 
 
 @main.command()
