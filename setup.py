@@ -20,6 +20,7 @@ setup(
         'pyyaml>=3.12',
         'requests>=2.12',
         'python-dateutil>=2.6.0',
+        'pyyaml>=3.12'
     ],
     entry_points={
         'console_scripts': [

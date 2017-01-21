@@ -1,13 +1,23 @@
+import click
 
-from .pypi import setup_pypi
-from .conda import setup_conda
-from .. import errors
+from . import pypi
+from . import conda
 
 
-def setup(ty, project, create_tag, cache_list, pinned_to):
+def use(ty, project, create_tag, cache_list, pinned_to):
     if ty == 'pypi':
-        return setup_pypi(project, create_tag, cache_list, pinned_to)
+        return pypi.use(project, create_tag, cache_list, pinned_to)
     if ty == 'conda':
-        return setup_conda(project, create_tag, cache_list, pinned_to)
+        return conda.use(project, create_tag, cache_list, pinned_to)
+    else:
+        click.echo("Don't know what to do for type %s" % ty)
+        return None
 
-    raise errors.UserError("Don't know what to do for type %s" % ty)
+
+def unuse(ty, info):
+    if ty == 'pypi':
+        return pypi.unuse(info)
+    if ty == 'conda':
+        return conda.unuse(info)
+
+    click.echo("Don't know what to do for type %s" % ty)

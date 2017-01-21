@@ -3,7 +3,7 @@ from configparser import ConfigParser
 from urllib.parse import urlparse
 import click
 
-from .push_file import push_file
+from .push_file import push_file, pull_file
 from ..config import config
 
 PIP_PREFIX = None
@@ -21,14 +21,16 @@ def get_cache_dir(space, tag):
     return os.path.join(PIP_PREFIX, 'cache', '%s-%s-pypi' % (space, tag))
 
 
-def setup_pypi(project, create_tag, cache_list, pinned_to):
+def use(project, create_tag, cache_list, pinned_to):
 
     if not PIP_PREFIX:
         click.echo('Pip not installed, not configuring PIP')
-        return
+        return {}
+
     cache_info = list(cache_list)
     if not cache_info:
-        return
+        return {}
+
     assert len(cache_info) == 1
     cache_name, cache_info = cache_info[0]
 
@@ -57,7 +59,7 @@ def setup_pypi(project, create_tag, cache_list, pinned_to):
     parser.set('global', 'index-url', pypi_index)
     parser.set('global', 'cache-dir', cache_dir)
 
-    click.echo('Wriging pip config file %s' % pip_config_file)
+    click.echo('  %-30s %s' % ('Writing pip config file', pip_config_file))
 
     if not os.path.exists(os.path.dirname(pip_config_file)):
         os.makedirs(os.path.dirname(pip_config_file), exist_ok=True)
@@ -65,3 +67,13 @@ def setup_pypi(project, create_tag, cache_list, pinned_to):
     push_file(pip_config_file)
     with open(pip_config_file, 'w') as fd:
         parser.write(fd)
+
+    return {'config_files': [pip_config_file]}
+
+
+def unuse(info):
+    if not info:
+        return
+    for config_file in info.get('config_files', []):
+        click.echo('  %-30s %s' % ('Removing pip config file', config_file))
+        pull_file(config_file)

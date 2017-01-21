@@ -27,5 +27,6 @@ def pull_file(filename):
     if os.path.exists(filename):
         os.unlink(filename)
 
-    os.rename(filename + '.bak', filename)
-    pull_file(filename + '.bak')
+    if os.path.exists(filename + '.bak'):
+        os.rename(filename + '.bak', filename)
+        pull_file(filename + '.bak')

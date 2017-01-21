@@ -19,7 +19,15 @@ token_option = click.option(
 
 
 def echo_success():
-    click.secho("  Success: ", nl=False, fg='green')
+    click.secho('  Success: ', nl=False, fg='green')
+
+
+def echo_error():
+    click.secho('  Error: ', nl=False, fg='red')
+
+
+def echo_warning():
+    click.secho('  Warning: ', nl=False, fg='magenta')
 
 
 def project_option(required=False):

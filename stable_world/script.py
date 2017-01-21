@@ -7,7 +7,7 @@ import sys
 import click
 from itertools import groupby
 from stable_world import __version__ as sw_version
-from .config import config_filename, update_config
+from .config import config_filename, update_config, config
 from .interact.setup_user import setup_user
 from .interact.setup_space import setup_space
 from . import utils, errors, output
@@ -159,7 +159,8 @@ def project_cache_remove(client, project, name):
 def tag_create(client, project, name):
     "Add a tag to a project"
     client.tag(project, name)
-    click.echo("Tag added")
+    utils.echo_success()
+    click.echo("Tag %s added to project %s" % (name, project))
 
 
 @main.command('tag:list')
@@ -168,7 +169,6 @@ def tag_create(client, project, name):
 def tag_list(client, project):
     "List tags in a project"
     info = client.project(project)
-
     output.tags.print_tags(info['tags'][::-1])
 
 
@@ -179,13 +179,81 @@ def tag_list(client, project):
 def use(client, create_tag, project):
     "Activate and record all usage for a project"
     info = client.project(project)
+    already_using = config.get('using')
+    if already_using:
+        utils.echo_error()
+        click.echo('You are already using tag "%(tag)s" from project "%(project)s"' % already_using)
+        click.echo('  To unuse this environment, please run the command:')
+        click.echo('')
+        click.echo('        stable.world unuse')
+        click.echo('')
+        sys.exit(1)
+
     pinned_to = info['space']['pinned_to']
+
+    if pinned_to:
+        click.secho('  Alert: ', fg='magenta', nl=False, bold=True)
+        click.echo('  Project %s is ' % project, nl=False)
+        click.secho('pinned', nl=False, bold=True)
+        click.echo(' to tag %s' % pinned_to['name'])
+
+        click.echo('  The current environment will be set up to replay %s' % pinned_to['name'])
+        click.echo('  Tag "%s" will not be used' % create_tag)
+        click.echo('')
+    else:
+        try:
+            client.tag(project, create_tag)
+        except errors.DuplicateKeyError:
+            utils.echo_warning()
+            click.echo('The tag already exists. You may want to create a new tag')
+            utils.echo_warning()
+            click.echo('You are going to record over any previous changes')
+            click.echo('')
+
+        click.echo("  Tag %s added to project %s" % (create_tag, project))
+        click.echo('')
 
     urls = info['space']['urls']
 
     groups = groupby(urls.items(), lambda item: item[1]['type'])
+    tag = pinned_to['name'] if pinned_to else create_tag
+    using = {
+        'types': {},
+        'tag': tag,
+        'project': project
+    }
     for ty, cache_list in groups:
-        managers.setup(ty, project, create_tag, cache_list, pinned_to)
+        using['types'][ty] = managers.use(ty, project, create_tag, cache_list, pinned_to)
+    click.echo('')
+
+    update_config(using=using)
+
+    utils.echo_success()
+    what = 'replaying from' if pinned_to else 'recording into'
+    click.echo('You are %s tag "%s" in project "%s"' % (what, tag, project))
+    click.echo('')
+
+
+@main.command()
+def unuse():
+    "Deactivate a project"
+    using = config.get('using', None)
+    if not using:
+        utils.echo_error()
+        click.echo('You are not currently using a project')
+        sys.exit(1)
+
+    for ty, info in using['types'].items():
+        managers.unuse(ty, info)
+
+    click.echo('')
+
+    update_config(using=None)
+
+    utils.echo_success()
+    click.echo("No longer using project %s" % (using['project']))
+
+    return
 
 
 @main.command()
