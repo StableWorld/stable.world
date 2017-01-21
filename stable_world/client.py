@@ -32,7 +32,11 @@ class Client:
 
     @token.setter
     def token(self, token):
-        self._session.headers['Authorization'] = 'Bearer %s' % token
+        if token:
+            self._session.headers['Authorization'] = 'Bearer %s' % token
+        else:
+            self._session.headers.pop('Authorization', None)
+
         self._token = token
 
     get = request('get')
