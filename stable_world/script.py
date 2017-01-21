@@ -5,13 +5,15 @@ from __future__ import print_function
 import os
 import sys
 import click
-
+from itertools import groupby
 from stable_world import __version__ as sw_version
 from .config import config_filename, update_config
 from .interact.setup_user import setup_user
 from .interact.setup_space import setup_space
 from . import utils, errors, output
 from . import managers
+from .sw_logging import setup_logging
+
 original_excepthook = sys.excepthook
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -39,6 +41,7 @@ def brief_excepthook(exctype, value, tb):
 def main(ctx, email, password, token, debug, show_traceback):
     """Simple program that greets NAME for a total of COUNT times."""
 
+    setup_logging()
     if not show_traceback:
         sys.excepthook = brief_excepthook
 
@@ -170,19 +173,19 @@ def tag_list(client, project):
 
 
 @main.command()
-@utils.tag_option(required=True)
+@click.option('-t', '--create-tag', required=True)
 @utils.project_option(required=True)
 @utils.login_required
-def use(client, tag, project):
+def use(client, create_tag, project):
     "Activate and record all usage for a project"
-    print(tag, project)
     info = client.project(project)
     pinned_to = info['space']['pinned_to']
-    print('pinned_to', pinned_to['name'])
 
     urls = info['space']['urls']
-    for name, cache_info in urls.items():
-        managers.setup(name, cache_info, pinned_to)
+
+    groups = groupby(urls.items(), lambda item: item[1]['type'])
+    for ty, cache_list in groups:
+        managers.setup(ty, project, create_tag, cache_list, pinned_to)
 
 
 @main.command()

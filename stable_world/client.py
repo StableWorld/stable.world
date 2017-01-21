@@ -1,7 +1,20 @@
 import requests
+import logging
 
 from .config import config
 from . import errors
+
+logger = logging.getLogger(__name__)
+
+
+def request(method):
+    def req(self, path, payload=None):
+        url = '%s%s' % (config['url'], path)
+        res = self._session.request(method, url, json=payload)
+        logger.debug('[%s] %s - %s', method.upper(), url, res.status_code)
+        self._check_response(res)
+        return res.json()
+    return req
 
 
 class Client:
@@ -22,20 +35,9 @@ class Client:
         self._session.headers['Authorization'] = 'Bearer %s' % token
         self._token = token
 
-    def get(self, path):
-        res = self._session.get('%s%s' % (config['url'], path))
-        self._check_response(res)
-        return res.json()
-
-    def delete(self, path):
-        res = self._session.delete('%s%s' % (config['url'], path))
-        self._check_response(res)
-        return res.json()
-
-    def post(self, path, payload=None):
-        res = self._session.post('%s%s' % (config['url'], path), json=payload)
-        self._check_response(res)
-        return res.json()
+    get = request('get')
+    post = request('post')
+    delete = request('delete')
 
     def _check_response(self, res):
         payload = res.json()

@@ -1,6 +1,6 @@
 
-from ..config import config
+# from ..config import config
 
 
-def setup_conda(name, cache_info, pinned_to):
-    print("setup_conda", name, cache_info, pinned_to)
+def setup_conda(project, create_tag, cache_list, pinned_to):
+    print("setup_conda", project, create_tag, cache_list, pinned_to)
