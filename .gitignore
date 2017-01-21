@@ -4,3 +4,4 @@ _env
 dist/
 build/
 foo/
+_build/
