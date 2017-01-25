@@ -56,7 +56,7 @@ def remove_machine(machine, netrc_content):
     return '\n'.join(modified)
 
 
-def update_netrc(**kwargs):
+def update_netrc_file(**kwargs):
 
     HOST = urlparse(config['url']).netloc.split(':', 1)[0]
     macine_re = re.compile('^machine %s' % re.escape(HOST))
@@ -81,21 +81,30 @@ def update_netrc(**kwargs):
         fd.write(netrc_content)
 
 
+def update_config_file():
+
+    to_write = config.copy()
+    to_write.pop('email', None)
+    to_write.pop('token', None)
+
+    with open(config_filename, 'w') as fd:
+        yaml.safe_dump(to_write, fd)
+
+
 def update_config(**kwargs):
     'Update the config in mem and file'
 
-    if 'email' in kwargs or 'token' in kwargs:
-        update_netrc(**kwargs)
-
     if kwargs:
         config.update(kwargs)
+
+    if 'email' in kwargs or 'token' in kwargs:
+        update_netrc_file(**kwargs)
 
     kwargs.pop('email', None)
     kwargs.pop('token', None)
 
     if kwargs:
-        with open(config_filename, 'w') as fd:
-            yaml.safe_dump(config, fd)
+        update_config_file()
 
 
 load_config()

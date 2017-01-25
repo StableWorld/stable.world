@@ -47,7 +47,7 @@ machine surge.surge.sh
         result = config.remove_machine('git.heroku.com', example)
         self.assertEqual(result, expected)
 
-    def test_remove_machine_middle(self):
+    def test_remove_machine_end(self):
 
         expected = '''
 machine api.heroku.com

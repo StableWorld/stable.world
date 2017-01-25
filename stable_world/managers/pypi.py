@@ -59,8 +59,6 @@ def use(project, create_tag, cache_list, pinned_to):
     parser.set('global', 'index-url', pypi_index)
     parser.set('global', 'cache-dir', cache_dir)
 
-
-
     click.echo('  %-30s %s' % ('Writing pip config file', pip_config_file))
 
     if not os.path.exists(os.path.dirname(pip_config_file)):

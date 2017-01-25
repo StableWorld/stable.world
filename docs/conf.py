@@ -155,6 +155,3 @@ texinfo_documents = [
      author, 'stableworld', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
