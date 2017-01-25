@@ -21,14 +21,17 @@ class Client:
     """
     Client for connecting with the API
     """
-    def __init__(self, email, token=None):
-        self.email = email
+    def __init__(self, token):
         self._session = requests.Session()
         self.token = token
 
+    get = request('get')
+    post = request('post')
+    delete = request('delete')
+
     @property
     def token(self):
-        return self._token
+        raise AttributeError('token is not a readable property')
 
     @token.setter
     def token(self, token):
@@ -39,23 +42,12 @@ class Client:
 
         self._token = token
 
-    get = request('get')
-    post = request('post')
-    delete = request('delete')
-
     def _check_response(self, res):
         payload = res.json()
 
         if 'error' in payload:
             Error = getattr(errors, payload['error'], errors.PZError)
             raise Error(payload['message'], payload)
-
-    @classmethod
-    def from_login_or_register(cls, email, password):
-        client = cls(email)
-        token = client.login_or_register(email, password)
-        client.token = token
-        return client
 
     def login_or_register(self, email, password):
 
@@ -71,28 +63,28 @@ class Client:
         return res['user'].get('email', 'anonymous')
 
     def add_project(self, project):
-        res = self.post('/spaces/%s' % project)
+        res = self.post('/projects/%s' % project)
         return res
 
     def add_url(self, project, url, type, name):
-        to = '/spaces/%s/url/%s' % (project, name)
+        to = '/projects/%s/url/%s' % (project, name)
         self.post(to, {'url': url, 'type': type})
         return
 
     def remove_url(self, project, name):
-        res = self.delete('/spaces/%s/url/%s' % (project, name))
+        res = self.delete('/projects/%s/url/%s' % (project, name))
         return res
 
     def projects(self):
-        res = self.get('/spaces')
-        return res['spaces']
+        res = self.get('/projects')
+        return res['projects']
 
     def project(self, project):
-        res = self.get('/spaces/%s' % project)
+        res = self.get('/projects/%s' % project)
         return res
 
     def delete_project(self, project):
-        self.delete('/spaces/%s' % project)
+        self.delete('/projects/%s' % project)
         return
 
     def tag(self, project, name):
@@ -108,9 +100,9 @@ class Client:
         return payload
 
     def pin(self, project, tag):
-        self.post('/spaces/%s/pin/%s' % (project, tag))
+        self.post('/projects/%s/pin/%s' % (project, tag))
         return
 
     def unpin(self, project):
-        self.delete('/spaces/%s/pin' % project)
+        self.delete('/projects/%s/pin' % project)
         return

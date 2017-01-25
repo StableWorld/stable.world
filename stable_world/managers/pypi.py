@@ -1,6 +1,5 @@
 import os
 from configparser import ConfigParser
-from urllib.parse import urlparse
 import click
 
 from .push_file import push_file, pull_file
@@ -14,11 +13,12 @@ for path in os.getenv('PATH', '').split(os.pathsep):
 
 
 def get_config_file():
-    return os.path.join(PIP_PREFIX, 'etc', 'pip.conf')
+    # TODO: linux and windows
+    return os.path.expanduser('~/Library/Application Support/pip/pip.conf')
 
 
-def get_cache_dir(space, tag):
-    return os.path.join(PIP_PREFIX, 'cache', '%s-%s-pypi' % (space, tag))
+def get_cache_dir(project, tag):
+    return os.path.join(PIP_PREFIX, 'cache', '%s-%s-pypi' % (project, tag))
 
 
 def use(project, create_tag, cache_list, pinned_to):
@@ -34,18 +34,15 @@ def use(project, create_tag, cache_list, pinned_to):
     assert len(cache_info) == 1
     cache_name, cache_info = cache_info[0]
 
-    token = config['token']
-    api = urlparse(config['url'])
-    authenticated_url = '%s://token:%s@%s' % (api.scheme, token, api.netloc)
+    api_url = config['url']
 
     if pinned_to:
-        url = '%s/replay/%s/%s' % (authenticated_url, project, cache_name)
+        sw_url = '%s/replay/%s/%s/' % (api_url, project, cache_name)
         cache_dir = get_cache_dir(project, pinned_to['name'])
     else:
-        url = '%s/record/%s/%s/%s' % (authenticated_url, project, create_tag, cache_name)
+        sw_url = '%s/record/%s/%s/%s/' % (api_url, project, create_tag, cache_name)
         cache_dir = get_cache_dir(project, create_tag)
 
-    pypi_index = '%s/pypi/simple' % url
     pip_config_file = get_config_file()
     parser = ConfigParser()
 
@@ -56,8 +53,13 @@ def use(project, create_tag, cache_list, pinned_to):
     if 'global' not in parser.sections():
         parser.add_section('global')
 
+    cache_url = cache_info['url']
+    pypi_index = cache_info['config']['global']['index-url']
+    pypi_index = pypi_index.replace(cache_url, sw_url)
     parser.set('global', 'index-url', pypi_index)
     parser.set('global', 'cache-dir', cache_dir)
+
+
 
     click.echo('  %-30s %s' % ('Writing pip config file', pip_config_file))
 

@@ -6,7 +6,6 @@ from .client import Client
 from .config import config
 from .interact.setup_user import setup_user
 
-
 email_option = click.option(
     '--email', default=os.getenv('STABLE_WORLD_EMAIL', config.get('email'))
 )
@@ -49,9 +48,11 @@ def ensure_login(email, password, token):
     if email and token:
         click.echo('\n %30s: %s' % ('email', email))
         click.echo(' %30s: %s\n' % ('token', '*' * 10))
-        return Client(email, token)
+        return Client(None)
 
-    return setup_user(email, password, token)
+    setup_user(email, password, token)
+
+    return Client(None)
 
 
 def login_required(func):
@@ -79,10 +80,10 @@ def login_optional(func):
     @wraps(func)
     def decorator(email, password, token, **kwargs):
 
-        if email and token:
-            client = Client(email, token)
-        else:
-            client = ensure_login(email, password, token)
+        client = Client(token)
+
+        if email and password:
+            setup_user(email, password, token)
 
         func(client, **kwargs)
 

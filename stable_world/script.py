@@ -9,7 +9,7 @@ from itertools import groupby
 from stable_world import __version__ as sw_version
 from .config import config_filename, update_config, config
 from .interact.setup_user import setup_user
-from .interact.setup_space import setup_space
+from .interact.setup_project import setup_project
 from . import utils, errors, output
 from . import managers
 from .sw_logging import setup_logging
@@ -49,7 +49,7 @@ def main(ctx, email, password, token, debug, show_traceback):
         return
 
     client = utils.ensure_login(email, password, token)
-    setup_space(client)
+    setup_project(client)
 
 
 @main.command()
@@ -87,15 +87,15 @@ def whoami(client):
 @main.command('project:create')
 @click.option('-p', '--project')
 @utils.login_required
-def space_create(client, project):
+def project_create(client, project):
     "Create a new project"
     if project:
         info = client.add_project(project)
     else:
-        info = setup_space(client)
-    output.projects.print_project(info['space'])
+        info = setup_project(client)
+    output.projects.print_project(info['project'])
     utils.echo_success()
-    click.echo('Project %s added!' % info['space']['name'])
+    click.echo('Project %s added!' % info['project']['name'])
 
 
 @main.command()
@@ -112,7 +112,7 @@ def list(client):
 def project(client, project):
     "show a published project"
     info = client.project(project)
-    output.projects.print_project(info['space'])
+    output.projects.print_project(info['project'])
 
 
 @main.command('project:destroy')
@@ -189,7 +189,7 @@ def use(client, create_tag, project):
         click.echo('')
         sys.exit(1)
 
-    pinned_to = info['space']['pinned_to']
+    pinned_to = info['project']['pinned_to']
 
     if pinned_to:
         click.secho('  Alert: ', fg='magenta', nl=False, bold=True)
@@ -213,7 +213,7 @@ def use(client, create_tag, project):
         click.echo("  Tag %s added to project %s" % (create_tag, project))
         click.echo('')
 
-    urls = info['space']['urls']
+    urls = info['project']['urls']
 
     groups = groupby(urls.items(), lambda item: item[1]['type'])
     tag = pinned_to['name'] if pinned_to else create_tag
@@ -252,6 +252,19 @@ def unuse():
 
     utils.echo_success()
     click.echo("No longer using project %s" % (using['project']))
+
+    return
+
+
+@main.command()
+def using():
+    "Deactivate a project"
+    using = config.get('using', None)
+    if not using:
+        click.echo('You are not currently using a project')
+        sys.exit(1)
+    else:
+        click.echo('You are using project "%(project)s", tag "%(tag)s"' % using)
 
     return
 

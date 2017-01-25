@@ -1,5 +1,4 @@
 import os
-from urllib.parse import urlparse
 
 import click
 from yaml import safe_dump
@@ -19,29 +18,28 @@ def get_config_file():
 
 
 def make_channel_url(project, create_tag, pinned_to):
-    token = config['token']
-    api = urlparse(config['url'])
-    if pinned_to:
-        authenticated_url = '%s://%s' % (api.scheme, api.netloc)
-    else:
-        authenticated_url = '%s://token:%s@%s' % (api.scheme, token, api.netloc)
+    def _make_channel_url(cache_name, cache_info):
+        cache_url = cache_info['url']
 
-    def _make_channel_url(cache_name):
         if pinned_to:
-            return '%s/replay/%s/%s' % (authenticated_url, project, cache_name)
+            sw_url = '%s/replay/%s/%s/' % (config['url'], project, cache_name)
         else:
-            return '%s/record/%s/%s/%s' % (authenticated_url, project, create_tag, cache_name)
+            sw_url = '%s/record/%s/%s/%s/' % (config['url'], project, create_tag, cache_name)
+
+        channel = cache_info['config']['channel']
+        return channel.replace(cache_url, sw_url)
+
     return _make_channel_url
 
 
 def use(project, create_tag, cache_list, pinned_to):
 
-    cache_info = list(cache_list)
-    if not cache_info:
+    cache_infos = list(cache_list)
+    if not cache_infos:
         return {}
 
     create_channel = make_channel_url(project, create_tag, pinned_to)
-    channels = [create_channel(cache_name) for cache_name, _ in cache_info]
+    channels = [create_channel(cache_name, cache_info) for cache_name, cache_info in cache_infos]
 
     conda_config_file = get_config_file()
     push_file(conda_config_file)

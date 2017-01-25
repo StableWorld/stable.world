@@ -12,6 +12,8 @@ except NameError:
 
 def setup_user(email, password, token):
 
+    client = Client(None)
+
     click.echo(
         '\n    '
         'Welcome to stable.world! (http://stable.world)'
@@ -32,8 +34,8 @@ def setup_user(email, password, token):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            client = Client.from_login_or_register(email, password)
-            update_config(email=email, token=client.token)
+            token = client.login_or_register(email, password)
+            update_config(email=email, token=token)
             click.echo('\n    Logged in as %s\n\n' % email)
             return client
         except errors.PasswordError:

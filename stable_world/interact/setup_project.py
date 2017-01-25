@@ -8,7 +8,7 @@ def random_project_name():
     return '%s-%s' % (choice(words.adjectives), choice(words.nouns))
 
 
-def setup_space(client):
+def setup_project(client):
 
     project_name = random_project_name()
 
