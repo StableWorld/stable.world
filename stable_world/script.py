@@ -65,6 +65,7 @@ def login(ctx, email, password, token=None):
 @main.command()
 def logout():
     "expire local token"
+
     update_config(token=None, email=None)
     click.echo(
         '\n\n    '

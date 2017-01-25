@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
     def test_remove_machine_no_match(self):
 
         result = config.remove_machine('host', example)
-        self.assertEqual(result, example)
+        self.assertEqual(result, example.rstrip())
 
     def test_remove_machine_start(self):
 
@@ -29,8 +29,8 @@ machine git.heroku.com
     password someGreatToken2
 machine surge.surge.sh
     login test@gmail.com
-    password someGreatToken3
-'''
+    password someGreatToken3'''
+
         result = config.remove_machine('api.heroku.com', example)
         self.assertEqual(result, expected)
 
@@ -42,8 +42,8 @@ machine api.heroku.com
     password someGreatToken1
 machine surge.surge.sh
     login test@gmail.com
-    password someGreatToken3
-'''
+    password someGreatToken3'''
+
         result = config.remove_machine('git.heroku.com', example)
         self.assertEqual(result, expected)
 
@@ -55,8 +55,8 @@ machine api.heroku.com
     password someGreatToken1
 machine git.heroku.com
     login test@gmail.com
-    password someGreatToken2
-'''
+    password someGreatToken2'''
+
         result = config.remove_machine('surge.surge.sh', example)
         self.assertEqual(result, expected)
 
