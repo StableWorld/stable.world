@@ -32,3 +32,11 @@ def diff_tags(diff_result):
     if len(diff_result['diff']['modified']):
         print('Modified:')
     print_diff_items(diff_result['diff']['modified'])
+
+
+def print_objects(objects):
+
+    sources = sorted(obj['source'] for obj in objects)
+
+    for source in sources:
+        print('  -', source)

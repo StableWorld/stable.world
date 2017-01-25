@@ -173,6 +173,16 @@ def tag_list(client, project):
     output.tags.print_tags(info['tags'][::-1])
 
 
+@main.command('tag:show')
+@utils.project_option(required=True)
+@utils.tag_option(required=True)
+@utils.login_optional
+def tag_show(client, project, tag):
+    "List tags in a project"
+    info = client.tag_objects(project, tag)
+    output.tags.print_objects(info['objects'])
+
+
 @main.command()
 @click.option('-t', '--create-tag', required=True)
 @utils.project_option(required=True)

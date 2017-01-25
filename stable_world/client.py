@@ -106,3 +106,6 @@ class Client:
     def unpin(self, project):
         self.delete('/projects/%s/pin' % project)
         return
+
+    def tag_objects(self, project, tag):
+        return self.get('/tags/%s/%s/objects' % (project, tag))

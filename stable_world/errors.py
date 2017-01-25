@@ -11,6 +11,10 @@ class UserError(StableWorldError):
     pass
 
 
+class NotFound(UserError):
+    pass
+
+
 class HTTPException(UserError):
 
     @property
