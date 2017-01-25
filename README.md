@@ -6,7 +6,7 @@ A Build stability tool
 * **Site:** [stable.world](https://stable.world)
 * **Build:** [![CircleCI](https://circleci.com/gh/srossross/stable.world/tree/master.svg?style=svg)](https://circleci.com/gh/srossross/stable.world/tree/master)
 * **Docs:** [stableworld.readthedocs.io](https://stableworld.readthedocs.io/en/latest/)
-
+* **PyPI:** [![PyPI version](https://badge.fury.io/py/stable.world.svg)](https://badge.fury.io/py/stable.world)
 
 ## Installing
 
