@@ -1,5 +1,9 @@
 import requests
 import logging
+import sys
+import platform
+
+from stable_world import __version__ as version
 
 from .config import config
 from . import errors
@@ -23,6 +27,18 @@ class Client:
     """
     def __init__(self, token):
         self._session = requests.Session()
+        ctx = (
+            version,
+            sys.version_info,
+            platform.uname()
+        )
+        user_agent = (
+            'stable.world {0}; '
+            'Python {1.major}.{1.minor}.{1.micro}; '
+            'OS {2.system} {2.release} {2.machine}'
+        ).format(*ctx)
+
+        self._session.headers['User-Agent'] = user_agent
         self.token = token
 
     get = request('get')
