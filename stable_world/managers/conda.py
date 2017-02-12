@@ -1,5 +1,5 @@
 import os
-
+import sys
 import click
 from yaml import safe_dump
 
@@ -32,7 +32,7 @@ def make_channel_url(project, create_tag, pinned_to):
     return _make_channel_url
 
 
-def use(project, create_tag, cache_list, pinned_to):
+def use(project, create_tag, cache_list, pinned_to, dryrun):
 
     cache_infos = list(cache_list)
     if not cache_infos:
@@ -42,11 +42,17 @@ def use(project, create_tag, cache_list, pinned_to):
     channels = [create_channel(cache_name, cache_info) for cache_name, cache_info in cache_infos]
 
     conda_config_file = get_config_file()
-    push_file(conda_config_file)
 
-    click.echo('  %-30s %s' % ('Writing conda config file', conda_config_file))
-    with open(conda_config_file, 'w') as fd:
-        safe_dump({'channels': channels}, fd, default_flow_style=False)
+    if dryrun:
+        click.echo('  %-30s %s' % ('Dryrun: Would have written config file', conda_config_file))
+        click.echo('---')
+        safe_dump({'channels': channels}, sys.stdout, default_flow_style=False)
+        click.echo('---')
+    else:
+        push_file(conda_config_file)
+        click.echo('  %-30s %s' % ('Writing conda config file', conda_config_file))
+        with open(conda_config_file, 'w') as fd:
+            safe_dump({'channels': channels}, fd, default_flow_style=False)
 
     return {'config_files': [conda_config_file]}
 

@@ -1,4 +1,5 @@
 import os
+import sys
 from configparser import ConfigParser
 import click
 
@@ -21,7 +22,7 @@ def get_cache_dir(project, tag):
     return os.path.join(PIP_PREFIX, 'cache', '%s-%s-pypi' % (project, tag))
 
 
-def use(project, create_tag, cache_list, pinned_to):
+def use(project, create_tag, cache_list, pinned_to, dryrun):
 
     if not PIP_PREFIX:
         click.echo('Pip not installed, not configuring PIP')
@@ -59,14 +60,20 @@ def use(project, create_tag, cache_list, pinned_to):
     parser.set('global', 'index-url', pypi_index)
     parser.set('global', 'cache-dir', cache_dir)
 
-    click.echo('  %-30s %s' % ('Writing pip config file', pip_config_file))
+    if dryrun:
+        click.echo('  %-30s %s' % ('Dryrun: Would have written config file', pip_config_file))
+        click.echo('---')
+        parser.write(sys.stdout)
+        click.echo('---')
+    else:
+        click.echo('  %-30s %s' % ('Writing pip config file', pip_config_file))
 
-    if not os.path.exists(os.path.dirname(pip_config_file)):
-        os.makedirs(os.path.dirname(pip_config_file), exist_ok=True)
+        if not os.path.exists(os.path.dirname(pip_config_file)):
+            os.makedirs(os.path.dirname(pip_config_file), exist_ok=True)
 
-    push_file(pip_config_file)
-    with open(pip_config_file, 'w') as fd:
-        parser.write(fd)
+        push_file(pip_config_file)
+        with open(pip_config_file, 'w') as fd:
+            parser.write(fd)
 
     return {'config_files': [pip_config_file]}
 

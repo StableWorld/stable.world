@@ -43,11 +43,14 @@ def tag_option(required=False):
     )
 
 
-def ensure_login(email, password, token):
+def ensure_login(email, password, token, hide_token=True):
 
     if email and token:
         click.echo('\n %30s: %s' % ('email', email))
-        click.echo(' %30s: %s\n' % ('token', '*' * 10))
+        if hide_token:
+            click.echo(' %30s: %s\n' % ('token', '*' * 10))
+        else:
+            click.echo(' %30s: %s\n' % ('token', token))
         return Client(None)
 
     setup_user(email, password, token)

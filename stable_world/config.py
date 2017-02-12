@@ -106,6 +106,7 @@ def update_config_file():
 
 
 def remove_default_values(kwargs):
+    'Remove any default values'
     for key, value in default_config.items():
         if kwargs.get(key) == value:
             kwargs.pop(key)

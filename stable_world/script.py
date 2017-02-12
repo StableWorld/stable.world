@@ -39,7 +39,17 @@ def brief_excepthook(exctype, value, tb):
 @utils.token_option
 @click.pass_context
 def main(ctx, email, password, token, debug, show_traceback):
-    """Simple program that greets NAME for a total of COUNT times."""
+    """
+    Stable.World cli
+
+    \b
+    Environment:
+      * STABLE_WORLD_URL - the url of the api server
+      * STABLE_WORLD_EMAIL - your account email
+      * STABLE_WORLD_TOKEN - token
+      * DEBUG - To print all debugging information use DEBUG='*'
+
+    """
 
     setup_logging()
     if not show_traceback:
@@ -186,8 +196,9 @@ def tag_show(client, project, tag):
 @main.command()
 @click.option('-t', '--create-tag', required=True)
 @utils.project_option(required=True)
+@click.option('--dryrun/--no-dryrun')
 @utils.login_required
-def use(client, create_tag, project):
+def use(client, create_tag, project, dryrun):
     "Activate and record all usage for a project"
     info = client.project(project)
     already_using = config.get('using')
@@ -213,7 +224,11 @@ def use(client, create_tag, project):
         click.echo('')
     else:
         try:
-            client.tag(project, create_tag)
+            if not dryrun:
+                client.tag(project, create_tag)
+            else:
+                utils.echo_warning()
+                click.echo('Dryrun: not creating tag')
         except errors.DuplicateKeyError:
             utils.echo_warning()
             click.echo('The tag already exists. You may want to create a new tag')
@@ -234,15 +249,20 @@ def use(client, create_tag, project):
         'project': project
     }
     for ty, cache_list in groups:
-        using['types'][ty] = managers.use(ty, project, create_tag, cache_list, pinned_to)
+        using['types'][ty] = managers.use(ty, project, create_tag, cache_list, pinned_to, dryrun)
     click.echo('')
 
-    update_config(using=using)
+    if not dryrun:
+        update_config(using=using)
 
-    utils.echo_success()
-    what = 'replaying from' if pinned_to else 'recording into'
-    click.echo('You are %s tag "%s" in project "%s"' % (what, tag, project))
-    click.echo('')
+        utils.echo_success()
+        what = 'replaying from' if pinned_to else 'recording into'
+        click.echo('You are %s tag "%s" in project "%s"' % (what, tag, project))
+        click.echo('')
+    else:
+        utils.echo_success()
+        click.echo('Dryrun Completed')
+        click.echo('')
 
 
 @main.command()
@@ -315,6 +335,15 @@ def unpin(client, project):
     client.unpin(project)
     utils.echo_success()
     click.echo("Unpinned Project %s" % (project))
+
+
+@main.command()
+@utils.email_option
+@utils.password_option
+@utils.token_option
+def token(email, password, token):
+    "Get your authentication token"
+    utils.ensure_login(email, password, token, hide_token=False)
 
 
 if __name__ == '__main__':
