@@ -130,7 +130,7 @@ def project_destroy(client, project):
 @utils.project_option(required=True)
 @click.option('--url')
 @click.option('--type')
-@click.option('--name')
+@click.option('--name', required=True)
 @utils.login_required
 def project_cache_add(client, project, url, type, name):
     "Add a cache to the project"
