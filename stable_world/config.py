@@ -12,7 +12,7 @@ config_filename = os.path.expanduser(os.path.join('~', '.stable.world'))
 netrc_filename = os.path.expanduser(os.path.join('~', '.netrc'))
 
 default_config = {
-    'url': os.getenv('STABLE_WORLD_URL', 'http://localhost:5000')
+    'url': os.getenv('STABLE_WORLD_URL', 'http://api.development.stable.world')
 }
 
 config = default_config.copy()
@@ -105,6 +105,12 @@ def update_config_file():
         yaml.safe_dump(to_write, fd)
 
 
+def remove_default_values(kwargs):
+    for key, value in default_config.items():
+        if kwargs.get(key) == value:
+            kwargs.pop(key)
+
+
 def update_config(**kwargs):
     'Update the config in memory and files'
 
@@ -116,6 +122,8 @@ def update_config(**kwargs):
 
     kwargs.pop('email', None)
     kwargs.pop('token', None)
+
+    remove_default_values(kwargs)
 
     if kwargs:
         update_config_file()
