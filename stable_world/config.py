@@ -12,7 +12,7 @@ config_filename = os.path.expanduser(os.path.join('~', '.stable.world'))
 netrc_filename = os.path.expanduser(os.path.join('~', '.netrc'))
 
 default_config = {
-    'url': os.getenv('STABLE_WORLD_URL', 'http://api.development.stable.world')
+    'url': os.getenv('STABLE_WORLD_URL', 'http://a.probably.stable.world')
 }
 
 config = default_config.copy()
