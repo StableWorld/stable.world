@@ -31,8 +31,8 @@ class Test(unittest.TestCase):
         random_project_name.return_value = 'test-project'
         runner = CliRunner()
 
-        self.requests_patch.post('http://mock//account/login_or_register', json={'token': 'mockToken'})
-        self.requests_patch.post('http://mock//projects/test-project', json={})
+        self.requests_patch.post('http://mock//api/account/login_or_register', json={'token': 'mockToken'})
+        self.requests_patch.post('http://mock//api/projects/test-project', json={})
 
         result = runner.invoke(main, ['--token=', '--email='], input='email\npassword\n')
 
@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
 
         history = self.requests_patch.request_history
 
-        self.assertEqual(history[0].url, 'http://mock//account/login_or_register')
+        self.assertEqual(history[0].url, 'http://mock//api/account/login_or_register')
         self.assertEqual(history[0].json(), {'email': 'email', 'password': 'password'})
 
         self.assertEqual(self.update_config_file.call_args, None)
@@ -52,11 +52,11 @@ class Test(unittest.TestCase):
             {'email': 'email', 'token': 'mockToken'}
         )
 
-        self.assertEqual(history[1].url, 'http://mock//projects/test-project')
+        self.assertEqual(history[1].url, 'http://mock//api/projects/test-project')
 
     def test_destroy(self):
 
-        self.requests_patch.delete('http://mock//projects/far-shoehorn', json={'ok': True})
+        self.requests_patch.delete('http://mock//api/projects/far-shoehorn', json={'ok': True})
 
         result = CliRunner().invoke(
             main,
@@ -69,7 +69,7 @@ class Test(unittest.TestCase):
 
         history = self.requests_patch.request_history
         self.assertIn('Project far-shoehorn removed', result.output)
-        self.assertEqual(history[0].url, 'http://mock//projects/far-shoehorn')
+        self.assertEqual(history[0].url, 'http://mock//api/projects/far-shoehorn')
 
 
 if __name__ == "__main__":
