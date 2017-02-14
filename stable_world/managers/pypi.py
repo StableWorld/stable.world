@@ -1,11 +1,13 @@
 import os
 import sys
+import platform
+
 from configparser import ConfigParser
 import click
 
 from .push_file import push_file, pull_file
 from ..config import config
-
+from stable_world import errors
 PIP_PREFIX = None
 
 for path in os.getenv('PATH', '').split(os.pathsep):
@@ -14,8 +16,15 @@ for path in os.getenv('PATH', '').split(os.pathsep):
 
 
 def get_config_file():
-    # TODO: linux and windows
-    return os.path.expanduser('~/Library/Application Support/pip/pip.conf')
+    uname = platform.uname()
+    if uname.system == 'Linux':
+        return os.path.expanduser('~/.config/pip/pip.conf')
+    elif uname.system == 'Darwin':
+        return os.path.expanduser('~/Library/Application Support/pip/pip.conf')
+    elif uname.system == 'Windows':
+        return '%s\pip\pip.ini' % os.getenv('APPDATA')
+    else:
+        raise errors.UserError('Unsupported platform %s' % uname.system)
 
 
 def get_cache_dir(project, tag):
@@ -38,10 +47,10 @@ def use(project, create_tag, cache_list, pinned_to, dryrun):
     api_url = config['url']
 
     if pinned_to:
-        sw_url = '%s/replay/%s/%s/' % (api_url, project, cache_name)
+        sw_url = '%s/cache/replay/%s/%s/' % (api_url, project, cache_name)
         cache_dir = get_cache_dir(project, pinned_to['name'])
     else:
-        sw_url = '%s/record/%s/%s/%s/' % (api_url, project, create_tag, cache_name)
+        sw_url = '%s/cache/record/%s/%s/%s/' % (api_url, project, create_tag, cache_name)
         cache_dir = get_cache_dir(project, create_tag)
 
     pip_config_file = get_config_file()

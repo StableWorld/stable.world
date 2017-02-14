@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def request(method):
     def req(self, path, payload=None):
-        url = '%s%s' % (config['url'], path)
+        url = '%s%s%s' % (config['url'], '/api', path)
         res = self._session.request(method, url, json=payload)
         logger.debug('[%s] %s - %s', method.upper(), url, res.status_code)
         self._check_response(res)
