@@ -103,8 +103,11 @@ class Client:
         self.delete('/projects/%s' % project)
         return
 
-    def tag(self, project, name):
-        self.post('/tags/%s/%s' % (project, name))
+    def add_tag(self, project, name):
+        self.post(
+            '/tags/%s/%s' % (project, name),
+            dict(hostname=platform.node())
+        )
         return
 
     def diff(self, project, first, last=None):

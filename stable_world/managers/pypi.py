@@ -2,8 +2,12 @@ import os
 import sys
 import platform
 
-from configparser import ConfigParser
 import click
+
+if platform.python_version_tuple()[0] == '3':
+    from configparser import ConfigParser
+else:  # PY2
+    from ConfigParser import ConfigParser
 
 from .push_file import push_file, pull_file
 from ..config import config

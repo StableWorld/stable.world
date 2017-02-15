@@ -2,7 +2,13 @@ import os
 import yaml
 import re
 import logging
-from urllib.parse import urlparse
+import platform
+
+if platform.python_version_tuple()[0] == '3':
+    from urllib.parse import urlparse
+else:  # PY2
+    from urlparse import urlparse
+
 from netrc import netrc
 
 logger = logging.getLogger(__name__)

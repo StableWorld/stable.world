@@ -169,7 +169,7 @@ def project_cache_remove(client, project, name):
 @utils.login_required
 def tag_create(client, project, name):
     "Add a tag to a project"
-    client.tag(project, name)
+    client.add_tag(project, name)
     utils.echo_success()
     click.echo("Tag %s added to project %s" % (name, project))
 
@@ -225,7 +225,7 @@ def use(client, create_tag, project, dryrun):
     else:
         try:
             if not dryrun:
-                client.tag(project, create_tag)
+                client.add_tag(project, create_tag)
             else:
                 utils.echo_warning()
                 click.echo('Dryrun: not creating tag')

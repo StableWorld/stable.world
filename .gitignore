@@ -5,3 +5,6 @@ dist/
 build/
 foo/
 _build/
+_env2/
+*.pyc
+.cache
