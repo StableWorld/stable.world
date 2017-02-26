@@ -346,5 +346,12 @@ def token(email, password, token):
     utils.ensure_login(email, password, token, hide_token=False)
 
 
+@main.command()
+@utils.login_optional
+def info(client):
+    "Get your authentication token"
+    output.build_info.build_info(client)
+
+
 if __name__ == '__main__':
     main(obj={})
