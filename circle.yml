@@ -17,4 +17,4 @@ test:
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py.test.xml
   post:
     - python setup.py sdist bdist_wheel
-    - mv ./dist $CIRCLE_TEST_REPORTS/
+    - cp ./dist/* $CIRCLE_ARTIFACTS
