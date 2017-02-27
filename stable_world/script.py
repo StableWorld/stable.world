@@ -349,7 +349,7 @@ def token(email, password, token):
 @main.command()
 @utils.login_optional
 def info(client):
-    "Get your authentication token"
+    "Fetch environment and server informations"
     output.build_info.build_info(client)
 
 
