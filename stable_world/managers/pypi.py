@@ -51,7 +51,7 @@ def use(project, create_tag, cache_list, pinned_to, dryrun):
     api_url = config['url']
 
     if pinned_to:
-        sw_url = '%s/cache/replay/%s/%s/' % (api_url, project, cache_name)
+        sw_url = '%s/cache/replay/%s/%s/%s/' % (api_url, project, pinned_to['name'], cache_name)
         cache_dir = get_cache_dir(project, pinned_to['name'])
     else:
         sw_url = '%s/cache/record/%s/%s/%s/' % (api_url, project, create_tag, cache_name)

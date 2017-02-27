@@ -22,7 +22,7 @@ def make_channel_url(project, create_tag, pinned_to):
         cache_url = cache_info['url']
 
         if pinned_to:
-            sw_url = '%s/cache/replay/%s/%s/' % (config['url'], project, cache_name)
+            sw_url = '%s/cache/replay/%s/%s/%s/' % (config['url'], project, pinned_to['name'], cache_name)
         else:
             sw_url = '%s/cache/record/%s/%s/%s/' % (config['url'], project, create_tag, cache_name)
 
