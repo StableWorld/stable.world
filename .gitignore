@@ -9,3 +9,4 @@ _env2/
 *.pyc
 .cache
 app/
+stable.world
