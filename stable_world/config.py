@@ -141,9 +141,12 @@ def update_config(**kwargs):
     if kwargs:
         update_config_file()
 
+
 def read_config():
     """
     read all configuration settings into module level singleton
     """
+    config.clear()
+    config.update(default_config.copy())
     load_config()
     load_netrc()

@@ -1,7 +1,7 @@
 import unittest
 import mock
 import requests_mock
-from stable_world.config import config
+from stable_world.config import default_config
 from click.testing import CliRunner
 from stable_world.script import main
 
@@ -9,8 +9,8 @@ from stable_world.script import main
 class Test(unittest.TestCase):
 
     def setUp(self):
-        config.clear()
-        config.update({'url': 'http://mock/'})
+        default_config.clear()
+        default_config.update({'url': 'http://mock/'})
         self.requests_patch = requests_mock.mock()
         self.requests = self.requests_patch.start()
 
