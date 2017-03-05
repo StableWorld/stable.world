@@ -7,23 +7,27 @@ import sys
 import click
 from itertools import groupby
 from stable_world import __version__ as sw_version
-from .config import config_filename, update_config, config
+from .config import config_filename, update_config, config, read_config
 from .interact.setup_user import setup_user
 from .interact.setup_project import setup_project
 from . import utils, errors, output
 from . import managers
 from .sw_logging import setup_logging
+import configparser
 
 original_excepthook = sys.excepthook
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
+# List of exceptions that dont need a full traceback
+BRIEF_ERRORS = errors.UserError, configparser.Error
 
 
 def brief_excepthook(exctype, value, tb):
     """
     Shorten exeptions with the base class errors.UserError
     """
-    if issubclass(exctype, errors.UserError):
+    if issubclass(exctype, BRIEF_ERRORS):
         click.secho("  %s: " % exctype.__name__, nl=False, fg='red', bold=True)
         click.echo(str(value))
     else:
@@ -33,12 +37,13 @@ def brief_excepthook(exctype, value, tb):
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.option('--debug/--no-debug', default=False)
 @click.option('--show-traceback/--dont-show-traceback', default=False)
+@click.option('--ignore-config/--dont-ignore-config', default=False)
 @click.version_option(sw_version)
 @utils.email_option
 @utils.password_option
 @utils.token_option
 @click.pass_context
-def main(ctx, email, password, token, debug, show_traceback):
+def main(ctx, email, password, token, debug, show_traceback, ignore_config):
     """
     Stable.World cli
 
@@ -54,6 +59,9 @@ def main(ctx, email, password, token, debug, show_traceback):
     setup_logging()
     if not show_traceback:
         sys.excepthook = brief_excepthook
+
+    if not ignore_config:
+        read_config()
 
     if ctx.invoked_subcommand:
         return

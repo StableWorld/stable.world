@@ -8,3 +8,4 @@ _build/
 _env2/
 *.pyc
 .cache
+app/

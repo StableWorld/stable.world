@@ -1,8 +1,8 @@
 import os
-import yaml
 import re
 import logging
 import platform
+from configparser import ConfigParser
 
 if platform.python_version_tuple()[0] == '3':
     from urllib.parse import urlparse
@@ -26,8 +26,10 @@ config = default_config.copy()
 
 def load_config():
     if os.path.isfile(config_filename):
+        parser = ConfigParser()
         with open(config_filename) as fd:
-            _config = yaml.safe_load(fd) or {}
+            parser.read_file(fd, config_filename)
+            _config = parser._sections['default']
             config.update(_config)
     else:
         config.update(default_config)
@@ -107,8 +109,12 @@ def update_config_file():
     to_write.pop('email', None)
     to_write.pop('token', None)
 
+    parser = ConfigParser()
+    for key, value in to_write.items():
+        parser.set('default', key, value)
+
     with open(config_filename, 'w') as fd:
-        yaml.safe_dump(to_write, fd)
+        parser.write(fd)
 
 
 def remove_default_values(kwargs):
@@ -135,6 +141,9 @@ def update_config(**kwargs):
     if kwargs:
         update_config_file()
 
-
-load_config()
-load_netrc()
+def read_config():
+    """
+    read all configuration settings into module level singleton
+    """
+    load_config()
+    load_netrc()

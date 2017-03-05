@@ -1,7 +1,7 @@
+from __future__ import print_function
 import os
 import sys
 import click
-from yaml import safe_dump
 
 from ..config import config
 from .push_file import push_file, pull_file
@@ -11,6 +11,12 @@ CONDA_PREFIX = None
 for path in os.getenv('PATH', '').split(os.pathsep):
     if os.path.isfile(os.path.join(path, 'conda')):
         CONDA_PREFIX = path
+
+
+def write_channels(channels, fd):
+    print('channels:', file=fd)
+    for channel in channels:
+        print(' -', channel, file=fd)
 
 
 def get_config_file():
@@ -46,13 +52,13 @@ def use(project, create_tag, cache_list, pinned_to, dryrun):
     if dryrun:
         click.echo('  %-30s %s' % ('Dryrun: Would have written config file', conda_config_file))
         click.echo('---')
-        safe_dump({'channels': channels}, sys.stdout, default_flow_style=False)
+        write_channels(channels, sys.stdout)
         click.echo('---')
     else:
         push_file(conda_config_file)
         click.echo('  %-30s %s' % ('Writing conda config file', conda_config_file))
         with open(conda_config_file, 'w') as fd:
-            safe_dump({'channels': channels}, fd, default_flow_style=False)
+            write_channels(channels, fd)
 
     return {'config_files': [conda_config_file]}
 
