@@ -16,5 +16,7 @@ test:
   override:
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py.test.xml
   post:
+    - bash -xe ./makeapp.sh
+    - cp ./stable.world $CIRCLE_ARTIFACTS
     - python setup.py sdist bdist_wheel
     - cp ./dist/* $CIRCLE_ARTIFACTS
