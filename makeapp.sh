@@ -6,9 +6,9 @@ if [ -z "$(which pyenv)" ]; then
   python2 -m compileall app/
   python3 -m compileall app/
 else
-  pyenv install 2.7.12
+  pyenv global 2.7.12
   python -m compileall app/
-  pyenv install 3.6.0
+  pyenv global 3.6.0
   python -m compileall app/
 fi
 
