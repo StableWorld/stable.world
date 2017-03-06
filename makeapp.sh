@@ -7,9 +7,9 @@ if [ -z "$(which pyenv)" ]; then
   python3 -m compileall app/
 else
   pyenv install 2.7
-  python2 -m compileall app/
+  python -m compileall app/
   pyenv install 3.6
-  python3 -m compileall app/
+  python -m compileall app/
 fi
 
 python -m zipapp app --python "/usr/bin/env python -SE"  -o stable.world
