@@ -1,7 +1,8 @@
 import os
 import logging
-
 import time
+
+from .env import env
 
 
 class Formatter(logging.Formatter):
@@ -18,12 +19,11 @@ class Formatter(logging.Formatter):
 
 def setup_logging():
 
-    DEBUG_ENVVAR = os.getenv('DEBUG', '')
-    if not DEBUG_ENVVAR:
+    if not env.DEBUG:
         logging.getLogger().addHandler(logging.NullHandler())
         return
 
-    log_names = DEBUG_ENVVAR.split(os.pathsep)
+    log_names = env.DEBUG.split(os.pathsep)
 
     handler = logging.StreamHandler()
     handler.setFormatter(Formatter('[+%(delta)s|%(name)s] %(message)s'))

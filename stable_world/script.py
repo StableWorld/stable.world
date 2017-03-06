@@ -2,7 +2,6 @@
 This is a command
 """
 from __future__ import print_function
-import os
 import sys
 import platform
 
@@ -15,6 +14,7 @@ from .interact.setup_project import setup_project
 from . import utils, errors, output
 from . import managers
 from .sw_logging import setup_logging
+from .env import env
 
 if platform.python_version_tuple()[0] == '3':
     from configparser import Error as ConfigParserError
@@ -77,8 +77,8 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
 
 
 @main.command()
-@click.option('--email', default=os.getenv('STABLE_WORLD_EMAIL'))
-@click.option('--password', default=os.getenv('STABLE_WORLD_PASSWORD'))
+@click.option('--email', default=env.STABLE_WORLD_EMAIL)
+@click.option('--password', default=env.STABLE_WORLD_PASSWORD)
 @click.pass_context
 def login(ctx, email, password, token=None):
     "only performs authentication step"

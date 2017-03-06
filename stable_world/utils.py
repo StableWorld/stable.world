@@ -1,19 +1,18 @@
-import os
 from functools import wraps
 import click
 
 from .client import Client
-from .config import config
 from .interact.setup_user import setup_user
+from .env import env
 
 email_option = click.option(
-    '--email', default=os.getenv('STABLE_WORLD_EMAIL', config.get('email'))
+    '--email', default=env.STABLE_WORLD_EMAIL
 )
 password_option = click.option(
-    '--password', default=os.getenv('STABLE_WORLD_PASSWORD')
+    '--password', default=env.STABLE_WORLD_PASSWORD
 )
 token_option = click.option(
-    '--token', default=os.getenv('STABLE_WORLD_TOKEN', config.get('token'))
+    '--token', default=env.STABLE_WORLD_TOKEN
 )
 
 
@@ -82,7 +81,6 @@ def login_optional(func):
     @token_option
     @wraps(func)
     def decorator(email, password, token, **kwargs):
-
         client = Client(token)
 
         if email and password:

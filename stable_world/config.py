@@ -3,6 +3,8 @@ import re
 import logging
 import platform
 
+from .env import env
+
 if platform.python_version_tuple()[0] == '3':
     from configparser import ConfigParser
     from urllib.parse import urlparse
@@ -15,11 +17,11 @@ from netrc import netrc
 logger = logging.getLogger(__name__)
 
 # TODO windows locations
-config_filename = os.path.expanduser(os.path.join('~', '.stable.world'))
+config_filename = os.path.expanduser(env.STABLE_WORLD_CONFIG)
 netrc_filename = os.path.expanduser(os.path.join('~', '.netrc'))
 
 default_config = {
-    'url': os.getenv('STABLE_WORLD_URL', 'http://probably.stable.world')
+    'url': env.STABLE_WORLD_URL
 }
 
 config = default_config.copy()
