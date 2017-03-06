@@ -4,6 +4,8 @@ This is a command
 from __future__ import print_function
 import os
 import sys
+import platform
+
 import click
 from itertools import groupby
 from stable_world import __version__ as sw_version
@@ -13,14 +15,18 @@ from .interact.setup_project import setup_project
 from . import utils, errors, output
 from . import managers
 from .sw_logging import setup_logging
-import configparser
+
+if platform.python_version_tuple()[0] == '3':
+    from configparser import Error as ConfigParserError
+else:
+    from ConfigParser import Error as ConfigParserError
 
 original_excepthook = sys.excepthook
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 # List of exceptions that dont need a full traceback
-BRIEF_ERRORS = errors.UserError, configparser.Error
+BRIEF_ERRORS = errors.UserError, ConfigParserError
 
 
 def brief_excepthook(exctype, value, tb):

@@ -2,11 +2,12 @@ import os
 import re
 import logging
 import platform
-from configparser import ConfigParser
 
 if platform.python_version_tuple()[0] == '3':
+    from configparser import ConfigParser
     from urllib.parse import urlparse
 else:  # PY2
+    from ConfigParser import ConfigParser
     from urlparse import urlparse
 
 from netrc import netrc
