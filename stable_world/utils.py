@@ -4,6 +4,7 @@ import click
 from .client import Client
 from .interact.setup_user import setup_user
 from .env import env
+from .config import config
 
 email_option = click.option(
     '--email', default=env.STABLE_WORLD_EMAIL
@@ -57,6 +58,17 @@ def ensure_login(email, password, token, hide_token=True):
     return Client(None)
 
 
+def token_email_from_config(func):
+    @wraps(func)
+    def decorator(**kwargs):
+        if not kwargs.get('email'):
+            kwargs['email'] = config.get('email')
+        if not kwargs.get('token'):
+            kwargs['token'] = config.get('token')
+        return func(**kwargs)
+    return decorator
+
+
 def login_required(func):
     """
     Require login and add options to support this
@@ -65,7 +77,9 @@ def login_required(func):
     @password_option
     @token_option
     @wraps(func)
+    @token_email_from_config
     def decorator(email, password, token, **kwargs):
+
         client = ensure_login(email, password, token)
         func(client, **kwargs)
 
@@ -80,7 +94,9 @@ def login_optional(func):
     @password_option
     @token_option
     @wraps(func)
+    @token_email_from_config
     def decorator(email, password, token, **kwargs):
+
         client = Client(token)
 
         if email and password:

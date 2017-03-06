@@ -14,7 +14,6 @@ from .interact.setup_project import setup_project
 from . import utils, errors, output
 from . import managers
 from .sw_logging import setup_logging
-from .env import env
 
 if platform.python_version_tuple()[0] == '3':
     from configparser import Error as ConfigParserError
@@ -72,16 +71,20 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
     if ctx.invoked_subcommand:
         return
 
-    client = utils.ensure_login(email, password, token)
+    ensure_login = utils.token_email_from_config(utils.ensure_login)
+    client = ensure_login(email=email, password=password, token=token)
     setup_project(client)
 
 
 @main.command()
-@click.option('--email', default=env.STABLE_WORLD_EMAIL)
-@click.option('--password', default=env.STABLE_WORLD_PASSWORD)
+@utils.email_option
+@utils.password_option
+@utils.token_option
 @click.pass_context
-def login(ctx, email, password, token=None):
+@utils.token_email_from_config
+def login(ctx, email, password, token):
     "only performs authentication step"
+
     setup_user(email, password, token)
     return
 
@@ -355,8 +358,10 @@ def unpin(client, project):
 @utils.email_option
 @utils.password_option
 @utils.token_option
+@utils.token_email_from_config
 def token(email, password, token):
     "Get your authentication token"
+
     utils.ensure_login(email, password, token, hide_token=False)
 
 
