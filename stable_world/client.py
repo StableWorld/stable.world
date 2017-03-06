@@ -2,7 +2,12 @@ import requests
 import logging
 import sys
 import platform
-from json.decoder import JSONDecodeError
+
+if platform.python_version_tuple()[0] == '3':
+    from json.decoder import JSONDecodeError
+else:
+    JSONDecodeError = ValueError
+
 from stable_world import __version__ as version
 
 from .config import config
