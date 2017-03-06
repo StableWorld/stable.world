@@ -12,4 +12,4 @@ else
   python -m compileall app/
 fi
 
-python -m zipapp app --python "/usr/bin/env python -SE"  -o stable.world
+python -m zipapp app --python "/usr/bin/env python -SE"  -o ./bin/stable.world
