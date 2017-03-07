@@ -25,7 +25,21 @@ test:
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py3.test.xml
 
   post:
-    - bash -xe ./makeapp.sh
+    - yarn app
     - cp ./bin/stable.world $CIRCLE_ARTIFACTS
     - python setup.py sdist bdist_wheel
     - cp ./dist/* $CIRCLE_ARTIFACTS
+
+deployment:
+  development:
+    branch: develop
+    commands:
+      - yarn run deploy:fetch
+      - yarn run deploy:authorize
+      - yarn run deploy:development
+  master:
+    branch: master
+    commands:
+      - yarn run deploy:fetch
+      - yarn run deploy:authorize
+      - yarn run deploy:master
