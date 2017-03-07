@@ -24,3 +24,4 @@ else
 fi
 
 python -m zipapp app --python "/usr/bin/env python"  -o ./bin/stable.world
+chmod +x ./bin/stable.world
