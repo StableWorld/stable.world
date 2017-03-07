@@ -2,6 +2,10 @@
 machine:
   python:
     version: 3.5.1
+  environment:
+    CONTAINER: stable.world
+    GCLOUD_ZONE: us-central1-a
+    GCLOUD_PROJECT: my-project-1-152801
 
 dependencies:
   pre:
