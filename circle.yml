@@ -8,13 +8,22 @@ dependencies:
     - sudo apt-get update
     - pip install --upgrade pip setuptools wheel
   override:
-    - pip install .
+    - pyenv global 2.7.12
+    - pip install -r test-requirements.txt
+    - python setup.py develop
+
+    - pyenv global 3.6.0
     - pip install -r test-requirements.txt
     - python setup.py develop
 
 test:
   override:
-    - py.test --junitxml $CIRCLE_TEST_REPORTS/py.test.xml
+    - pyenv global 2.7.12
+    - py.test --junitxml $CIRCLE_TEST_REPORTS/py2.test.xml
+
+    - pyenv global 3.6.0
+    - py.test --junitxml $CIRCLE_TEST_REPORTS/py3.test.xml
+
   post:
     - bash -xe ./makeapp.sh
     - cp ./bin/stable.world $CIRCLE_ARTIFACTS
