@@ -21,8 +21,9 @@ dependencies:
     - python setup.py develop
 
 compile:
-  - pyenv global 3.6.0
-  - yarn app
+  override:
+    - pyenv global 3.6.0
+    - yarn app
 
 test:
   override:
