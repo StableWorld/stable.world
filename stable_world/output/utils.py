@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from dateutil.tz import tzutc
 
 
 def prettydate(d, now=None):
@@ -6,7 +7,7 @@ def prettydate(d, now=None):
     format human readable timedelta from now
     """
     if now is None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(tzutc())
     diff = now - d
 
     s = diff.seconds

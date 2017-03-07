@@ -11,6 +11,7 @@ if platform.python_version_tuple()[0] == '3':
 else:  # PY2
     from ConfigParser import ConfigParser
     from urlparse import urlparse
+    ConfigParser.read_file = ConfigParser.readfp
 
 from netrc import netrc
 

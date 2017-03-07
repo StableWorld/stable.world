@@ -6,6 +6,7 @@ import platform
 if platform.python_version_tuple()[0] == '3':
     from json.decoder import JSONDecodeError
 else:
+    from collections import namedtuple
     JSONDecodeError = ValueError
 
 from stable_world import __version__ as version
@@ -32,10 +33,20 @@ class Client:
     """
     def __init__(self, token):
         self._session = requests.Session()
+
+        if platform.python_version_tuple()[0] == '3':
+            uname = platform.uname()
+        else:
+            uname_result = namedtuple(
+                'uname_result',
+                ['system', 'node', 'release', 'version', 'machine', 'processor']
+            )
+            uname = uname_result(*platform.uname())
+
         ctx = (
             version,
             sys.version_info,
-            platform.uname()
+            uname
         )
         user_agent = (
             'stable.world {0}; '

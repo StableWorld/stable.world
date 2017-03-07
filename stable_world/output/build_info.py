@@ -1,7 +1,7 @@
 import click
 import time
 from dateutil.parser import parse as parse_date
-from datetime import timezone
+from dateutil.tz import tzutc
 from contextlib import contextmanager
 
 from stable_world.config import config
@@ -19,7 +19,7 @@ def echo_response_time():
 def echo_info(info):
     buildTime = parse_date(info.get('buildTime', '1900'))
     if not buildTime.tzinfo:
-        buildTime = buildTime.replace(tzinfo=timezone.utc)
+        buildTime = buildTime.replace(tzinfo=tzutc())
 
     click.echo("    + version: %s" % info.get('version', '?'))
     click.echo("    + built: %s " % prettydate(buildTime), nl=False)
