@@ -38,12 +38,14 @@ deployment:
   development:
     branch: develop
     commands:
+      - pyenv global 2.7.12
       - yarn run deploy:fetch
       - yarn run deploy:authorize
       - yarn run deploy:development
   master:
     branch: master
     commands:
+      - pyenv global 2.7.12
       - yarn run deploy:fetch
       - yarn run deploy:authorize
       - yarn run deploy:master
