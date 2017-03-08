@@ -4,6 +4,8 @@
   "author": "Sean Ross-Ross <srossross@gmail.com>",
   "scripts": {
     "app": "bash makeapp.sh",
+    "test": "py.test",
+    "test:functional": "py.test functional_tests/",
     "deploy:fetch": "rm -rf deployment && git clone https://gist.github.com/befb8025b4fdf52d7db8391a1cbe0c22.git deployment",
     "deploy:authorize": "bash deployment/init.sh",
     "deploy:master": "bash deployment/master-cli.sh",

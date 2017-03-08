@@ -29,10 +29,12 @@ test:
   override:
     - pyenv global 2.7.12
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py2.test.xml
+    - py.test functional_tests/
     - ./bin/stable.world --help
 
     - pyenv global 3.6.0
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py3.test.xml
+    - py.test functional_tests/
     - ./bin/stable.world --help
 
   post:

@@ -2,6 +2,7 @@ import requests
 import logging
 import sys
 import platform
+from functools import wraps
 
 if platform.python_version_tuple()[0] == '3':
     from json.decoder import JSONDecodeError
@@ -18,6 +19,9 @@ logger = logging.getLogger(__name__)
 
 
 def request(method):
+    """
+    Decorate the request class with methods eg get, post
+    """
     def req(self, path, payload=None):
         url = '%s%s' % (config['url'], path)
         res = self._session.request(method, url, json=payload)
@@ -25,6 +29,22 @@ def request(method):
         self._check_response(res)
         return res.json()
     return req
+
+
+def url(url_template, test_method='options'):
+    """
+    Try to pull the url out of each method into a decorator
+    so we can perform some static analysys
+    """
+    def decorator(func):
+        func.__dict__.setdefault('url_templates', {})
+        func.url_templates[url_template] = test_method
+
+        @wraps(func)
+        def inner(self, *args, **kwargs):
+            return func(self, url_template, *args, **kwargs)
+        return inner
+    return decorator
 
 
 class Client:
@@ -61,6 +81,14 @@ class Client:
     post = request('post')
     delete = request('delete')
 
+    @classmethod
+    def url_templates(cls):
+        url_templates = [
+            method.url_templates for method in cls.__dict__.values()
+            if getattr(method, 'url_templates', None)
+        ]
+        return {template: method for submap in url_templates for template, method in submap.items()}
+
     @property
     def token(self):
         raise AttributeError('token is not a readable property')
@@ -84,78 +112,95 @@ class Client:
             Error = getattr(errors, payload['error'], errors.PZError)
             raise Error(payload['message'], payload)
 
-    def html_info(self):
-        return self.get('/dist/build-info.json')
+    @url('/dist/build-info.json', test_method='get')
+    def html_info(self, url):
+        # TODO: use url decorator when options is supported
+        return self.get(url)
 
-    def router_info(self):
-        return self.get('/router/build-info.json')
+    @url('/router/build-info.json', test_method='get')
+    def router_info(self, url):
+        # TODO: use url decorator when options is supported
+        return self.get(url)
 
-    def api_info(self):
-        return self.get('/api/')
+    @url('/api/')
+    def api_info(self, url):
+        return self.get(url)
 
-    def cache_info(self):
-        return self.get('/cache/')
+    @url('/cache/', test_method='get')
+    def cache_info(self, url):
+        return self.get(url)
 
-    def login_or_register(self, email, password):
+    @url('/api/account/login_or_register')
+    def login_or_register(self, url, email, password):
 
         res = self.post(
-            '/api/account/login_or_register',
-            dict(email=email, password=password)
+            url, dict(email=email, password=password)
         )
-
         return res['token']
 
-    def whoami(self):
-        res = self.get('/api/account/user')
+    @url('/api/account/user')
+    def whoami(self, url):
+        res = self.get(url)
         return res['user'].get('email', 'anonymous')
 
-    def add_project(self, project):
-        res = self.post('/api/projects/%s' % project)
+    @url('/api/projects/{project}')
+    def add_project(self, url, project):
+        res = self.post(url.format(project=project))
         return res
 
+    @url('/api/projects/{project}/url/{name}')
     def add_url(self, project, url, type, name):
-        to = '/api/projects/%s/url/%s' % (project, name)
+        to = url.format(project=project, name=name)
         self.post(to, {'url': url, 'type': type})
         return
 
+    @url('/api/projects/{project}/url/{name}')
     def remove_url(self, project, name):
-        res = self.delete('/api/projects/%s/url/%s' % (project, name))
+        res = self.delete(url.format(project=project, name=name))
         return res
 
-    def projects(self):
-        res = self.get('/api/projects')
+    @url('/api/projects/')
+    def projects(self, url):
+        res = self.get(url)
         return res['projects']
 
-    def project(self, project):
-        res = self.get('/api/projects/%s' % project)
+    @url('/api/projects/{project}')
+    def project(self, url, project):
+        res = self.get(url.format(project=project))
         return res
 
-    def delete_project(self, project):
-        self.delete('/api/projects/%s' % project)
+    @url('/api/projects/{project}')
+    def delete_project(self, url, project):
+        self.delete(url.format(project=project))
         return
 
+    @url('/api/tags/{project}/{name}')
     def add_tag(self, project, name):
         self.post(
-            '/api/tags/%s/%s' % (project, name),
+            url.format(project=project, name=name),
             dict(hostname=platform.node())
         )
         return
 
-    def diff(self, project, first, last=None):
+    @url('/api/tags/{project}/{first}/diff/{last}')
+    @url('/api/tags/{project}/{first}/diff')
+    def diff(self, url_one, url_two, project, first, last=None):
         if last:
-            payload = self.get('/api/tags/%s/%s/diff/%s' % (project, first, last))
+            payload = self.get(url_one.format(project=project, first=first, last=last))
         else:
-            payload = self.get('/api/tags/%s/%s/diff' % (project, first))
-
+            payload = self.get(url_two.format(project=project, first=first))
         return payload
 
-    def pin(self, project, tag):
-        self.post('/api/projects/%s/pin/%s' % (project, tag))
+    @url('/api/projects/{project}/pin/{tag}')
+    def pin(self, url, project, tag):
+        self.post(url.format(project=project, tag=tag))
         return
 
-    def unpin(self, project):
-        self.delete('/api/projects/%s/pin' % project)
+    @url('/api/projects/{project}/pin')
+    def unpin(self, url, project):
+        self.delete(url.format(project=project))
         return
 
-    def tag_objects(self, project, tag):
-        return self.get('/api/tags/%s/%s/objects' % (project, tag))
+    @url('/api/tags/{project}/{tag}/objects')
+    def tag_objects(self, url, project, tag):
+        return self.get(url.format(project=project, tag=tag))
