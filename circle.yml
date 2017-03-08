@@ -6,33 +6,32 @@ machine:
     CONTAINER: stable.world
     GCLOUD_ZONE: us-central1-a
     GCLOUD_PROJECT: my-project-1-152801
+  post:
+    - pyenv global 2.7.12 3.6.0
 
 dependencies:
   pre:
     - sudo apt-get update
     - pip install --upgrade pip setuptools wheel
   override:
-    - pyenv global 2.7.12
-    - pip install -r test-requirements.txt
-    - python setup.py develop
+    - pip2 install -r test-requirements.txt
+    - python2 setup.py develop
 
-    - pyenv global 3.6.0
     - pip install -r test-requirements.txt
-    - python setup.py develop
+    - python3 setup.py develop
 
 compile:
   override:
-    - pyenv global 3.6.0
     - yarn app
 
 test:
   override:
-    - pyenv global 2.7.12
-    - py.test --junitxml $CIRCLE_TEST_REPORTS/py2.test.xml
-    - py.test functional_tests/
-    - ./bin/stable.world --help
+    # - pyenv global 2.7.12
+    # - py.test --junitxml $CIRCLE_TEST_REPORTS/py2.test.xml
+    # - py.test functional_tests/
+    # - ./bin/stable.world --help
 
-    - pyenv global 3.6.0
+    # - pyenv global 3.6.0
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py3.test.xml
     - py.test functional_tests/
     - ./bin/stable.world --help
@@ -46,7 +45,7 @@ deployment:
   development:
     branch: develop
     commands:
-      - pyenv global 2.7.12
+      # - pyenv global 2.7.12
       - yarn run deploy:fetch
       - yarn run deploy:authorize
       - yarn run deploy:development
