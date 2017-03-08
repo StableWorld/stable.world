@@ -1,0 +1,11 @@
+COPY setup.py /app/setup.py
+COPY setup.cfg /app/setup.cfg
+COPY versioneer.py /app/versioneer.py
+COPY functional_tests /app/functional_tests
+COPY stable_world/ /app/stable_world
+WORKDIR /app
+
+RUN python setup.py develop
+
+COPY test-requirements.txt /app/test-requirements.txt
+RUN pip  install -r test-requirements.txt

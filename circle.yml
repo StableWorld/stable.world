@@ -23,13 +23,12 @@ dependencies:
 compile:
   override:
     - yarn app
+    - echo "FROM python:2" | cat - Dockerfile.test.template > Dockerfile.py2
+    - docker build -f Dockerfile.py2 -t testpy2 .
 
 test:
   override:
-    # - pyenv global 2.7.12
-    # - py.test --junitxml $CIRCLE_TEST_REPORTS/py2.test.xml
-    # - py.test functional_tests/
-    # - ./bin/stable.world --help
+    - docker run testpy2 py.test /app/
 
     # - pyenv global 3.6.0
     - py.test --junitxml $CIRCLE_TEST_REPORTS/py3.test.xml

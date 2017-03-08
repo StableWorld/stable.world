@@ -10,3 +10,5 @@ _env2/
 .cache
 app/
 stable.world
+Dockerfile.py2
+Dockerfile.py3
