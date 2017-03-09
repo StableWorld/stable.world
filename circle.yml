@@ -27,20 +27,22 @@ dependencies:
 compile:
   override:
     - yarn app
+    - cp ./bin/stable.world $CIRCLE_ARTIFACTS
+
     - echo "FROM python:2" | cat - Dockerfile.test.template > Dockerfile.py2
     - docker build -f Dockerfile.py2 -t testpy2 .
+
+    - echo "FROM python:3" | cat - Dockerfile.test.template > Dockerfile.py3
+    - docker build -f Dockerfile.py3 -t testpy3 .
 
 test:
   override:
     - docker run testpy2 py.test /app/
-
-    # - pyenv global 3.6.0
-    - py.test --junitxml $CIRCLE_TEST_REPORTS/py3.test.xml
-    - py.test functional_tests/
+    - docker run testpy3 py.test /app/
     - ./bin/stable.world --help
 
   post:
-    - cp ./bin/stable.world $CIRCLE_ARTIFACTS
+
     - python setup.py sdist bdist_wheel
     - cp ./dist/* $CIRCLE_ARTIFACTS
 
@@ -48,7 +50,7 @@ deployment:
   development:
     branch: develop
     commands:
-      # - pyenv global 2.7.12
+      - pyenv global 2.7.12
       - yarn run deploy:fetch
       - yarn run deploy:authorize
       - yarn run deploy:development
