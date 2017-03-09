@@ -6,6 +6,10 @@ machine:
     CONTAINER: stable.world
     GCLOUD_ZONE: us-central1-a
     GCLOUD_PROJECT: my-project-1-152801
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+  services:
+    - docker
   post:
     - pyenv global 2.7.12 3.6.0
 
