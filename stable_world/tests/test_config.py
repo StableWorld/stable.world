@@ -16,6 +16,10 @@ machine surge.surge.sh
 
 class Test(unittest.TestCase):
 
+    def setUp(self):
+        config.config_filename = 'test-config.conf'
+        config.netrc_filename = 'netrc'
+
     def test_remove_machine_no_match(self):
 
         result = config.remove_machine('host', example)
@@ -59,6 +63,16 @@ machine git.heroku.com
 
         result = config.remove_machine('surge.surge.sh', example)
         self.assertEqual(result, expected)
+
+    def test_update_config_file(self):
+        config.config.update({'foo': 'bar'})
+        config.update_config_file()
+
+        config.config.clear()
+        config.load_config()
+
+        self.assertEqual(config.config['foo'], 'bar')
+
 
 
 if __name__ == '__main__':

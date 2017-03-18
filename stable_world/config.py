@@ -10,6 +10,7 @@ from netrc import netrc
 logger = logging.getLogger(__name__)
 
 # TODO windows locations
+CONFIG_SECTION = 'stable.world'
 config_filename = os.path.expanduser(env.STABLE_WORLD_CONFIG)
 netrc_filename = os.path.expanduser(os.path.join('~', '.netrc'))
 
@@ -25,7 +26,7 @@ def load_config():
         parser = ConfigParser()
         with open(config_filename) as fd:
             parser.read_file(fd, config_filename)
-            _config = parser._sections['default']
+            _config = parser._sections[CONFIG_SECTION]
             config.update(_config)
     else:
         config.update(default_config)
@@ -106,10 +107,10 @@ def update_config_file():
     to_write.pop('token', None)
 
     parser = ConfigParser()
-    parser.add_section('default')
+    parser.add_section(CONFIG_SECTION)
 
     for key, value in to_write.items():
-        parser.set('default', key, value)
+        parser.set(CONFIG_SECTION, key, value)
 
     with open(config_filename, 'w') as fd:
         parser.write(fd)
