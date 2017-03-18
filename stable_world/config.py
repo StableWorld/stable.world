@@ -106,6 +106,8 @@ def update_config_file():
     to_write.pop('token', None)
 
     parser = ConfigParser()
+    parser.add_section('default')
+
     for key, value in to_write.items():
         parser.set('default', key, value)
 
