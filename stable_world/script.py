@@ -80,11 +80,9 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
 @utils.email_option
 @utils.password_option
 @utils.token_option
-@click.pass_context
 @utils.token_email_from_config
-def login(ctx, email, password, token):
+def login(email, password, token):
     "only performs authentication step"
-
     setup_user(email, password, token)
     return
 
@@ -126,9 +124,9 @@ def project_create(client, project):
     click.echo('Project %s added!' % info['project']['name'])
 
 
-@main.command()
+@main.command('list')
 @utils.login_required
-def list(client):
+def list_cmd(client):
     "list all projects you have access to"
     projects = client.projects()
     output.projects.print_projects(projects)
@@ -260,17 +258,16 @@ def use(client, create_tag, project, dryrun):
 
     groups = groupby(urls.items(), lambda item: item[1]['type'])
     tag = pinned_to['name'] if pinned_to else create_tag
-    using = {
-        'types': {},
-        'tag': tag,
-        'project': project
-    }
-    for ty, cache_list in groups:
-        using['types'][ty] = managers.use(ty, project, create_tag, cache_list, pinned_to, dryrun)
+    using_record = {'types': {}, 'tag': tag, 'project': project}
+    for ty, cache_group in groups:
+        # import pdb; pdb.set_trace()
+        cache_list = list(cache_group)
+        details = managers.use(ty, project, create_tag, cache_list, pinned_to, dryrun)
+        using_record['types'][ty] = details
     click.echo('')
 
     if not dryrun:
-        update_config(using=using)
+        update_config(using=using_record)
 
         utils.echo_success()
         what = 'replaying from' if pinned_to else 'recording into'

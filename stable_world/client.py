@@ -175,7 +175,7 @@ class Client:
         return
 
     @url('/api/tags/{project}/{name}')
-    def add_tag(self, project, name):
+    def add_tag(self, url, project, name):
         self.post(
             url.format(project=project, name=name),
             dict(hostname=platform.node())

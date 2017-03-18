@@ -4,7 +4,7 @@ import click
 from .client import Client
 from .interact.setup_user import setup_user
 from .env import env
-from .config import config
+from .config import config, update_config
 
 email_option = click.option(
     '--email', default=env.STABLE_WORLD_EMAIL
@@ -44,21 +44,25 @@ def tag_option(required=False):
 
 
 def ensure_login(email, password, token, hide_token=True):
-
     if email and token:
         click.echo('\n %30s: %s' % ('email', email))
         if hide_token:
             click.echo(' %30s: %s\n' % ('token', '*' * 10))
         else:
             click.echo(' %30s: %s\n' % ('token', token))
-        return Client(None)
-
-    setup_user(email, password, token)
+        if config.get('email') != email or config.get('token') != token:
+            update_config(email=email, token=token)
+    else:
+        setup_user(email, password, token)
 
     return Client(None)
 
 
 def token_email_from_config(func):
+    """
+    Set token and email arguments to the function
+    from the config
+    """
     @wraps(func)
     def decorator(**kwargs):
         if not kwargs.get('email'):
@@ -97,7 +101,7 @@ def login_optional(func):
     @token_email_from_config
     def decorator(email, password, token, **kwargs):
 
-        client = Client(token)
+        client = Client(None)
 
         if email and password:
             setup_user(email, password, token)

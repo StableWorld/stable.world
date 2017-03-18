@@ -11,7 +11,9 @@ except NameError:
 
 
 def setup_user(email, password, token):
-
+    """
+    Prompt user for email and password
+    """
     client = Client(None)
 
     click.echo(
