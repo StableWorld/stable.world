@@ -78,7 +78,7 @@ def use(project, create_tag, cache_list, pinned_to, dryrun):
         click.echo('  %-30s %s' % ('Writing pip config file', pip_config_file))
 
         if not os.path.exists(os.path.dirname(pip_config_file)):
-            os.makedirs(os.path.dirname(pip_config_file), exist_ok=True)
+            os.makedirs(os.path.dirname(pip_config_file))
 
         push_file(pip_config_file)
         with open(pip_config_file, 'w') as fd:
