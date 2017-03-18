@@ -4,11 +4,7 @@ import sys
 import platform
 from functools import wraps
 
-if platform.python_version_tuple()[0] == '3':
-    from json.decoder import JSONDecodeError
-else:
-    from collections import namedtuple
-    JSONDecodeError = ValueError
+from .py_helpers import JSONDecodeError, platform_uname
 
 from stable_world import __version__ as version
 
@@ -54,14 +50,7 @@ class Client:
     def __init__(self, token):
         self._session = requests.Session()
 
-        if platform.python_version_tuple()[0] == '3':
-            uname = platform.uname()
-        else:
-            uname_result = namedtuple(
-                'uname_result',
-                ['system', 'node', 'release', 'version', 'machine', 'processor']
-            )
-            uname = uname_result(*platform.uname())
+        uname = platform_uname()
 
         ctx = (
             version,

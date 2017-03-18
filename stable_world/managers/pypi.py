@@ -1,17 +1,13 @@
 import os
 import sys
-import platform
-
 import click
 
-if platform.python_version_tuple()[0] == '3':
-    from configparser import ConfigParser
-else:  # PY2
-    from ConfigParser import ConfigParser
+from stable_world.py_helpers import ConfigParser, platform_uname
+from stable_world import errors
 
 from .push_file import push_file, pull_file
 from ..config import config
-from stable_world import errors
+
 PIP_PREFIX = None
 
 for path in os.getenv('PATH', '').split(os.pathsep):
@@ -20,7 +16,7 @@ for path in os.getenv('PATH', '').split(os.pathsep):
 
 
 def get_config_file():
-    uname = platform.uname()
+    uname = platform_uname()
     if uname.system == 'Linux':
         return os.path.expanduser('~/.config/pip/pip.conf')
     elif uname.system == 'Darwin':

@@ -1,17 +1,9 @@
 import os
 import re
 import logging
-import platform
 
 from .env import env
-
-if platform.python_version_tuple()[0] == '3':
-    from configparser import ConfigParser
-    from urllib.parse import urlparse
-else:  # PY2
-    from ConfigParser import ConfigParser
-    from urlparse import urlparse
-    ConfigParser.read_file = ConfigParser.readfp
+from .py_helpers import ConfigParser, urlparse
 
 from netrc import netrc
 
