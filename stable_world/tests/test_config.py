@@ -19,6 +19,8 @@ class Test(unittest.TestCase):
     def setUp(self):
         config.config_filename = 'test-config.conf'
         config.netrc_filename = 'netrc'
+        config.config.clear()
+        config.config.update(config.default_config)
 
     def test_remove_machine_no_match(self):
 

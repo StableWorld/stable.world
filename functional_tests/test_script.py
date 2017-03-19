@@ -1,7 +1,7 @@
 import unittest
 import mock
 import requests_mock
-from stable_world.config import default_config
+from stable_world.config import default_config, config
 from click.testing import CliRunner
 from stable_world.script import main
 
@@ -9,8 +9,11 @@ from stable_world.script import main
 class Test(unittest.TestCase):
 
     def setUp(self):
+        self.default_config = dict(default_config)
         default_config.clear()
         default_config.update({'url': 'http://mock'})
+        config.clear()
+        config.update(default_config)
         self.requests_patch = requests_mock.mock()
         self.requests = self.requests_patch.start()
 
@@ -24,6 +27,11 @@ class Test(unittest.TestCase):
         self.requests_patch.stop()
         self.update_config_file_patch.stop()
         self.update_netrc_file_patch.stop()
+
+        default_config.clear()
+        default_config.update(self.default_config)
+        config.clear()
+        config.update(default_config)
 
     @mock.patch('stable_world.interact.setup_project.random_project_name')
     def test_main(self, random_project_name):
