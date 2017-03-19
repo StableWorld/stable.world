@@ -10,11 +10,12 @@ class Formatter(logging.Formatter):
         logging.Formatter.__init__(self, fmt)
         self.last = time.time()
 
-    def formatMessage(self, record):
+    def format(self, record):
         current = time.time()
         record.delta = '%sms' % int((current - self.last) * 1000 // 1)
         self.last = current
-        return self._style.format(record)
+
+        return logging.Formatter.format(self, record)
 
 
 def setup_logging():
