@@ -25,7 +25,9 @@ if [ "$ver" -lt "27" ]; then
     exit 1
 fi
 decho running command $PYTHON -suES "$0" "$@"
-$PYTHON -suES "$0" "$@"
+
+# Note: can not use -S because of virtualenv
+$PYTHON -suE "$0" "$@"
 
 exit $?
 
