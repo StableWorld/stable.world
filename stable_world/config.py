@@ -26,7 +26,7 @@ def load_config():
         parser = ConfigParser()
         with open(config_filename) as fd:
             parser.read_file(fd, config_filename)
-            _config = parser._sections[CONFIG_SECTION]
+            _config = parser._sections.get(CONFIG_SECTION, {})
             config.update(_config)
     else:
         config.update(default_config)
