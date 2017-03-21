@@ -1,6 +1,6 @@
 import unittest
 from stable_world import config
-
+import tempfile
 example = '''
 machine api.heroku.com
     login test@gmail.com
@@ -17,8 +17,8 @@ machine surge.surge.sh
 class Test(unittest.TestCase):
 
     def setUp(self):
-        config.config_filename = 'test-config.conf'
-        config.netrc_filename = 'netrc'
+        config.config_filename = tempfile.mktemp(suffix=".swconfig")
+        config.netrc_filename = tempfile.mktemp(suffix=".netrc")
         config.config.clear()
         config.config.update(config.default_config)
 

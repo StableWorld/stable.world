@@ -10,11 +10,16 @@ from netrc import netrc
 
 logger = logging.getLogger(__name__)
 
+
+def abs_expand(path): return os.path.abspath(os.path.expanduser(path))
+
+
 # TODO windows locations
 CONFIG_SECTION = 'stable.world'
-config_filename = os.path.expanduser(env.STABLE_WORLD_CONFIG)
-netrc_filename = os.path.expanduser(os.path.join('~', '.netrc'))
-cache_dirname = os.path.expanduser(env.STABLE_WORLD_CACHE_DIR)
+
+config_filename = abs_expand(env.STABLE_WORLD_CONFIG)
+netrc_filename = abs_expand(os.path.join('~', '.netrc'))
+cache_dirname = abs_expand(env.STABLE_WORLD_CACHE_DIR)
 certfile_default = os.path.join(cache_dirname, 'cacert.pem')
 
 default_config = {
