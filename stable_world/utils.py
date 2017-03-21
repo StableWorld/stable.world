@@ -58,7 +58,7 @@ def ensure_login(email, password, token, hide_token=True):
     return Client(None)
 
 
-def token_email_from_config(func):
+def update_config_with_args(func):
     """
     Set token and email arguments to the function
     from the config
@@ -81,7 +81,7 @@ def login_required(func):
     @password_option
     @token_option
     @wraps(func)
-    @token_email_from_config
+    @update_config_with_args
     def decorator(email, password, token, **kwargs):
 
         client = ensure_login(email, password, token)
@@ -98,7 +98,7 @@ def login_optional(func):
     @password_option
     @token_option
     @wraps(func)
-    @token_email_from_config
+    @update_config_with_args
     def decorator(email, password, token, **kwargs):
 
         client = Client(None)

@@ -63,6 +63,7 @@ class Client:
             'OS {2.system} {2.release} {2.machine}'
         ).format(*ctx)
 
+        self._session.verify = config.get('verify_https')
         self._session.headers['User-Agent'] = user_agent
         self.token = token
 

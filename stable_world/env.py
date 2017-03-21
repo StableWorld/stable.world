@@ -5,6 +5,7 @@ All environment lookups in one place so we can see what is being used
 import os
 __all__ = ['env']
 
+
 class EnvProperty(object):
     def __init__(self, key, default, doc):
         self.key = key
@@ -19,8 +20,13 @@ class Environment(object):
 
     STABLE_WORLD_CONFIG = EnvProperty(
         'STABLE_WORLD_CONFIG',
-        os.path.join('~', '.stable.world'),
+        os.path.join('~', '.cache/stable.world.ini'),
         'Path to config file'
+    )
+    STABLE_WORLD_CACHE_DIR = EnvProperty(
+        'STABLE_WORLD_CACHE_DIR',
+        os.path.join('~', '.cache/stable.world'),
+        'Path to cache directory'
     )
 
     STABLE_WORLD_URL = EnvProperty(
@@ -32,6 +38,12 @@ class Environment(object):
     STABLE_WORLD_EMAIL = EnvProperty(
         'STABLE_WORLD_EMAIL', None,
         'email of current user'
+    )
+
+    STABLE_WORLD_VERIFY_HTTPS = EnvProperty(
+        'STABLE_WORLD_VERIFY_HTTPS', None,
+        'path to a CA_BUNDLE file or directory with '
+        'certificates of trusted CAs (use "off" to disable https verification [DANGEROUS])'
     )
 
     STABLE_WORLD_PASSWORD = EnvProperty(

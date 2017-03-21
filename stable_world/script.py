@@ -60,6 +60,8 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
       * DEBUG - To print all debugging information use DEBUG='*'
 
     """
+    import certifi
+    print("certifi", certifi.where())
 
     setup_logging()
     if not show_traceback:
@@ -71,7 +73,7 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
     if ctx.invoked_subcommand:
         return
 
-    ensure_login = utils.token_email_from_config(utils.ensure_login)
+    ensure_login = utils.update_config_with_args(utils.ensure_login)
     client = ensure_login(email=email, password=password, token=token)
     setup_project(client)
 
@@ -80,7 +82,7 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
 @utils.email_option
 @utils.password_option
 @utils.token_option
-@utils.token_email_from_config
+@utils.update_config_with_args
 def login(email, password, token):
     "only performs authentication step"
     setup_user(email, password, token)
@@ -355,7 +357,7 @@ def unpin(client, project):
 @utils.email_option
 @utils.password_option
 @utils.token_option
-@utils.token_email_from_config
+@utils.update_config_with_args
 def token(email, password, token):
     "Get your authentication token"
 

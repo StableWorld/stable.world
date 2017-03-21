@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'click==6.7',
         'requests>=2.12',
+        'certifi',
         'python-dateutil>=2.6.0',
     ],
     entry_points={
