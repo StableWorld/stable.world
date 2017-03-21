@@ -26,19 +26,16 @@ dependencies:
 
 compile:
   override:
-    - yarn app
+    - yarn build:app
     - cp ./bin/stable.world $CIRCLE_ARTIFACTS
 
-    - echo "FROM python:2" | cat - Dockerfile.test.template > Dockerfile.py2
-    - docker build -f Dockerfile.py2 -t testpy2 .
-
-    - echo "FROM python:3" | cat - Dockerfile.test.template > Dockerfile.py3
-    - docker build -f Dockerfile.py3 -t testpy3 .
+    - yarn build:docker:py2
+    - yarn build:docker:py3
 
 test:
   override:
-    - docker run testpy2 py.test /app/
-    - docker run testpy3 py.test /app/
+    - yarn test:py2
+    - yarn test:py3
     - ./bin/stable.world --help
 
   post:

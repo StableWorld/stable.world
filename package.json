@@ -3,8 +3,14 @@
   "repository": "https://github.com/srossross/stable.world.git",
   "author": "Sean Ross-Ross <srossross@gmail.com>",
   "scripts": {
-    "app": "bash scripts/makeapp.sh",
+    "build:app": "bash scripts/makeapp.sh",
+    "build:docker:py2": "echo \"FROM python:2\" | cat - Dockerfile.test.template > Dockerfile.py2 && docker build -f Dockerfile.py2 -t testpy2 .",
+    "build:docker:py3": "echo \"FROM python:3\" | cat - Dockerfile.test.template > Dockerfile.py3 && docker build -f Dockerfile.py3 -t testpy3 .",
+
     "test": "py.test",
+    "test:py2": "docker run testpy2 py.test /app/",
+    "test:py3": "docker run testpy3 py.test /app/",
+
     "test:functional": "py.test functional_tests/",
     "deploy:fetch": "rm -rf deployment && git clone https://gist.github.com/befb8025b4fdf52d7db8391a1cbe0c22.git deployment",
     "deploy:authorize": "bash deployment/init.sh",
