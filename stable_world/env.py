@@ -25,7 +25,7 @@ class Environment(object):
 
     STABLE_WORLD_URL = EnvProperty(
         'STABLE_WORLD_URL',
-        'http://probably.stable.world',
+        'https://probably.stable.world',
         'url of the stabl.world site to use'
     )
 
