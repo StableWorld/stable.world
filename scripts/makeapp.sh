@@ -1,6 +1,6 @@
 set -euo pipefail
 
-# git clean -xdf dist app
+git clean -xdf dist app
 python3 setup.py sdist
 pip install --target app dist/stable.world-*.tar.gz
 

@@ -3,7 +3,7 @@
   "repository": "https://github.com/srossross/stable.world.git",
   "author": "Sean Ross-Ross <srossross@gmail.com>",
   "scripts": {
-    "app": "bash makeapp.sh",
+    "app": "bash scripts/makeapp.sh",
     "test": "py.test",
     "test:functional": "py.test functional_tests/",
     "deploy:fetch": "rm -rf deployment && git clone https://gist.github.com/befb8025b4fdf52d7db8391a1cbe0c22.git deployment",
