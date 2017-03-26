@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
         random_project_name.return_value = 'test-project'
         runner = CliRunner()
 
-        self.requests_patch.post('http://mock/api/account/login_or_register', json={'token': 'mockToken'})
+        self.requests_patch.post('http://mock/auth/token', json={'token': 'mockToken'})
         self.requests_patch.post('http://mock/api/projects/test-project', json={})
 
         result = runner.invoke(main, ['--token=', '--email='], input='email\npassword\n')
@@ -51,7 +51,7 @@ class Test(unittest.TestCase):
 
         history = self.requests_patch.request_history
 
-        self.assertEqual(history[0].url, 'http://mock/api/account/login_or_register')
+        self.assertEqual(history[0].url, 'http://mock/auth/token')
         self.assertEqual(history[0].json(), {'email': 'email', 'password': 'password'})
 
         self.assertEqual(self.update_config_file.call_args, None)
@@ -81,7 +81,7 @@ class Test(unittest.TestCase):
 
     def test_login(self):
 
-        self.requests_patch.post('http://mock/api/account/login_or_register', json={'token': 'mockToken'})
+        self.requests_patch.post('http://mock/auth/token', json={'token': 'mockToken'})
 
         result = CliRunner().invoke(
             main, ['login'],
@@ -93,7 +93,7 @@ class Test(unittest.TestCase):
 
         history = self.requests_patch.request_history
 
-        self.assertEqual(history[0].url, 'http://mock/api/account/login_or_register')
+        self.assertEqual(history[0].url, 'http://mock/auth/token')
         self.assertEqual(history[0].json(), {'email': 'email', 'password': 'password'})
 
         self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})

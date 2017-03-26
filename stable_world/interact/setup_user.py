@@ -36,9 +36,19 @@ def setup_user(email, password, token):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = client.login_or_register(email, password)
+            token = client.login(email, password)
             update_config(email=email, token=token)
-            click.echo('\n    Logged in as %s\n\n' % email)
+            click.echo('\n    Welcome back %s\n\n' % email)
+            return client
+        except errors.NotFound:
+            click.echo('\n    Hello %s, we are about to create an account for you' % email)
+            click.echo('    Please confirm your password:\n')
+            confirm_password = click.prompt(' %30s' % 'password', hide_input=True)
+            if confirm_password != password:
+                raise errors.UserError("Passwords do no match, pelase try again")
+            token = client.register(email, password)
+            update_config(email=email, token=token)
+            click.echo('\n    Registered new email %s\n\n' % email)
             return client
         except errors.PasswordError:
             password = None

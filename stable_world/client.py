@@ -100,7 +100,7 @@ class Client:
 
         if 'error' in payload:
             Error = getattr(errors, payload['error'], errors.PZError)
-            raise Error(payload['message'], payload)
+            raise Error(payload.get('message', payload['error']), payload)
 
     @url('/dist/build-info.json', test_method='get')
     def html_info(self, url):
@@ -112,6 +112,10 @@ class Client:
         # TODO: use url decorator when options is supported
         return self.get(url)
 
+    @url('/auth/')
+    def auth_info(self, url):
+        return self.get(url)
+
     @url('/api/')
     def api_info(self, url):
         return self.get(url)
@@ -120,15 +124,23 @@ class Client:
     def cache_info(self, url):
         return self.get(url)
 
-    @url('/api/account/login_or_register')
-    def login_or_register(self, url, email, password):
+    @url('/auth/register')
+    def register(self, url, email, password):
 
         res = self.post(
             url, dict(email=email, password=password)
         )
         return res['token']
 
-    @url('/api/account/user')
+    @url('/auth/token')
+    def login(self, url, email, password):
+
+        res = self.post(
+            url, dict(email=email, password=password)
+        )
+        return res['token']
+
+    @url('/auth/me')
     def whoami(self, url):
         res = self.get(url)
         return res['user'].get('email', 'anonymous')
