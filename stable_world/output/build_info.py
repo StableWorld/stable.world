@@ -35,6 +35,14 @@ def echo_api_info(client):
     echo_info(api_info)
 
 
+def echo_auth_info(client):
+    click.echo("  AUTH: ", nl=False)
+    with echo_response_time():
+        api_info = client.auth_info()
+
+    echo_info(api_info)
+
+
 def echo_cache_info(client):
     click.echo("  CACHE: ", nl=False)
     with echo_response_time():
@@ -66,6 +74,7 @@ def build_info(client):
     click.echo("  STABLE_WORLD_URL: %s" % config['url'])
     click.echo("")
 
+    echo_auth_info(client)
     echo_api_info(client)
     echo_cache_info(client)
     echo_html_info(client)
