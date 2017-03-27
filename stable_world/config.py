@@ -197,7 +197,6 @@ def unpack_cache_files():
         cert = zipsafe_read(certifi.where())
         with open(certfile_default, 'wb') as fd:
             fd.write(cert)
-        print('certfile', certfile_default)
 
 
 def read_config():
