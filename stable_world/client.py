@@ -22,6 +22,7 @@ def request(method):
         url = '%s%s' % (config['url'], path)
         res = self._session.request(method, url, json=payload)
         logger.debug('[%s] %s - %s', method.upper(), url, res.status_code)
+        logger.debug(res.json())
         self._check_response(res)
         return res.json()
     return req

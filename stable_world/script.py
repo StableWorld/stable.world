@@ -3,10 +3,10 @@ This is a command
 """
 from __future__ import print_function
 import sys
-import platform
 
 import click
 from itertools import groupby
+
 from stable_world import __version__ as sw_version
 from .config import config_filename, update_config, config, read_config
 from .interact.setup_user import setup_user
@@ -15,28 +15,8 @@ from . import utils, errors, output
 from . import managers
 from .sw_logging import setup_logging
 
-if platform.python_version_tuple()[0] == '3':
-    from configparser import Error as ConfigParserError
-else:
-    from ConfigParser import Error as ConfigParserError
-
-original_excepthook = sys.excepthook
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-
-# List of exceptions that dont need a full traceback
-BRIEF_ERRORS = errors.UserError, ConfigParserError
-
-
-def brief_excepthook(exctype, value, tb):
-    """
-    Shorten exeptions with the base class errors.UserError
-    """
-    if issubclass(exctype, BRIEF_ERRORS):
-        click.secho("  %s: " % exctype.__name__, nl=False, fg='red', bold=True)
-        click.echo(str(value))
-    else:
-        original_excepthook(exctype, value, tb)
 
 
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
@@ -65,7 +45,7 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
 
     setup_logging()
     if not show_traceback:
-        sys.excepthook = brief_excepthook
+        sys.excepthook = errors.brief_excepthook
 
     if not ignore_config:
         read_config()
