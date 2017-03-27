@@ -40,8 +40,6 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
       * DEBUG - To print all debugging information use DEBUG='*'
 
     """
-    import certifi
-    print("certifi", certifi.where())
 
     setup_logging()
     if not show_traceback:

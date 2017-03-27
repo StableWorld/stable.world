@@ -76,6 +76,5 @@ machine git.heroku.com
         self.assertEqual(config.config['foo'], 'bar')
 
 
-
 if __name__ == '__main__':
     unittest.main()
