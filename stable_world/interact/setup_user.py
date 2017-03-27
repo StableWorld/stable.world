@@ -10,7 +10,7 @@ except NameError:
     raw_input = input
 
 
-def setup_user(email, password, token):
+def setup_user(email, password, token, login_only=False, confirm_password=True):
     """
     Prompt user for email and password
     """
@@ -41,14 +41,17 @@ def setup_user(email, password, token):
             click.echo('\n    Welcome back %s\n\n' % email)
             return client
         except errors.NotFound:
-            click.echo('\n    Hello %s, we are about to create an account for you' % email)
-            click.echo('    Please confirm your password:\n')
-            confirm_password = click.prompt(' %30s' % 'password', hide_input=True)
-            if confirm_password != password:
-                raise errors.UserError("Passwords do no match, pelase try again")
+            if login_only:
+                raise
+            if confirm_password:
+                click.echo('\n    Hello %s, we are about to create an account for you' % email)
+                click.echo('    Please confirm your password:\n')
+                confirm_password = click.prompt(' %30s' % 'password', hide_input=True)
+                if confirm_password != password:
+                    raise errors.UserError("Passwords do no match, pelase try again")
             token = client.register(email, password)
             update_config(email=email, token=token)
-            click.echo('\n    Registered new email %s\n\n' % email)
+            click.echo('\n    Registered new user %s\n\n' % email)
             return client
         except errors.PasswordError:
             password = None

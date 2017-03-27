@@ -3,6 +3,7 @@ import mock
 import requests_mock
 from stable_world.config import default_config, config
 from click.testing import CliRunner
+from stable_world import errors
 from stable_world.script import main
 
 
@@ -97,6 +98,52 @@ class Test(unittest.TestCase):
         self.assertEqual(history[0].json(), {'email': 'email', 'password': 'password'})
 
         self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})
+
+    def test_register(self):
+
+        self.requests_patch.post('http://mock/auth/token', json={'error': 'NotFound'}, status_code=404)
+        self.requests_patch.post('http://mock/auth/register', json={'token': 'mockToken'})
+
+        result = CliRunner().invoke(
+            main, ['register'],
+            input='email\npassword\npassword\n'
+        )
+        if result.exception:
+            raise result.exception
+        assert result.exit_code == 0
+
+        history = self.requests_patch.request_history
+
+        self.assertEqual(history[1].url, 'http://mock/auth/register')
+        self.assertEqual(history[1].json(), {'email': 'email', 'password': 'password'})
+
+        self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})
+
+    def test_register_wrong_confirm_password(self):
+
+        self.requests_patch.post('http://mock/auth/token', json={'error': 'NotFound'}, status_code=404)
+        self.requests_patch.post('http://mock/auth/register', json={'token': 'mockToken'})
+
+        result = CliRunner().invoke(
+            main, ['register'],
+            input='email\npassword\nwrongPassword\n'
+        )
+        assert isinstance(result.exception, errors.UserError)
+        assert result.exit_code != 0
+
+
+    def test_login_user_does_not_exist(self):
+
+        self.requests_patch.post('http://mock/auth/token', json={'error': 'NotFound'}, status_code=404)
+
+        result = CliRunner().invoke(
+            main, ['login'],
+            input='email\npassword\n'
+        )
+
+        assert isinstance(result.exception, errors.NotFound)
+        assert result.exit_code != 0
+
 
     @mock.patch('stable_world.managers.use')
     def test_use(self, use):

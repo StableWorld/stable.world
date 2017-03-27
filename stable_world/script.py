@@ -63,7 +63,22 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
 @utils.update_config_with_args
 def login(email, password, token):
     "only performs authentication step"
-    setup_user(email, password, token)
+    setup_user(email, password, token, login_only=True)
+    return
+
+
+@main.command()
+@utils.email_option
+@utils.password_option
+@utils.token_option
+@utils.update_config_with_args
+def register(email, password, token):
+    "only performs authentication step"
+    confirm_password = not password
+    setup_user(
+        email, password, token,
+        login_only=False, confirm_password=confirm_password
+    )
     return
 
 
