@@ -131,7 +131,6 @@ class Test(unittest.TestCase):
         assert isinstance(result.exception, errors.UserError)
         assert result.exit_code != 0
 
-
     def test_login_user_does_not_exist(self):
 
         self.requests_patch.post('http://mock/auth/token', json={'error': 'NotFound'}, status_code=404)
@@ -143,7 +142,6 @@ class Test(unittest.TestCase):
 
         assert isinstance(result.exception, errors.NotFound)
         assert result.exit_code != 0
-
 
     @mock.patch('stable_world.managers.use')
     def test_use(self, use):
