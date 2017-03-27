@@ -33,7 +33,10 @@ compile:
     - yarn build:docker:py3
 
 test:
+  pre:
+    - flake8
   override:
+
     - yarn test:py2
     - yarn test:py3
     - ./bin/stable.world --help

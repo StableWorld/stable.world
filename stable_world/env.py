@@ -3,7 +3,7 @@ All environment lookups in one place so we can see what is being used
 """
 
 import os
-__all__ = ['env']
+__all__ = ('env',)
 
 
 class EnvProperty(object):

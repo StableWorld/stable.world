@@ -11,7 +11,8 @@ from netrc import netrc
 logger = logging.getLogger(__name__)
 
 
-def abs_expand(path): return os.path.abspath(os.path.expanduser(path))
+def abs_expand(path):
+    return os.path.abspath(os.path.expanduser(path))
 
 
 # TODO windows locations
