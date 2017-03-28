@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         config.clear()
         config.update(default_config)
 
-    @mock.patch('stable_world.interact.setup_project.random_project_name')
+    @mock.patch('stable_world.interact.project_configs.default.random_project_name')
     def test_main(self, random_project_name):
 
         random_project_name.return_value = 'test-project'

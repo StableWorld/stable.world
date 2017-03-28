@@ -27,8 +27,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @utils.email_option
 @utils.password_option
 @utils.token_option
+@utils.dir_option
 @click.pass_context
-def main(ctx, email, password, token, debug, show_traceback, ignore_config):
+def main(ctx, email, password, token, debug, show_traceback, ignore_config, dir):
     """
     Stable.World cli
 
@@ -53,7 +54,7 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
 
     ensure_login = utils.update_config_with_args(utils.ensure_login)
     client = ensure_login(email=email, password=password, token=token)
-    setup_project(client)
+    setup_project(project, client)
 
 
 @main.command()
