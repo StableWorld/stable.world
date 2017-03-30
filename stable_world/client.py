@@ -94,6 +94,9 @@ class Client:
         self._token = token
 
     def _check_response(self, res):
+        if 'sw-hint' in res.headers:
+            logger.debug('Response Hint: "{}"'.format(res.headers['sw-hint']))
+
         try:
             payload = res.json()
         except JSONDecodeError:
