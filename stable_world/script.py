@@ -55,7 +55,7 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config, dir)
 
     ensure_login = utils.update_config_with_args(utils.ensure_login)
     client = ensure_login(email=email, password=password, token=token)
-    setup_project(project, client)
+    setup_project(dir, client)
 
 
 @main.command()
