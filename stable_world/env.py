@@ -20,12 +20,12 @@ class Environment(object):
 
     STABLE_WORLD_CONFIG = EnvProperty(
         'STABLE_WORLD_CONFIG',
-        os.path.join('~', '.cache/stable.world.ini'),
+        os.path.join('~', '.config', 'stable.world.ini'),
         'Path to config file'
     )
     STABLE_WORLD_CACHE_DIR = EnvProperty(
         'STABLE_WORLD_CACHE_DIR',
-        os.path.join('~', '.cache/stable.world'),
+        os.path.join('~', '.cache', 'stable.world'),
         'Path to cache directory'
     )
 
