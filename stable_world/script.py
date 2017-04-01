@@ -7,7 +7,7 @@ import sys
 import click
 
 from stable_world import __version__ as sw_version
-from .config import config_filename, update_token, config, read_config
+from .config import config_filename, update_token, config, read_config, make_dirs
 from .interact.setup_user import setup_user
 from .interact.setup_project import setup_project
 from . import utils, errors, output
@@ -44,8 +44,11 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config, dir)
     if not show_traceback:
         sys.excepthook = errors.brief_excepthook
 
+    make_dirs()
+
     if not ignore_config:
         read_config()
+
 
     if ctx.invoked_subcommand:
         return

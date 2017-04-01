@@ -4,6 +4,7 @@ import logging
 import json
 import certifi
 from zipfile import ZipFile
+from . import errors
 from .env import env
 from .py_helpers import ConfigParser, urlparse
 
@@ -30,6 +31,32 @@ default_config = {
 }
 
 config = default_config.copy()
+
+
+def make_dirs():
+    try:
+        if not os.path.isdir(cache_dirname):
+            os.makedirs(cache_dirname)
+    except OSError:
+        msg = "Could not create cache directory {}".format(cache_dirname)
+        raise errors.UserError(msg)
+
+    try:
+        test_perm = os.path.join(cache_dirname, '.perm-check')
+        with open(test_perm, 'a'):
+            pass
+        os.unlink(test_perm)
+    except OSError:
+        msg = "Do no have write perms for cache directory '{}'".format(cache_dirname)
+        raise errors.UserError(msg)
+
+    try:
+        config_dirname = os.path.dirname(config_filename)
+        if not os.path.isdir(config_dirname):
+            os.makedirs(config_dirname)
+    except OSError:
+        msg = "Could not create config directory {}".format(config_dirname)
+        raise errors.UserError(msg)
 
 
 def load_config():
@@ -144,8 +171,6 @@ def update_config_file(kwargs):
         parser.set(CONFIG_SECTION, key, value)
 
     config_dir = os.path.dirname(config_filename)
-    if not os.path.isdir(config_dir):
-        os.makedirs(config_dir)
 
     with open(config_filename, 'w') as fd:
         parser.write(fd)
@@ -191,8 +216,6 @@ def zipsafe_read(filename):
 
 
 def unpack_cache_files():
-    if not os.path.isdir(cache_dirname):
-        os.makedirs(cache_dirname)
     if not os.path.isfile(certfile_default):
         cert = zipsafe_read(certifi.where())
         with open(certfile_default, 'wb') as fd:
@@ -227,9 +250,6 @@ def get_using():
 
 def set_using(records):
     using_file = os.path.join(cache_dirname, 'using.json')
-
-    if not os.path.isdir(cache_dirname):
-        os.makedirs(cache_dirname)
 
     with open(using_file, 'w') as fd:
         json.dump(records, fd, indent='  ')

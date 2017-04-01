@@ -81,8 +81,8 @@ def brief_excepthook(exctype, value, tb):
     try:
         if not os.path.isdir(os.path.dirname(logfile)):
             os.makedirs(os.path.dirname(logfile))
-    except:
-        # Dont want to raise anything here
+    except Exception:
+        # Don't want any errors here
         pass
 
     if issubclass(exctype, BRIEF_ERRORS):
@@ -113,7 +113,6 @@ def brief_excepthook(exctype, value, tb):
         try:
             with open(logfile, 'w') as fd:
                 traceback.print_exception(exctype, value, tb, file=fd)
-
             click.echo('\n    Wrote full traceback to "{}"\n'.format(logfile))
         except:
             click.echo("Failed to write logfile")
