@@ -8,6 +8,7 @@ from stable_world import errors
 from stable_world.script import main
 import tempfile
 
+
 class Test(unittest.TestCase):
 
     def setUp(self):
