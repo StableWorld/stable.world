@@ -3,19 +3,19 @@ import sys
 
 import click
 from itertools import groupby
-from json import dumps, loads
 
-from .config import update_config, config
+from .config import set_using, get_using, unset_using
 from . import utils, errors
 from . import managers
 
 
 def use_project(client, create_tag, project, dryrun):
     info = client.project(project)
-    already_using = config.get('using')
+    already_using = get_using()
+
     if already_using:
         utils.echo_error()
-        click.echo('You are already using tag "%(tag)s" from project "%(project)s"' % already_using)
+        click.echo('You are already using tag "{tag}" from project "{project}"'.format(**already_using))
         click.echo('  To unuse this environment, please run the command:')
         click.echo('')
         click.echo('        stable.world unuse')
@@ -63,7 +63,7 @@ def use_project(client, create_tag, project, dryrun):
     click.echo('')
 
     if not dryrun:
-        update_config(using=dumps(using_record))
+        set_using(using_record)
 
         utils.echo_success()
         what = 'replaying from' if pinned_to else 'recording into'
@@ -76,19 +76,18 @@ def use_project(client, create_tag, project, dryrun):
 
 
 def unuse_project():
-    json_using = config.get('using', None)
-    if not json_using:
+    using = get_using()
+    if not using:
         utils.echo_error()
         click.echo('You are not currently using a project')
         sys.exit(1)
 
-    using = loads(json_using)
     for ty, info in using['types'].items():
         managers.unuse(ty, info)
 
     click.echo('')
 
-    update_config(using=None)
+    unset_using()
 
     utils.echo_success()
     click.echo("No longer using project %s" % (using['project']))

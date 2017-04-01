@@ -101,9 +101,14 @@ def brief_excepthook(exctype, value, tb):
 
         click.echo('\n    Check for updates on this exception on the issue tracker:')
         search_str = quote('is:issue {} "{}"'.format(exctype.__name__, value))
-        click.echo('      https://github.com/srossross/stable.world/issues?q={}\n'.format(search_str))
+        click.echo('      ', nl=False)
+        click.secho(
+            'https://github.com/srossross/stable.world/issues?q={}\n'.format(search_str),
+            fg='blue', underline=True,
+        )
         click.echo('    Or create a new issue:')
-        click.echo('      https://github.com/srossross/stable.world/issues/new')
+        click.echo('      ', nl=False)
+        click.secho('https://github.com/srossross/stable.world/issues/new', fg='blue', underline=True)
 
         try:
             with open(logfile, 'w') as fd:

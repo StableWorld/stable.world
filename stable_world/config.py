@@ -1,6 +1,7 @@
 import os
 import re
 import logging
+import json
 import certifi
 from zipfile import ZipFile
 from .env import env
@@ -22,6 +23,7 @@ config_filename = abs_expand(env.STABLE_WORLD_CONFIG)
 netrc_filename = abs_expand(os.path.join('~', '.netrc'))
 cache_dirname = abs_expand(env.STABLE_WORLD_CACHE_DIR)
 certfile_default = os.path.join(cache_dirname, 'cacert.pem')
+
 
 default_config = {
     'url': env.STABLE_WORLD_URL
@@ -210,3 +212,37 @@ def read_config():
     load_netrc()
     update_config_with_env()
     unpack_cache_files()
+
+
+def get_using():
+    '''
+    Detect if 'use' has been called and return the record
+    '''
+
+    using_file = os.path.join(cache_dirname, 'using.json')
+
+    if not os.path.exists(using_file):
+        return None
+
+    with open(using_file) as fd:
+        return json.load(fd)
+
+
+def set_using(records):
+    using_file = os.path.join(cache_dirname, 'using.json')
+
+    if not os.path.isdir(cache_dirname):
+        os.makedirs(cache_dirname)
+
+    with open(using_file, 'w') as fd:
+        json.dump(records, fd, indent='  ')
+
+
+def unset_using():
+
+    using_file = os.path.join(cache_dirname, 'using.json')
+
+    if os.path.exists(using_file):
+        os.unlink(using_file)
+
+    update_config(using='')
