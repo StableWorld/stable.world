@@ -25,7 +25,6 @@ netrc_filename = abs_expand(os.path.join('~', '.netrc'))
 cache_dirname = abs_expand(env.STABLE_WORLD_CACHE_DIR)
 
 
-
 default_config = {
     'url': env.STABLE_WORLD_URL
 }
