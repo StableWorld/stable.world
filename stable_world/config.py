@@ -129,16 +129,18 @@ def update_netrc_file(**kwargs):
         fd.write(netrc_content)
 
 
-def update_config_file():
+def update_config_file(kwargs):
     logger.info("Update config file %s", config_filename)
-    to_write = config.copy()
-    to_write.pop('email', None)
-    to_write.pop('token', None)
 
     parser = ConfigParser()
-    parser.add_section(CONFIG_SECTION)
+    if os.path.isfile(config_filename):
+        with open(config_filename) as fd:
+            parser.read_file(fd, config_filename)
 
-    for key, value in to_write.items():
+    if CONFIG_SECTION not in parser.sections():
+        parser.add_section(CONFIG_SECTION)
+
+    for key, value in kwargs.items():
         parser.set(CONFIG_SECTION, key, value)
 
     config_dir = os.path.dirname(config_filename)
@@ -159,19 +161,14 @@ def remove_default_values(kwargs):
 def update_config(**kwargs):
     'Update the config in memory and files'
 
-    if kwargs:
-        config.update(kwargs)
+    config.update(kwargs)
+    update_config_file(kwargs)
 
-    if 'email' in kwargs or 'token' in kwargs:
-        update_netrc_file(**kwargs)
 
-    kwargs.pop('email', None)
-    kwargs.pop('token', None)
-
-    remove_default_values(kwargs)
-
-    if kwargs:
-        update_config_file()
+def update_token(email, token):
+    'Update the config in memory and files'
+    config.update(email=email, token=token)
+    update_netrc_file(email=email, token=token)
 
 
 def zipsafe_read(filename):
@@ -244,5 +241,3 @@ def unset_using():
 
     if os.path.exists(using_file):
         os.unlink(using_file)
-
-    update_config(using='')

@@ -1,5 +1,5 @@
 import click
-from ..config import update_config
+from ..config import update_token
 from .. import errors
 from ..client import Client
 # from getpass import getpass
@@ -37,7 +37,7 @@ def setup_user(email, password, token, login_only=False, confirm_password=True):
 
         try:
             token = client.login(email, password)
-            update_config(email=email, token=token)
+            update_token(email=email, token=token)
             click.echo('\n    Welcome back %s\n\n' % email)
             return client
         except errors.NotFound:
@@ -50,7 +50,7 @@ def setup_user(email, password, token, login_only=False, confirm_password=True):
                 if confirm_password != password:
                     raise errors.UserError("Passwords do no match, pelase try again")
             token = client.register(email, password)
-            update_config(email=email, token=token)
+            update_token(email=email, token=token)
             click.echo('\n    Registered new user %s\n\n' % email)
             return client
         except errors.PasswordError:

@@ -7,7 +7,7 @@ import sys
 import click
 
 from stable_world import __version__ as sw_version
-from .config import config_filename, update_config, config, read_config
+from .config import config_filename, update_token, config, read_config
 from .interact.setup_user import setup_user
 from .interact.setup_project import setup_project
 from . import utils, errors, output
@@ -85,7 +85,7 @@ def register(email, password, token):
 def logout():
     "expire local token"
 
-    update_config(token=None, email=None)
+    update_token(token=None, email=None)
     click.echo(
         '\n\n    '
         'Token removed from %s file.'
