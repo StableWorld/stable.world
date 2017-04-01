@@ -1,4 +1,5 @@
 from functools import wraps
+from os.path import abspath
 import click
 
 from .client import Client
@@ -14,6 +15,10 @@ password_option = click.option(
 )
 token_option = click.option(
     '--token', default=env.STABLE_WORLD_TOKEN
+)
+
+dir_option = click.option(
+    '--dir', default=abspath('.')
 )
 
 

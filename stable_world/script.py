@@ -6,6 +6,7 @@ import sys
 
 import click
 from itertools import groupby
+from json import dumps, loads
 
 from stable_world import __version__ as sw_version
 from .config import config_filename, update_config, config, read_config
@@ -27,8 +28,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @utils.email_option
 @utils.password_option
 @utils.token_option
+@utils.dir_option
 @click.pass_context
-def main(ctx, email, password, token, debug, show_traceback, ignore_config):
+def main(ctx, email, password, token, debug, show_traceback, ignore_config, dir):
     """
     Stable.World cli
 
@@ -53,7 +55,7 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config):
 
     ensure_login = utils.update_config_with_args(utils.ensure_login)
     client = ensure_login(email=email, password=password, token=token)
-    setup_project(client)
+    setup_project(dir, client)
 
 
 @main.command()
@@ -262,7 +264,7 @@ def use(client, create_tag, project, dryrun):
     click.echo('')
 
     if not dryrun:
-        update_config(using=using_record)
+        update_config(using=dumps(using_record))
 
         utils.echo_success()
         what = 'replaying from' if pinned_to else 'recording into'
@@ -277,12 +279,13 @@ def use(client, create_tag, project, dryrun):
 @main.command()
 def unuse():
     "Deactivate a project"
-    using = config.get('using', None)
-    if not using:
+    json_using = config.get('using', None)
+    if not json_using:
         utils.echo_error()
         click.echo('You are not currently using a project')
         sys.exit(1)
 
+    using = loads(json_using)
     for ty, info in using['types'].items():
         managers.unuse(ty, info)
 

@@ -34,14 +34,15 @@ class Test(unittest.TestCase):
         config.clear()
         config.update(default_config)
 
-    @mock.patch('stable_world.interact.setup_project.random_project_name')
-    def test_main(self, random_project_name):
+    @mock.patch('stable_world.interact.setup_project.ProjectConfigurator')
+    def test_main(self, ProjectConfigurator):
 
-        random_project_name.return_value = 'test-project'
+        ProjectConfigurator
+
         runner = CliRunner()
 
         self.requests_patch.post('http://mock/auth/token', json={'token': 'mockToken'})
-        self.requests_patch.post('http://mock/api/projects/test-project', json={})
+        # self.requests_patch.post('http://mock/api/projects/test-project', json={})
 
         result = runner.invoke(main, ['--token=', '--email='], input='email\npassword\n')
 
@@ -61,7 +62,10 @@ class Test(unittest.TestCase):
             {'email': 'email', 'token': 'mockToken'}
         )
 
-        self.assertEqual(history[1].url, 'http://mock/api/projects/test-project')
+        ProjectConfigurator.detect().setup.assert_called()
+        ProjectConfigurator.detect().setup_project_name.assert_called()
+        ProjectConfigurator.detect().setup_project_env.assert_called()
+        ProjectConfigurator.detect().setup_project_ci.assert_called()
 
     def test_destroy(self):
 
@@ -171,6 +175,8 @@ class Test(unittest.TestCase):
         self.requests_patch.post('http://mock/api/tags/test-project/create-tag',
             json={}
         )
+
+        use.return_value = {}
 
         result = CliRunner().invoke(
             main, [
