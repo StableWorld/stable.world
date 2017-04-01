@@ -4,7 +4,6 @@ import traceback
 import platform
 from requests.utils import quote
 from requests.exceptions import ConnectionError
-from . import config
 import click
 if platform.python_version_tuple()[0] == '3':
     from configparser import Error as ConfigParserError
@@ -73,10 +72,8 @@ original_excepthook = sys.excepthook
 BRIEF_ERRORS = UserError, ConfigParserError
 
 
-def brief_excepthook(exctype, value, tb):
-    """
-    Shorten exeptions with the base class errors.UserError
-    """
+def write_error_log(exctype, value, tb):
+    from . import config
     logfile = os.path.join(config.cache_dirname, 'logs', 'debug.txt')
     try:
         if not os.path.isdir(os.path.dirname(logfile)):
@@ -85,6 +82,19 @@ def brief_excepthook(exctype, value, tb):
         # Don't want any errors here
         pass
 
+    try:
+        with open(logfile, 'w') as fd:
+            traceback.print_exception(exctype, value, tb, file=fd)
+        click.echo('\n    Wrote full traceback to "{}"\n'.format(logfile))
+    except:
+        click.echo("Failed to write logfile")
+        original_excepthook(exctype, value, tb)
+
+
+def brief_excepthook(exctype, value, tb):
+    """
+    Shorten exeptions with the base class errors.UserError
+    """
     if issubclass(exctype, BRIEF_ERRORS):
         click.secho("\n\n    {}: ".format(exctype.__name__), nl=False, fg='red', bold=True)
         click.echo(str(value))
@@ -110,10 +120,4 @@ def brief_excepthook(exctype, value, tb):
         click.echo('      ', nl=False)
         click.secho('https://github.com/srossross/stable.world/issues/new', fg='blue', underline=True)
 
-        try:
-            with open(logfile, 'w') as fd:
-                traceback.print_exception(exctype, value, tb, file=fd)
-            click.echo('\n    Wrote full traceback to "{}"\n'.format(logfile))
-        except:
-            click.echo("Failed to write logfile")
-            original_excepthook(exctype, value, tb)
+        write_error_log(exctype, value, tb)
