@@ -217,6 +217,7 @@ def unuse():
     "Deactivate a project"
     unuse_project()
 
+
 @main.command()
 def using():
     "Deactivate a project"
