@@ -19,6 +19,8 @@ class Test(unittest.TestCase):
         config.cache_dirname = os.path.join(tmp, 'cache')
         config.config_filename = os.path.join(tmp, 'config/test-config.ini')
 
+        config.make_dirs()
+
         self.default_config = dict(config.default_config)
         config.default_config.clear()
         config.default_config.update({'url': 'http://mock'})
