@@ -1,5 +1,4 @@
 from random import choice
-import abc
 from . import words
 
 
@@ -7,7 +6,7 @@ def random_project_name():
     return '%s-%s' % (choice(words.adjectives), choice(words.nouns))
 
 
-class ProjectConfigurator(abc.ABC):
+class ProjectConfigurator(object):
     """
     """
     CONFIGS_HELPERS = []
@@ -35,14 +34,11 @@ class ProjectConfigurator(abc.ABC):
         self.client = client
         self.project_dir = project_dir
 
-    @abc.abstractmethod
     def setup_project_name(self):
-        pass
+        raise NotImplementedError()
 
-    @abc.abstractmethod
     def setup_project_env(self):
-        pass
+        raise NotImplementedError()
 
-    @abc.abstractmethod
     def setup_project_ci(self):
-        pass
+        raise NotImplementedError()
