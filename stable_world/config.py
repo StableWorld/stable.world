@@ -23,7 +23,7 @@ CONFIG_SECTION = 'stable.world'
 config_filename = abs_expand(env.STABLE_WORLD_CONFIG)
 netrc_filename = abs_expand(os.path.join('~', '.netrc'))
 cache_dirname = abs_expand(env.STABLE_WORLD_CACHE_DIR)
-certfile_default = os.path.join(cache_dirname, 'cacert.pem')
+
 
 
 default_config = {
@@ -80,7 +80,7 @@ def update_config_with_env():
     if verify_https in ['no', 'off']:
         verify_https = False
     if verify_https is None:
-        verify_https = certfile_default
+        verify_https = os.path.join(cache_dirname, 'cacert.pem')
 
     config.update(verify_https=verify_https)
 
@@ -214,9 +214,11 @@ def zipsafe_read(filename):
 
 
 def unpack_cache_files():
-    if not os.path.isfile(certfile_default):
+    certfile = os.path.join(cache_dirname, 'cacert.pem')
+
+    if not os.path.isfile(certfile):
         cert = zipsafe_read(certifi.where())
-        with open(certfile_default, 'wb') as fd:
+        with open(certfile, 'wb') as fd:
             fd.write(cert)
 
 
@@ -250,7 +252,7 @@ def set_using(records):
     using_file = os.path.join(cache_dirname, 'using.json')
 
     with open(using_file, 'w') as fd:
-        json.dump(records, fd, indent='  ')
+        json.dump(records, fd, indent=2)
 
 
 def unset_using():
