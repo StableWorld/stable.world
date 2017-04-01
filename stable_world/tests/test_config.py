@@ -67,8 +67,8 @@ machine git.heroku.com
         self.assertEqual(result, expected)
 
     def test_update_config_file(self):
-        config.config.update({'foo': 'bar'})
-        config.update_config_file()
+        config.update_config(foo='bar')
+        # config.update_config_file()
 
         config.config.clear()
         config.load_config()

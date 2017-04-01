@@ -1,20 +1,31 @@
 import unittest
 import mock
+import os
 import requests_mock
-from stable_world.config import default_config, config
+from stable_world import config
 from click.testing import CliRunner
 from stable_world import errors
 from stable_world.script import main
+import tempfile
 
 
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self.default_config = dict(default_config)
-        default_config.clear()
-        default_config.update({'url': 'http://mock'})
-        config.clear()
-        config.update(default_config)
+        tempfile.gettempdir()
+        self.orig_cache_dirname = config.cache_dirname
+        self.orig_config_filename = config.config_filename
+        tmp = tempfile.mkdtemp()
+        config.cache_dirname = os.path.join(tmp, 'cache')
+        config.config_filename = os.path.join(tmp, 'config/test-config.ini')
+
+        config.make_dirs()
+
+        self.default_config = dict(config.default_config)
+        config.default_config.clear()
+        config.default_config.update({'url': 'http://mock'})
+        config.config.clear()
+        config.config.update(config.default_config)
         self.requests_patch = requests_mock.mock()
         self.requests = self.requests_patch.start()
 
@@ -29,10 +40,13 @@ class Test(unittest.TestCase):
         self.update_config_file_patch.stop()
         self.update_netrc_file_patch.stop()
 
-        default_config.clear()
-        default_config.update(self.default_config)
-        config.clear()
-        config.update(default_config)
+        config.cache_dirname = self.orig_cache_dirname
+        config.config_filename = self.orig_config_filename
+
+        config.default_config.clear()
+        config.default_config.update(self.default_config)
+        config.config.clear()
+        config.config.update(config.default_config)
 
     @mock.patch('stable_world.interact.setup_project.ProjectConfigurator')
     def test_main(self, ProjectConfigurator):
@@ -115,7 +129,6 @@ class Test(unittest.TestCase):
         if result.exception:
             raise result.exception
         assert result.exit_code == 0
-
         history = self.requests_patch.request_history
 
         self.assertEqual(history[1].url, 'http://mock/auth/register')

@@ -5,7 +5,7 @@ import click
 from .client import Client
 from .interact.setup_user import setup_user
 from .env import env
-from .config import config, update_config
+from .config import config, update_token
 
 email_option = click.option(
     '--email', default=env.STABLE_WORLD_EMAIL
@@ -56,7 +56,7 @@ def ensure_login(email, password, token, hide_token=True):
         else:
             click.echo(' %30s: %s\n' % ('token', token))
         if config.get('email') != email or config.get('token') != token:
-            update_config(email=email, token=token)
+            update_token(email=email, token=token)
     else:
         setup_user(email, password, token)
 

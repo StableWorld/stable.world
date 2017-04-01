@@ -22,8 +22,8 @@ def request(method):
         url = '%s%s' % (config['url'], path)
         res = self._session.request(method, url, json=payload)
         logger.debug('[%s] %s - %s', method.upper(), url, res.status_code)
-        logger.debug(res.json())
         self._check_response(res)
+        logger.debug(res.json())
         return res.json()
     return req
 
@@ -100,7 +100,7 @@ class Client:
         try:
             payload = res.json()
         except JSONDecodeError:
-            raise errors.PZError('[%s] - api response was not valid json' % res.status_code)
+            raise errors.PZError('[%s] - response was not valid json' % res.status_code)
 
         if 'error' in payload:
             Error = getattr(errors, payload['error'], errors.PZError)

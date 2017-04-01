@@ -1,8 +1,10 @@
 import os
 import re
 import logging
+import json
 import certifi
 from zipfile import ZipFile
+from . import errors
 from .env import env
 from .py_helpers import ConfigParser, urlparse
 
@@ -21,13 +23,39 @@ CONFIG_SECTION = 'stable.world'
 config_filename = abs_expand(env.STABLE_WORLD_CONFIG)
 netrc_filename = abs_expand(os.path.join('~', '.netrc'))
 cache_dirname = abs_expand(env.STABLE_WORLD_CACHE_DIR)
-certfile_default = os.path.join(cache_dirname, 'cacert.pem')
+
 
 default_config = {
     'url': env.STABLE_WORLD_URL
 }
 
 config = default_config.copy()
+
+
+def make_dirs():
+    try:
+        if not os.path.isdir(cache_dirname):
+            os.makedirs(cache_dirname)
+    except OSError:
+        msg = "Could not create cache directory {}".format(cache_dirname)
+        raise errors.UserError(msg)
+
+    try:
+        test_perm = os.path.join(cache_dirname, '.perm-check')
+        with open(test_perm, 'a'):
+            pass
+        os.unlink(test_perm)
+    except OSError:
+        msg = "Do no have write perms for cache directory '{}'".format(cache_dirname)
+        raise errors.UserError(msg)
+
+    try:
+        config_dirname = os.path.dirname(config_filename)
+        if not os.path.isdir(config_dirname):
+            os.makedirs(config_dirname)
+    except OSError:
+        msg = "Could not create config directory {}".format(config_dirname)
+        raise errors.UserError(msg)
 
 
 def load_config():
@@ -51,7 +79,7 @@ def update_config_with_env():
     if verify_https in ['no', 'off']:
         verify_https = False
     if verify_https is None:
-        verify_https = certfile_default
+        verify_https = os.path.join(cache_dirname, 'cacert.pem')
 
     config.update(verify_https=verify_https)
 
@@ -127,21 +155,19 @@ def update_netrc_file(**kwargs):
         fd.write(netrc_content)
 
 
-def update_config_file():
+def update_config_file(kwargs):
     logger.info("Update config file %s", config_filename)
-    to_write = config.copy()
-    to_write.pop('email', None)
-    to_write.pop('token', None)
 
     parser = ConfigParser()
-    parser.add_section(CONFIG_SECTION)
+    if os.path.isfile(config_filename):
+        with open(config_filename) as fd:
+            parser.read_file(fd, config_filename)
 
-    for key, value in to_write.items():
+    if CONFIG_SECTION not in parser.sections():
+        parser.add_section(CONFIG_SECTION)
+
+    for key, value in kwargs.items():
         parser.set(CONFIG_SECTION, key, value)
-
-    config_dir = os.path.dirname(config_filename)
-    if not os.path.isdir(config_dir):
-        os.makedirs(config_dir)
 
     with open(config_filename, 'w') as fd:
         parser.write(fd)
@@ -157,19 +183,14 @@ def remove_default_values(kwargs):
 def update_config(**kwargs):
     'Update the config in memory and files'
 
-    if kwargs:
-        config.update(kwargs)
+    config.update(kwargs)
+    update_config_file(kwargs)
 
-    if 'email' in kwargs or 'token' in kwargs:
-        update_netrc_file(**kwargs)
 
-    kwargs.pop('email', None)
-    kwargs.pop('token', None)
-
-    remove_default_values(kwargs)
-
-    if kwargs:
-        update_config_file()
+def update_token(email, token):
+    'Update the config in memory and files'
+    config.update(email=email, token=token)
+    update_netrc_file(email=email, token=token)
 
 
 def zipsafe_read(filename):
@@ -192,11 +213,11 @@ def zipsafe_read(filename):
 
 
 def unpack_cache_files():
-    if not os.path.isdir(cache_dirname):
-        os.makedirs(cache_dirname)
-    if not os.path.isfile(certfile_default):
+    certfile = os.path.join(cache_dirname, 'cacert.pem')
+
+    if not os.path.isfile(certfile):
         cert = zipsafe_read(certifi.where())
-        with open(certfile_default, 'wb') as fd:
+        with open(certfile, 'wb') as fd:
             fd.write(cert)
 
 
@@ -210,3 +231,32 @@ def read_config():
     load_netrc()
     update_config_with_env()
     unpack_cache_files()
+
+
+def get_using():
+    '''
+    Detect if 'use' has been called and return the record
+    '''
+
+    using_file = os.path.join(cache_dirname, 'using.json')
+
+    if not os.path.exists(using_file):
+        return None
+
+    with open(using_file) as fd:
+        return json.load(fd)
+
+
+def set_using(records):
+    using_file = os.path.join(cache_dirname, 'using.json')
+
+    with open(using_file, 'w') as fd:
+        json.dump(records, fd, indent=2)
+
+
+def unset_using():
+
+    using_file = os.path.join(cache_dirname, 'using.json')
+
+    if os.path.exists(using_file):
+        os.unlink(using_file)

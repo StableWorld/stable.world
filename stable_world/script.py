@@ -5,17 +5,14 @@ from __future__ import print_function
 import sys
 
 import click
-from itertools import groupby
-from json import dumps, loads
 
 from stable_world import __version__ as sw_version
-from .config import config_filename, update_config, config, read_config
+from .config import config_filename, update_token, config, read_config, make_dirs
 from .interact.setup_user import setup_user
 from .interact.setup_project import setup_project
 from . import utils, errors, output
-from . import managers
 from .sw_logging import setup_logging
-
+from .use import use_project, unuse_project
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -46,6 +43,8 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config, dir)
     setup_logging()
     if not show_traceback:
         sys.excepthook = errors.brief_excepthook
+
+    make_dirs()
 
     if not ignore_config:
         read_config()
@@ -88,7 +87,7 @@ def register(email, password, token):
 def logout():
     "expire local token"
 
-    update_config(token=None, email=None)
+    update_token(token=None, email=None)
     click.echo(
         '\n\n    '
         'Token removed from %s file.'
@@ -108,7 +107,7 @@ def whoami(client):
 
 
 @main.command('project:create')
-@click.option('-p', '--project')
+@click.option('-p', '--project', required=True)
 @utils.login_required
 def project_create(client, project):
     "Create a new project"
@@ -212,91 +211,13 @@ def tag_show(client, project, tag):
 @utils.login_required
 def use(client, create_tag, project, dryrun):
     "Activate and record all usage for a project"
-    info = client.project(project)
-    already_using = config.get('using')
-    if already_using:
-        utils.echo_error()
-        click.echo('You are already using tag "%(tag)s" from project "%(project)s"' % already_using)
-        click.echo('  To unuse this environment, please run the command:')
-        click.echo('')
-        click.echo('        stable.world unuse')
-        click.echo('')
-        sys.exit(1)
-
-    pinned_to = info['project']['pinned_to']
-
-    if pinned_to:
-        click.secho('  Alert: ', fg='magenta', nl=False, bold=True)
-        click.echo('  Project %s is ' % project, nl=False)
-        click.secho('pinned', nl=False, bold=True)
-        click.echo(' to tag %s' % pinned_to['name'])
-
-        click.echo('  The current environment will be set up to replay %s' % pinned_to['name'])
-        click.echo('  Tag "%s" will not be used' % create_tag)
-        click.echo('')
-    else:
-        try:
-            if not dryrun:
-                client.add_tag(project, create_tag)
-            else:
-                utils.echo_warning()
-                click.echo('Dryrun: not creating tag')
-        except errors.DuplicateKeyError:
-            utils.echo_warning()
-            click.echo('The tag already exists. You may want to create a new tag')
-            utils.echo_warning()
-            click.echo('You are going to record over any previous changes')
-            click.echo('')
-
-        click.echo("  Tag %s added to project %s" % (create_tag, project))
-        click.echo('')
-
-    urls = info['project']['urls']
-
-    groups = groupby(urls.items(), lambda item: item[1]['type'])
-    tag = pinned_to['name'] if pinned_to else create_tag
-    using_record = {'types': {}, 'tag': tag, 'project': project}
-    for ty, cache_group in groups:
-        # import pdb; pdb.set_trace()
-        cache_list = list(cache_group)
-        details = managers.use(ty, project, create_tag, cache_list, pinned_to, dryrun)
-        using_record['types'][ty] = details
-    click.echo('')
-
-    if not dryrun:
-        update_config(using=dumps(using_record))
-
-        utils.echo_success()
-        what = 'replaying from' if pinned_to else 'recording into'
-        click.echo('You are %s tag "%s" in project "%s"' % (what, tag, project))
-        click.echo('')
-    else:
-        utils.echo_success()
-        click.echo('Dryrun Completed')
-        click.echo('')
+    use_project(client, create_tag, project, dryrun)
 
 
 @main.command()
 def unuse():
     "Deactivate a project"
-    json_using = config.get('using', None)
-    if not json_using:
-        utils.echo_error()
-        click.echo('You are not currently using a project')
-        sys.exit(1)
-
-    using = loads(json_using)
-    for ty, info in using['types'].items():
-        managers.unuse(ty, info)
-
-    click.echo('')
-
-    update_config(using=None)
-
-    utils.echo_success()
-    click.echo("No longer using project %s" % (using['project']))
-
-    return
+    unuse_project()
 
 
 @main.command()

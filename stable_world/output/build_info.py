@@ -5,18 +5,29 @@ from dateutil.tz import tzutc
 from contextlib import contextmanager
 
 from stable_world.config import config
+from stable_world import errors
 from .utils import prettydate
 
 
 @contextmanager
 def echo_response_time():
     start = time.time()
-    yield
-    duration = (time.time() - start) * 1000
-    click.secho("%ims response" % duration, dim=True)
+    try:
+        yield
+    except errors.PZError as err:
+        click.secho("{}: {}".format(type(err).__name__, err), fg='red')
+    else:
+        duration = (time.time() - start) * 1000
+        click.secho("%ims response" % duration, dim=True)
 
 
 def echo_info(info):
+
+    if info is None:
+        click.echo("    + No additional info available")
+        click.echo("")
+        return
+
     buildTime = parse_date(info.get('buildTime', '1900'))
     if not buildTime.tzinfo:
         buildTime = buildTime.replace(tzinfo=tzutc())
@@ -29,26 +40,29 @@ def echo_info(info):
 
 def echo_api_info(client):
     click.echo("  API: ", nl=False)
+    info = None
     with echo_response_time():
-        api_info = client.api_info()
+        info = client.api_info()
 
-    echo_info(api_info)
+    echo_info(info)
 
 
 def echo_auth_info(client):
     click.echo("  AUTH: ", nl=False)
+    info = None
     with echo_response_time():
-        api_info = client.auth_info()
+        info = client.auth_info()
 
-    echo_info(api_info)
+    echo_info(info)
 
 
 def echo_cache_info(client):
     click.echo("  CACHE: ", nl=False)
+    info = None
     with echo_response_time():
-        cache_info = client.cache_info()
+        info = client.cache_info()
 
-    echo_info(cache_info)
+    echo_info(info)
 
 
 def echo_html_info(client):

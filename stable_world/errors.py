@@ -4,7 +4,6 @@ import traceback
 import platform
 from requests.utils import quote
 from requests.exceptions import ConnectionError
-from . import config
 import click
 if platform.python_version_tuple()[0] == '3':
     from configparser import Error as ConfigParserError
@@ -73,18 +72,29 @@ original_excepthook = sys.excepthook
 BRIEF_ERRORS = UserError, ConfigParserError
 
 
-def brief_excepthook(exctype, value, tb):
-    """
-    Shorten exeptions with the base class errors.UserError
-    """
+def write_error_log(exctype, value, tb):
+    from . import config
     logfile = os.path.join(config.cache_dirname, 'logs', 'debug.txt')
     try:
         if not os.path.isdir(os.path.dirname(logfile)):
             os.makedirs(os.path.dirname(logfile))
-    except:
-        # Dont want to raise anything here
+    except Exception:
+        # Don't want any errors here
         pass
 
+    try:
+        with open(logfile, 'w') as fd:
+            traceback.print_exception(exctype, value, tb, file=fd)
+        click.echo('\n    Wrote full traceback to "{}"\n'.format(logfile))
+    except:
+        click.echo("Failed to write logfile")
+        original_excepthook(exctype, value, tb)
+
+
+def brief_excepthook(exctype, value, tb):
+    """
+    Shorten exeptions with the base class errors.UserError
+    """
     if issubclass(exctype, BRIEF_ERRORS):
         click.secho("\n\n    {}: ".format(exctype.__name__), nl=False, fg='red', bold=True)
         click.echo(str(value))
@@ -101,15 +111,13 @@ def brief_excepthook(exctype, value, tb):
 
         click.echo('\n    Check for updates on this exception on the issue tracker:')
         search_str = quote('is:issue {} "{}"'.format(exctype.__name__, value))
-        click.echo('      https://github.com/srossross/stable.world/issues?q={}\n'.format(search_str))
+        click.echo('      ', nl=False)
+        click.secho(
+            'https://github.com/srossross/stable.world/issues?q={}\n'.format(search_str),
+            fg='blue', underline=True,
+        )
         click.echo('    Or create a new issue:')
-        click.echo('      https://github.com/srossross/stable.world/issues/new')
+        click.echo('      ', nl=False)
+        click.secho('https://github.com/srossross/stable.world/issues/new', fg='blue', underline=True)
 
-        try:
-            with open(logfile, 'w') as fd:
-                traceback.print_exception(exctype, value, tb, file=fd)
-
-            click.echo('\n    Wrote full traceback to "{}"\n'.format(logfile))
-        except:
-            click.echo("Failed to write logfile")
-            original_excepthook(exctype, value, tb)
+        write_error_log(exctype, value, tb)
