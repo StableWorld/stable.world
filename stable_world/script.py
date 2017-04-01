@@ -49,7 +49,6 @@ def main(ctx, email, password, token, debug, show_traceback, ignore_config, dir)
     if not ignore_config:
         read_config()
 
-
     if ctx.invoked_subcommand:
         return
 

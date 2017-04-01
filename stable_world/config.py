@@ -170,8 +170,6 @@ def update_config_file(kwargs):
     for key, value in kwargs.items():
         parser.set(CONFIG_SECTION, key, value)
 
-    config_dir = os.path.dirname(config_filename)
-
     with open(config_filename, 'w') as fd:
         parser.write(fd)
 
