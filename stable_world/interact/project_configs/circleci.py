@@ -1,7 +1,8 @@
 from os.path import isfile, join
 import re
 import click
-import textwrap
+
+from stable_world.output.helpers import indent
 from stable_world.py_helpers import ConfigParser
 from stable_world import errors, config
 from stable_world.interact.yaml_insert import yaml_add_lines_to_machine_pre
@@ -88,7 +89,7 @@ class CircleProjectHelper(ProjectConfigurator):
             'build${{CIRCLE_BUILD_NUM}}'.format(project_name=self.project_name)
         ]
 
-        default = textwrap.indent(yaml_add_lines_to_machine_pre('', add_lines), '    + ')
+        default = indent(yaml_add_lines_to_machine_pre('', add_lines), '    + ')
         if 'stable.world use' in text:
             click.echo('  It looks like you are already using stable.world')
             click.echo('  Your confiuration should looke like this:')

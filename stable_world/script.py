@@ -288,5 +288,13 @@ def info(client):
     output.build_info.build_info(client)
 
 
+@main.command('setup:custom')
+@utils.dir_option
+@utils.login_required
+def setup_custom(client, dir):
+    "Fetch environment and server informations"
+    setup_project(dir, client, 'custom')
+
+
 if __name__ == '__main__':
     main(obj={})

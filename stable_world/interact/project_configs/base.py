@@ -1,4 +1,5 @@
 from random import choice
+import click
 from . import words
 
 
@@ -9,20 +10,25 @@ def random_project_name():
 class ProjectConfigurator(object):
     """
     """
-    CONFIGS_HELPERS = []
+    CONFIGS_HELPERS = {}
     CONFIGS_HELPER_DEFAULT = None
 
     @staticmethod
-    def register(detector):
-        ProjectConfigurator.CONFIGS_HELPERS.append(detector)
+    def register(key, detector):
+        ProjectConfigurator.CONFIGS_HELPERS[key] = detector
 
     @staticmethod
-    def default(detector):
-        ProjectConfigurator.CONFIGS_HELPER_DEFAULT = detector
+    def get(key, client, project_dir):
+        Cls = ProjectConfigurator.CONFIGS_HELPERS[key]
+        return Cls(client, project_dir)
+
+    @staticmethod
+    def default(key):
+        ProjectConfigurator.CONFIGS_HELPER_DEFAULT = 'custom'
 
     @classmethod
     def detect(cls, client, project_dir):
-        for detector in ProjectConfigurator.CONFIGS_HELPERS:
+        for detector in ProjectConfigurator.CONFIGS_HELPERS.values():
             if detector.is_valid(project_dir):
                 return detector(client, project_dir)
 
@@ -42,3 +48,7 @@ class ProjectConfigurator(object):
 
     def setup_project_ci(self):
         raise NotImplementedError()
+
+    def success(self):
+        click.secho('  Success, your build is now secure!', fg='green')
+        click.echo('')
