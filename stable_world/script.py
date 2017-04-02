@@ -292,7 +292,15 @@ def info(client):
 @utils.dir_option
 @utils.login_required
 def setup_custom(client, dir):
-    "Fetch environment and server informations"
+    "Set up new custom project"
+    setup_project(dir, client, 'custom')
+
+
+@main.command('setup:circle')
+@utils.dir_option
+@utils.login_required
+def setup_circle(client, dir):
+    "Set up new project on circleci"
     setup_project(dir, client, 'custom')
 
 
