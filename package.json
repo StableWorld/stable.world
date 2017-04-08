@@ -4,6 +4,7 @@
   "author": "Sean Ross-Ross <srossross@gmail.com>",
   "scripts": {
     "build:app": "bash scripts/makeapp.sh",
+    "build:docs": "(cd docs/ && make html)",
     "build:docker:py2": "echo \"FROM python:2\" | cat - Dockerfile.test.template > Dockerfile.py2 && docker build -f Dockerfile.py2 -t testpy2 .",
     "build:docker:py3": "echo \"FROM python:3\" | cat - Dockerfile.test.template > Dockerfile.py3 && docker build -f Dockerfile.py3 -t testpy3 .",
 
