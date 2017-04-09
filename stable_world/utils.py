@@ -8,17 +8,21 @@ from .env import env
 from .config import config, update_token
 
 email_option = click.option(
-    '--email', default=env.STABLE_WORLD_EMAIL
+    '--email', default=env.STABLE_WORLD_EMAIL,
+    help='Your email'
 )
 password_option = click.option(
-    '--password', default=env.STABLE_WORLD_PASSWORD
+    '--password', default=env.STABLE_WORLD_PASSWORD,
+    help='Your password'
 )
 token_option = click.option(
-    '--token', default=env.STABLE_WORLD_TOKEN
+    '--token', default=env.STABLE_WORLD_TOKEN,
+    help='An authentication token'
 )
 
 dir_option = click.option(
-    '--dir', default=abspath('.')
+    '--dir', default=abspath('.'),
+    help='The Directory of the project you want to setup'
 )
 
 

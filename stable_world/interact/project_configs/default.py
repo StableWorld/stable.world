@@ -13,6 +13,10 @@ def random_project_name():
 
 class CustomProjectHelper(ProjectConfigurator):
 
+    @classmethod
+    def is_valid(cls, project_dir):
+        return True
+
     def setup_project_name(self):
         project_name = random_project_name()
 
