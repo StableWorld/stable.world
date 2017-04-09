@@ -17,12 +17,6 @@ dependencies:
   pre:
     - sudo apt-get update
     - pip install --upgrade pip setuptools wheel
-  override:
-    - pip2 install -r test-requirements.txt
-    - python2 setup.py develop
-
-    - pip install -r test-requirements.txt
-    - python3 setup.py develop
 
 compile:
   override:
