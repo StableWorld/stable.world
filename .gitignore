@@ -13,3 +13,4 @@ stable.world
 Dockerfile.py2
 Dockerfile.py3
 bin/stable.world.pyz
+deployment/

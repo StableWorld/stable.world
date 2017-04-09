@@ -18,16 +18,21 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
-@click.option('--debug/--no-debug', default=False)
-@click.option('--show-traceback/--dont-show-traceback', default=False)
-@click.option('--ignore-config/--dont-ignore-config', default=False)
+@click.option(
+    '--show-traceback/--dont-show-traceback', default=False,
+    help='Show full traceback on a critical error'
+)
+@click.option(
+    '--ignore-config/--dont-ignore-config', default=False,
+    help="Don't read the config file from disk"
+)
 @click.version_option(sw_version)
 @utils.email_option
 @utils.password_option
 @utils.token_option
 @utils.dir_option
 @click.pass_context
-def main(ctx, email, password, token, debug, show_traceback, ignore_config, dir):
+def main(ctx, email, password, token, show_traceback, ignore_config, dir):
     """
     Stable.World cli
 
@@ -107,7 +112,7 @@ def whoami(client):
 
 
 @main.command('project:create')
-@click.option('-p', '--project', required=True)
+@utils.project_option(required=True)
 @utils.login_required
 def project_create(client, project):
     "Create a new project"
@@ -149,9 +154,9 @@ def project_destroy(client, project):
 
 @main.command('project:cache:add')
 @utils.project_option(required=True)
-@click.option('--url')
-@click.option('--type')
-@click.option('--name', required=True)
+@click.option('--url', help='The url endpoint to cache')
+@click.option('--type', help='type of cache')
+@click.option('--name', required=True, help='Give it a name')
 @utils.login_required
 def project_cache_add(client, project, url, type, name):
     "Add a cache to the project"
@@ -164,7 +169,7 @@ def project_cache_add(client, project, url, type, name):
 
 @main.command('project:cache:remove')
 @utils.project_option(required=True)
-@click.option('-n', '--name')
+@click.option('-n', '--name', help='name of cache to remove')
 @utils.login_required
 def project_cache_remove(client, project, name):
     "Remove a cache from the project"
@@ -176,7 +181,7 @@ def project_cache_remove(client, project, name):
 
 @main.command('tag:create')
 @utils.project_option(required=True)
-@click.option('-n', '--name', required=True)
+@click.option('-n', '--name', required=True, help='name of tag to create')
 @utils.login_required
 def tag_create(client, project, name):
     "Add a tag to a project"
@@ -205,9 +210,15 @@ def tag_show(client, project, tag):
 
 
 @main.command()
-@click.option('-t', '--create-tag', required=True)
+@click.option(
+    '-t', '--create-tag', required=True,
+    help='tag name to create'
+)
 @utils.project_option(required=True)
-@click.option('--dryrun/--no-dryrun')
+@click.option(
+    '--dryrun/--no-dryrun',
+    help='only print output don\'t create tag or modify config files'
+)
 @utils.login_required
 def use(client, create_tag, project, dryrun):
     "Activate and record all usage for a project"
@@ -235,7 +246,8 @@ def using():
 
 @main.command()
 @click.option('-t', '--tags', required=True,
-    help='Tag all requests with this tag')
+    help='Tag all requests with this tag'
+)
 @utils.project_option(required=True)
 @utils.login_optional
 def diff(client, project, tags):
@@ -286,6 +298,22 @@ def token(email, password, token):
 def info(client):
     "Fetch environment and server informations"
     output.build_info.build_info(client)
+
+
+@main.command('setup:custom')
+@utils.dir_option
+@utils.login_required
+def setup_custom(client, dir):
+    "Set up new custom project"
+    setup_project(dir, client, 'custom')
+
+
+@main.command('setup:circle')
+@utils.dir_option
+@utils.login_required
+def setup_circle(client, dir):
+    "Set up new project on circleci"
+    setup_project(dir, client, 'custom')
 
 
 if __name__ == '__main__':
