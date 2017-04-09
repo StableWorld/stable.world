@@ -1,4 +1,0 @@
-pytest
-mock
-requests-mock
-flake8

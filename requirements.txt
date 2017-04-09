@@ -1,0 +1,9 @@
+# Documentation
+sphinx
+sphinx-click
+
+# Testing
+pytest
+mock
+requests-mock
+flake8
