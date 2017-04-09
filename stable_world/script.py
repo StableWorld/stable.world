@@ -245,7 +245,8 @@ def using():
 
 
 @main.command()
-@click.option('-t', '--tags', required=True,
+@click.option(
+    '-t', '--tags', required=True,
     help='Tag all requests with this tag'
 )
 @utils.project_option(required=True)

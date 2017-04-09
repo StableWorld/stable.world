@@ -12,6 +12,7 @@
     "test:py2": "docker run testpy2 py.test /app/",
     "test:py3": "docker run testpy3 py.test /app/",
 
+    "lint": "flake8",
     "test:functional": "py.test functional_tests/",
     "deploy:fetch": "rm -rf deployment && git clone https://gist.github.com/befb8025b4fdf52d7db8391a1cbe0c22.git deployment",
     "deploy:authorize": "bash deployment/init.sh",
