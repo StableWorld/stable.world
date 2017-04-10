@@ -14,15 +14,10 @@ original_excepthook = sys.excepthook
 
 
 def write_error_log(exctype, value, tb):
-
+    '''
+    Write the exception to a the log file
+    '''
     logfile = os.path.join(config.cache_dirname, 'logs', 'debug.txt')
-    try:
-        if not os.path.isdir(os.path.dirname(logfile)):
-            os.makedirs(os.path.dirname(logfile))
-    except Exception:
-        # Don't want any errors here
-        click.echo("Failed to write logfile", err=True)
-        original_excepthook(exctype, value, tb)
 
     try:
         with open(logfile, 'w') as fd:
