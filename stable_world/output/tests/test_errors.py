@@ -5,12 +5,19 @@ from stable_world import errors
 from stable_world import __version__ as version
 from mock import patch
 
+from stable_world.py_helpers import PY3
+
+if PY3:
+    StringIO = io.StringIO
+else:
+    BytesIO = io.BytesIO
+
 
 @patch('stable_world.output.error_output.open')
 @patch('click.utils._default_text_stderr')
 def test_write_error(default_text_stderr, sw_open):
-    stderr_io = default_text_stderr.return_value = io.StringIO()
-    logfile_io = sw_open.return_value = io.StringIO()
+    stderr_io = default_text_stderr.return_value = StringIO()
+    logfile_io = sw_open.return_value = StringIO()
     logfile_io.close = lambda: None
 
     try:
@@ -34,7 +41,7 @@ def test_write_error(default_text_stderr, sw_open):
 @patch('stable_world.output.error_output.write_error_log')
 def test_brief_excepthook(write_error_log, default_text_stderr):
 
-    stderr_io = default_text_stderr.return_value = io.StringIO()
+    stderr_io = default_text_stderr.return_value = StringIO()
     try:
         raise errors.UserError('custom user error')
     except errors.UserError:
