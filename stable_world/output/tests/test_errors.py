@@ -10,7 +10,7 @@ from stable_world.py_helpers import PY3
 if PY3:
     StringIO = io.StringIO
 else:
-    BytesIO = io.BytesIO
+    StringIO = io.BytesIO
 
 
 @patch('stable_world.output.error_output.open')
