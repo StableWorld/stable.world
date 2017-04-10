@@ -40,7 +40,7 @@ def make_dirs():
         msg = "Could not create cache directory {}".format(cache_dirname)
         raise errors.UserError(msg)
 
-    logdir = os.path.join(config.cache_dirname, 'logs')
+    logdir = os.path.join(cache_dirname, 'logs')
     try:
         if not os.path.isdir(os.path.dirname(logdir)):
             os.makedirs(os.path.dirname(logdir))
