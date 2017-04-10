@@ -314,7 +314,7 @@ def setup_custom(client, dir):
 @utils.login_required
 def setup_circle(client, dir):
     "Set up new project on circleci"
-    setup_project(dir, client, 'custom')
+    setup_project(dir, client, 'circleci')
 
 
 if __name__ == '__main__':

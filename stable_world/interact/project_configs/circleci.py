@@ -1,6 +1,7 @@
-from os.path import isfile, join
+from os.path import isfile, join, exists
 import re
 import click
+import logging
 
 from stable_world.output.helpers import indent
 from stable_world.py_helpers import ConfigParser
@@ -8,6 +9,8 @@ from stable_world import errors, config
 from stable_world.interact.yaml_insert import yaml_add_lines_to_machine_pre
 
 from .base import ProjectConfigurator
+
+logger = logging.getLogger(__name__)
 
 GIT_URL_RE = re.compile(
     '^(git@(?P<sshhost>[\w.]+):)'
@@ -21,10 +24,11 @@ class CircleProjectHelper(ProjectConfigurator):
 
     @classmethod
     def is_valid(cls, project_dir):
+        logger.info('Found CircleCI project "{}"'.format(project_dir))
         if isfile(join(project_dir, 'circle.yml')):
             return True
-        if isfile(join(project_dir, 'circle.yaml')):
-            return True
+
+        logger.info('Could not find circle.yml file in {}'.format(project_dir))
 
     def get_git_remote(self):
         parser = ConfigParser()
@@ -36,6 +40,8 @@ class CircleProjectHelper(ProjectConfigurator):
 
     def setup(self):
         # TODO: configur git remote
+        click.echo('  Setup your CircleCI Project')
+
         uri = self.get_git_remote()
 
         match = GIT_URL_RE.match(uri)
@@ -80,8 +86,11 @@ class CircleProjectHelper(ProjectConfigurator):
     def setup_project_ci(self):
         circle_yaml = join(self.project_dir, 'circle.yml')
 
-        with open(circle_yaml) as fd:
-            text = fd.read()
+        if exists(circle_yaml):
+            with open(circle_yaml) as fd:
+                text = fd.read()
+        else:
+            text = ''
 
         add_lines = [
             'curl {url}/install | sudo bash -s -- rc'.format(url=config.config['url']),
