@@ -17,6 +17,7 @@ from stable_world.py_helpers import PY3
 if PY3:
     unicode = str
 
+
 def write_error_log(exctype, value, tb):
     '''
     Write the exception to a the log file
