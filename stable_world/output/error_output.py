@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 import sys
 import os
 import traceback
@@ -12,6 +12,10 @@ from stable_world import config, errors
 
 original_excepthook = sys.excepthook
 
+from stable_world.py_helpers import PY3
+
+if PY3:
+    unicode = str
 
 def write_error_log(exctype, value, tb):
     '''
@@ -24,7 +28,8 @@ def write_error_log(exctype, value, tb):
             uname = platform_uname()
             header = '[Unhandled Exception at {}] system={}, stable.world version: {}'
             print(header.format(time.ctime(), uname.system, version), file=fd)
-            traceback.print_exception(exctype, value, tb, file=fd)
+            tb = '\n'.join(traceback.format_exception(exctype, value, tb))
+            print(tb, file=fd)
         click.echo('\n    Wrote full traceback to "{}"\n'.format(logfile), err=True)
     except:
         click.echo("Failed to write logfile", err=True)
@@ -37,7 +42,7 @@ def brief_excepthook(exctype, value, tb):
     """
     if issubclass(exctype, errors.BRIEF_ERRORS):
         click.secho("\n\n    {}: ".format(exctype.__name__), nl=False, fg='red', bold=True, err=True)
-        click.echo(str(value), err=True)
+        click.echo(unicode(value), err=True)
         click.echo(err=True)
     elif issubclass(exctype, ConnectionError):
         click.secho("\n\n    {}: ".format(exctype.__name__), nl=False, fg='red', bold=True, err=True)
@@ -46,7 +51,7 @@ def brief_excepthook(exctype, value, tb):
     else:
         msg = "\n\n    Critical! Unhandled Exception\n    {}: ".format(exctype.__name__)
         click.secho(msg, nl=False, fg='red', bold=True, err=True)
-        click.echo(str(value), err=True)
+        click.echo(unicode(value), err=True)
         click.echo(err=True)
 
         click.echo('\n    Check for updates on this exception on the issue tracker:')

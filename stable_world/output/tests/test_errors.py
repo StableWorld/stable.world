@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import sys
 import io
 from stable_world.output import error_output
@@ -10,7 +11,7 @@ from stable_world.py_helpers import PY3
 if PY3:
     StringIO = io.StringIO
 else:
-    StringIO = io.BytesIO
+    StringIO = io.StringIO
 
 
 @patch('stable_world.output.error_output.open')
