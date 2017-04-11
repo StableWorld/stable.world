@@ -10,7 +10,8 @@ from stable_world import __version__ as sw_version
 from .config import config_filename, update_token, config, read_config, make_dirs
 from .interact.setup_user import setup_user
 from .interact.setup_project import setup_project
-from . import utils, errors, output
+from . import utils, output
+from .output import error_output
 from .sw_logging import setup_logging
 from .use import use_project, unuse_project
 
@@ -47,7 +48,7 @@ def main(ctx, email, password, token, show_traceback, ignore_config, dir):
 
     setup_logging()
     if not show_traceback:
-        sys.excepthook = errors.brief_excepthook
+        sys.excepthook = error_output.brief_excepthook
 
     make_dirs()
 

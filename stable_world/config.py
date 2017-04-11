@@ -40,6 +40,15 @@ def make_dirs():
         msg = "Could not create cache directory {}".format(cache_dirname)
         raise errors.UserError(msg)
 
+    logdir = os.path.join(cache_dirname, 'logs')
+    try:
+        if not os.path.isdir(os.path.dirname(logdir)):
+            os.makedirs(os.path.dirname(logdir))
+    except OSError:
+        # Don't want any errors here
+        msg = "Do no have write perms to write logs to '{}'".format(logdir)
+        raise errors.UserError(msg)
+
     try:
         test_perm = os.path.join(cache_dirname, '.perm-check')
         with open(test_perm, 'a'):

@@ -40,7 +40,7 @@ class CircleProjectHelper(ProjectConfigurator):
 
     def setup(self):
         # TODO: configur git remote
-        click.echo('  Setup your CircleCI Project')
+        click.echo('  Setup your CircleCI Project:\n')
 
         uri = self.get_git_remote()
 
