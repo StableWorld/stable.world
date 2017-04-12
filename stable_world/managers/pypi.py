@@ -44,7 +44,6 @@ class PyPIManager(BaseManager):
         parser.set(section, 'index-url', pypi_index)
         parser.set(section, 'cache-dir', self.cache_dir)
 
-        print('--------dd')
         if self.dryrun:
             click.echo('  %-30s %s' % ('Dryrun: Would have written config file', self.config_file))
             click.echo('---')
@@ -57,7 +56,6 @@ class PyPIManager(BaseManager):
                 os.makedirs(os.path.dirname(self.config_file))
 
             with open(self.config_file, 'w') as fd:
-                print("fd", fd)
                 parser.write(fd)
 
         return {'config_files': [self.config_file]}
