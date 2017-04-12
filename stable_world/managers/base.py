@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 import click
 from .push_file import push_file, pull_file

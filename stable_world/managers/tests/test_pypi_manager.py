@@ -1,6 +1,18 @@
-from stable_world.managers.pypi import PyPIManager
+from __future__ import unicode_literals
+
 from mock import patch
 import io
+from stable_world.managers.pypi import PyPIManager
+from stable_world.py_helpers import PY2
+
+
+class AnyIO(io.StringIO):
+    def write(self, data):
+        if PY2 and not isinstance(data, unicode):
+            # F**k unicode in python2
+            data = data.decode()
+
+        return io.StringIO.write(self, data)
 
 
 @patch('stable_world.managers.base.config')
@@ -17,7 +29,7 @@ def test_pypi_manager(mock_open, mock_config):
     )
 
     mock_config.__getitem__ = lambda sd, item: {'url': 'https://mock'}[item]
-    pip_config_io = mock_open().__enter__.return_value = io.StringIO()
+    pip_config_io = mock_open().__enter__.return_value = AnyIO()
 
     mgr.use()
 
@@ -41,7 +53,7 @@ def test_pypi_manager_pinned(mock_open, mock_config):
     )
 
     mock_config.__getitem__ = lambda sd, item: {'url': 'https://mock'}[item]
-    pip_config_io = mock_open().__enter__.return_value = io.StringIO()
+    pip_config_io = mock_open().__enter__.return_value = AnyIO()
 
     mgr.use()
 

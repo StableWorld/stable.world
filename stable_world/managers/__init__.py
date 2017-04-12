@@ -2,15 +2,12 @@ import click
 
 from .pypi import PyPIManager
 from .npm import NPMManager
-# from .conda import CondaManager
 
 
 def use(ty, project, create_tag, cache_list, pinned_to, dryrun):
 
     if ty == PyPIManager.NAME:
         Manager = PyPIManager
-    # if ty == CondaManager.NAME:
-    #     Manager = CondaManager
     if ty == NPMManager.NAME:
         Manager = NPMManager
     else:
@@ -24,8 +21,6 @@ def use(ty, project, create_tag, cache_list, pinned_to, dryrun):
 def unuse(ty, info):
     if ty == PyPIManager.NAME:
         Manager = PyPIManager
-    # if ty == CondaManager.NAME:
-    #     Manager = CondaManager
     if ty == NPMManager.NAME:
         Manager = NPMManager
     else:

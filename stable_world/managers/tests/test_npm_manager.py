@@ -1,6 +1,8 @@
-from stable_world.managers.npm import NPMManager
+from __future__ import unicode_literals
 from mock import patch
 import io
+
+from stable_world.managers.npm import NPMManager
 
 
 @patch('stable_world.managers.base.config')

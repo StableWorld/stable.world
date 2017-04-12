@@ -1,5 +1,5 @@
 import platform
-__all__ = ('JSONDecodeError', 'platform_uname', 'ConfigParser', 'ConfigParserError', 'urlparse')
+__all__ = ('JSONDecodeError', 'platform_uname', 'ConfigParser', 'ConfigParserError', 'urlparse', 'urlunparse')
 
 PY3 = platform.python_version_tuple()[0] == '3'
 PY2 = not PY3
