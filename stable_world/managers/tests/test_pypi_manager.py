@@ -8,7 +8,7 @@ from stable_world.py_helpers import PY2
 
 class AnyIO(io.StringIO):
     def write(self, data):
-        if PY2 and not isinstance(data, unicode):
+        if PY2 and not isinstance(data, unicode):  # noqa: F821
             # F**k unicode in python2
             data = data.decode()
 
