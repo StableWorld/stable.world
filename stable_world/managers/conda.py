@@ -4,23 +4,14 @@ import sys
 import click
 
 from ..config import config
-from .push_file import push_file, pull_file
-
-CONDA_PREFIX = None
-
-for path in os.getenv('PATH', '').split(os.pathsep):
-    if os.path.isfile(os.path.join(path, 'conda')):
-        CONDA_PREFIX = path
+from .push_file import push_file
+from .base import BaseManager
 
 
 def write_channels(channels, fd):
     print('channels:', file=fd)
     for channel in channels:
         print(' -', channel, file=fd)
-
-
-def get_config_file():
-    return os.path.join(os.path.expanduser('~'), '.condarc')
 
 
 def make_channel_url(project, create_tag, pinned_to):
@@ -38,34 +29,33 @@ def make_channel_url(project, create_tag, pinned_to):
     return _make_channel_url
 
 
-def use(project, create_tag, cache_list, pinned_to, dryrun):
+class CondaManager(BaseManager):
+    NAME = 'conda'
+    PROGRAM = 'conda'
 
-    cache_infos = list(cache_list)
-    if not cache_infos:
-        return {}
+    @property
+    def config_file():
+        return os.path.join(os.path.expanduser('~'), '.condarc')
 
-    create_channel = make_channel_url(project, create_tag, pinned_to)
-    channels = [create_channel(cache_name, cache_info) for cache_name, cache_info in cache_infos]
+    def use(self):
 
-    conda_config_file = get_config_file()
+        cache_infos = list(cache_list)
+        if not cache_infos:
+            return {}
 
-    if dryrun:
-        click.echo('  %-30s %s' % ('Dryrun: Would have written config file', conda_config_file))
-        click.echo('---')
-        write_channels(channels, sys.stdout)
-        click.echo('---')
-    else:
-        push_file(conda_config_file)
-        click.echo('  %-30s %s' % ('Writing conda config file', conda_config_file))
-        with open(conda_config_file, 'w') as fd:
-            write_channels(channels, fd)
-
-    return {'config_files': [conda_config_file]}
+        create_channel = make_channel_url(project, create_tag, pinned_to)
+        channels = [create_channel(cache_name, cache_info) for cache_name, cache_info in cache_infos]
 
 
-def unuse(info):
-    if not info:
-        return
-    for config_file in info.get('config_files', []):
-        click.echo('  %-30s %s' % ('Removing conda config file', config_file))
-        pull_file(config_file)
+        if dryrun:
+            click.echo('  %-30s %s' % ('Dryrun: Would have written config file', conda_config_file))
+            click.echo('---')
+            write_channels(channels, sys.stdout)
+            click.echo('---')
+        else:
+            push_file(conda_config_file)
+            click.echo('  %-30s %s' % ('Writing conda config file', conda_config_file))
+            with open(conda_config_file, 'w') as fd:
+                write_channels(channels, fd)
+
+        return {'config_files': [conda_config_file]}

@@ -1,95 +1,63 @@
 import os
 import sys
 import click
-
+from .base import BaseManager
 from stable_world.py_helpers import ConfigParser, platform_uname
 from stable_world import errors
 
-from .push_file import push_file, pull_file
-from ..config import config
 
-PIP_PREFIX = None
+class PyPIManager(BaseManager):
 
-for path in os.getenv('PATH', '').split(os.pathsep):
-    if os.path.isfile(os.path.join(path, 'pip')):
-        PIP_PREFIX = path
+    NAME = 'pypi'
+    PROGRAM = 'pip'
 
+    @property
+    def config_file(self):
+        uname = platform_uname()
+        if uname.system == 'Linux':
+            return os.path.expanduser('~/.config/pip/pip.conf')
+        elif uname.system == 'Darwin':
+            return os.path.expanduser('~/Library/Application Support/pip/pip.conf')
+        elif uname.system == 'Windows':
+            return '%s\pip\pip.ini' % os.getenv('APPDATA')
+        else:
+            raise errors.UserError('Unsupported platform %s' % uname.system)
 
-def get_config_file():
-    uname = platform_uname()
-    if uname.system == 'Linux':
-        return os.path.expanduser('~/.config/pip/pip.conf')
-    elif uname.system == 'Darwin':
-        return os.path.expanduser('~/Library/Application Support/pip/pip.conf')
-    elif uname.system == 'Windows':
-        return '%s\pip\pip.ini' % os.getenv('APPDATA')
-    else:
-        raise errors.UserError('Unsupported platform %s' % uname.system)
+    def use(self):
 
+        sw_url = self.get_base_url()
 
-def get_cache_dir(project, tag):
-    return os.path.join(PIP_PREFIX, 'cache', '%s-%s-pypi' % (project, tag))
+        parser = ConfigParser()
 
+        if os.path.isfile(self.config_file):
+            with open(self.config_file) as fd:
+                parser.read(fd)
 
-def use(project, create_tag, cache_list, pinned_to, dryrun):
+        section = 'global'
+        if section not in parser.sections():
+            parser.add_section(section)
 
-    if not PIP_PREFIX:
-        click.echo('Pip not installed, not configuring PIP')
-        return {}
+        cache_url = self.cache_info['url']
+        pypi_index = self.cache_info['config']['global']['index-url']
 
-    cache_info = list(cache_list)
-    if not cache_info:
-        return {}
+        pypi_index = pypi_index.replace(cache_url, sw_url)
+        parser.set(section, 'index-url', pypi_index)
+        parser.set(section, 'cache-dir', self.cache_dir)
 
-    assert len(cache_info) == 1
-    cache_name, cache_info = cache_info[0]
+        print('--------dd')
+        if self.dryrun:
+            click.echo('  %-30s %s' % ('Dryrun: Would have written config file', self.config_file))
+            click.echo('---')
+            parser.write(sys.stdout)
+            click.echo('---')
+        else:
+            click.echo('  %-30s %s' % ('Writing pip config file', self.config_file))
 
-    api_url = config['url']
+            if not os.path.exists(os.path.dirname(self.config_file)):
+                os.makedirs(os.path.dirname(self.config_file))
 
-    if pinned_to:
-        sw_url = '%s/cache/replay/%s/%s/%s/' % (api_url, project, pinned_to['name'], cache_name)
-        cache_dir = get_cache_dir(project, pinned_to['name'])
-    else:
-        sw_url = '%s/cache/record/%s/%s/%s/' % (api_url, project, create_tag, cache_name)
-        cache_dir = get_cache_dir(project, create_tag)
+            with open(self.config_file, 'w') as fd:
+                print("fd", fd)
+                parser.write(fd)
 
-    pip_config_file = get_config_file()
-    parser = ConfigParser()
-
-    if os.path.isfile(pip_config_file):
-        with open(pip_config_file) as fd:
-            parser.read(fd)
-
-    if 'global' not in parser.sections():
-        parser.add_section('global')
-
-    cache_url = cache_info['url']
-    pypi_index = cache_info['config']['global']['index-url']
-    pypi_index = pypi_index.replace(cache_url, sw_url)
-    parser.set('global', 'index-url', pypi_index)
-    parser.set('global', 'cache-dir', cache_dir)
-
-    if dryrun:
-        click.echo('  %-30s %s' % ('Dryrun: Would have written config file', pip_config_file))
-        click.echo('---')
-        parser.write(sys.stdout)
-        click.echo('---')
-    else:
-        click.echo('  %-30s %s' % ('Writing pip config file', pip_config_file))
-
-        if not os.path.exists(os.path.dirname(pip_config_file)):
-            os.makedirs(os.path.dirname(pip_config_file))
-
-        push_file(pip_config_file)
-        with open(pip_config_file, 'w') as fd:
-            parser.write(fd)
-
-    return {'config_files': [pip_config_file]}
-
-
-def unuse(info):
-    if not info:
-        return
-    for config_file in info.get('config_files', []):
-        click.echo('  %-30s %s' % ('Removing pip config file', config_file))
-        pull_file(config_file)
+        return {'config_files': [self.config_file]}

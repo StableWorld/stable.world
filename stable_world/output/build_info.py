@@ -28,7 +28,7 @@ def echo_info(info):
         click.echo("")
         return
 
-    buildTime = parse_date(info.get('buildTime', '1900'))
+    buildTime = parse_date(info.get('buildTime', '1900') or '1900')
     if not buildTime.tzinfo:
         buildTime = buildTime.replace(tzinfo=tzutc())
 

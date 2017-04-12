@@ -8,7 +8,7 @@ if PY3:
     from json.decoder import JSONDecodeError
     from configparser import ConfigParser
     from configparser import Error as ConfigParserError
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse, urlunparse
 else:  # PY2
     from collections import namedtuple
     JSONDecodeError = ValueError
@@ -20,7 +20,7 @@ else:  # PY2
     from ConfigParser import ConfigParser
     from ConfigParser import Error as ConfigParserError
     ConfigParser.read_file = ConfigParser.readfp
-    from urlparse import urlparse
+    from urlparse import urlparse, urlunparse
 
 
 def platform_uname():

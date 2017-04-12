@@ -155,9 +155,9 @@ class Client:
         return res
 
     @url('/api/projects/{project}/url/{name}')
-    def add_url(self, project, url, type, name):
+    def add_url(self, url, project, cache_url, name, type):
         to = url.format(project=project, name=name)
-        self.post(to, {'url': url, 'type': type})
+        self.post(to, {'url': cache_url, 'type': type})
         return
 
     @url('/api/projects/{project}/url/{name}')

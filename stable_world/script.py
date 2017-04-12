@@ -162,7 +162,7 @@ def project_destroy(client, project):
 def project_cache_add(client, project, url, type, name):
     "Add a cache to the project"
 
-    client.add_url(project, url, type, name)
+    client.add_url(project, url, name, type)
 
     utils.echo_success()
     click.echo(' Cache %s was added as %s' % (url, name))
@@ -207,7 +207,7 @@ def tag_list(client, project):
 def tag_show(client, project, tag):
     "List tags in a project"
     info = client.tag_objects(project, tag)
-    output.tags.print_objects(info['objects'])
+    output.tags.print_objects(info)
 
 
 @main.command()
