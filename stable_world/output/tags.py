@@ -34,9 +34,13 @@ def diff_tags(diff_result):
     print_diff_items(diff_result['diff']['modified'])
 
 
-def print_objects(objects):
+def print_objects(info):
 
-    sources = sorted(obj['source'] for obj in objects)
+    objects = info.get('objects')
 
-    for source in sources:
-        print('  -', source)
+    if not objects:
+        click.echo('  No sources in this tag')
+        return
+
+    for source in objects:
+        click.echo('   - {}'.format(source))
