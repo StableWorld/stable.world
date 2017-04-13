@@ -2,6 +2,7 @@ from dateutil.parser import parse as parse_date
 import click
 from itertools import groupby
 
+
 def print_tags(tag_list):
     print('    Tags:')
     for tag in tag_list:

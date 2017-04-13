@@ -203,7 +203,10 @@ def tag_list(client, project):
 @main.command('tag:show')
 @utils.project_option(required=True)
 @utils.tag_option(required=True)
-@click.option('--full/--exact', help='If exact (default) show this tag only, otherwise show all previous tags.')
+@click.option(
+    '--full/--exact',
+    help='If exact (default) show this tag only, otherwise show all previous tags.'
+)
 @utils.login_optional
 def tag_show(client, project, tag, full):
     "List tags in a project"
