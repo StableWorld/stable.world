@@ -182,13 +182,13 @@ def project_cache_remove(client, project, name):
 
 @main.command('tag:create')
 @utils.project_option(required=True)
-@click.option('-n', '--name', required=True, help='name of tag to create')
+@click.option('-t', '--tag', required=True, help='name of tag to create')
 @utils.login_required
-def tag_create(client, project, name):
+def tag_create(client, project, tag):
     "Add a tag to a project"
-    client.add_tag(project, name)
+    client.add_tag(project, tag)
     utils.echo_success()
-    click.echo("Tag %s added to project %s" % (name, project))
+    click.echo("Tag %s added to project %s" % (tag, project))
 
 
 @main.command('tag:list')
@@ -203,10 +203,14 @@ def tag_list(client, project):
 @main.command('tag:show')
 @utils.project_option(required=True)
 @utils.tag_option(required=True)
+@click.option(
+    '--full/--exact',
+    help='If exact (default) show this tag only, otherwise show all previous tags.'
+)
 @utils.login_optional
-def tag_show(client, project, tag):
+def tag_show(client, project, tag, full):
     "List tags in a project"
-    info = client.tag_objects(project, tag)
+    info = client.tag_objects(project, tag, exact=not full)
     output.tags.print_objects(info)
 
 

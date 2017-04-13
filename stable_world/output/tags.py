@@ -1,5 +1,6 @@
 from dateutil.parser import parse as parse_date
 import click
+from itertools import groupby
 
 
 def print_tags(tag_list):
@@ -42,5 +43,7 @@ def print_objects(info):
         click.echo('  No sources in this tag')
         return
 
-    for source in objects:
-        click.echo('   - {}'.format(source))
+    for tag, tag_group in groupby(objects, lambda obj: obj['tag']):
+        click.echo('Tag: {}'.format(tag))
+        for obj in tag_group:
+            click.echo('   - {}'.format(obj['source']))

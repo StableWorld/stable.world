@@ -208,5 +208,8 @@ class Client:
         return
 
     @url('/api/tags/{project}/{tag}/objects')
-    def tag_objects(self, url, project, tag):
-        return self.get(url.format(project=project, tag=tag))
+    def tag_objects(self, url, project, tag, exact=False):
+        to = (url + '?exact={exact}').format(
+            project=project, tag=tag, exact='yes' if exact else ''
+        )
+        return self.get(to)
