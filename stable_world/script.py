@@ -291,12 +291,11 @@ def unpin(client, project):
 @main.command()
 @utils.email_option
 @utils.password_option
-@utils.token_option
-@utils.update_config_with_args
-def token(email, password, token):
+@utils.project_option(required=True)
+@utils.login_required
+def token(client, email, password, project):
     "Get your authentication token"
-
-    utils.ensure_login(email, password, token, hide_token=False)
+    token = client.token(email, password, scopes={'project': project})
 
 
 @main.command()

@@ -27,10 +27,6 @@ class BaseManager(object):
         self.create_tag = create_tag
         self.cache_list = cache_list
         self.pinned_to = pinned_to
-        if pinned_to:
-            self.tag = pinned_to['name']
-        else:
-            self.tag = self.create_tag
 
         self.dryrun = dryrun
 
@@ -47,7 +43,7 @@ class BaseManager(object):
 
     @property
     def cache_dir(self):
-        part = '{}-{}-{}'.format(self.project, self.tag, self.NAME)
+        part = '{}-{}'.format(self.project, self.NAME)
         cache_dir = os.path.join('~', '.cache', 'stable.world', part)
         return os.path.expanduser(cache_dir)
 
@@ -63,10 +59,7 @@ class BaseManager(object):
                 api_uri.netloc
             )))
 
-        if self.pinned_to:
-            return '%s/cache/%s/%s/%s/%s/' % (api_url, 'replay', self.project, self.tag, self.cache_name)
-        else:
-            return '%s/cache/%s/%s/%s/%s/' % (api_url, 'record', self.project, self.tag, self.cache_name)
+        return '%s/cache/%s/' % (api_url, self.cache_name)
 
     def use(self):
         if not self.dryrun:

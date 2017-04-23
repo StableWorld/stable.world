@@ -80,19 +80,6 @@ class Client:
         ]
         return {template: method for submap in url_templates for template, method in submap.items()}
 
-    @property
-    def token(self):
-        raise AttributeError('token is not a readable property')
-
-    @token.setter
-    def token(self, token):
-        if token:
-            self._session.headers['Authorization'] = 'Bearer %s' % token
-        else:
-            self._session.headers.pop('Authorization', None)
-
-        self._token = token
-
     def _check_response(self, res):
         if 'sw-hint' in res.headers:
             logger.debug('Response Hint: "{}"'.format(res.headers['sw-hint']))
@@ -137,10 +124,10 @@ class Client:
         return res['token']
 
     @url('/auth/token')
-    def login(self, url, email, password):
+    def token(self, url, email, password, scopes=None):
 
         res = self.post(
-            url, dict(email=email, password=password)
+            url, dict(email=email, password=password, scopes=scopes)
         )
         return res['token']
 

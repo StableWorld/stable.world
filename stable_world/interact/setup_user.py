@@ -36,7 +36,7 @@ def setup_user(email, password, token, login_only=False, confirm_password=True):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = client.login(email, password)
+            token = client.token(email, password)
             update_token(email=email, token=token)
             click.echo('\n    Welcome back %s\n\n' % email)
             return client
