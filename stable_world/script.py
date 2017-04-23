@@ -292,10 +292,17 @@ def unpin(client, project):
 @utils.email_option
 @utils.password_option
 @utils.project_option(required=True)
-@utils.login_required
+@utils.client
 def token(client, email, password, project):
     "Get your authentication token"
-    token = client.token(email, password, scopes={'project': project})
+    from stable_world.interact.setup_user import setup_project_token
+
+    # Will raise not found exception
+    client.project(project)
+
+    email = email or config.get('email')
+    token = setup_project_token(email, password, project)
+    print("  token:", token)
 
 
 @main.command()
