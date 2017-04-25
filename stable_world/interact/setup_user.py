@@ -90,7 +90,7 @@ def setup_project_token(email, password, project):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = client.token(email, password)
+            token = client.token(email, password, scopes={'project': project})
             return token
         except errors.PasswordError:
             password = None

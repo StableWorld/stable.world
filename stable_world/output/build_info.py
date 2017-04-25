@@ -67,6 +67,7 @@ def echo_cache_info(client):
 
 def echo_html_info(client):
     click.echo("  APP: ", nl=False)
+    info = None
     with echo_response_time():
         info = client.html_info()
 
