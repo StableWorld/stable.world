@@ -12,9 +12,7 @@ def test_npm_manager(mock_open, mock_config):
     cache_info = {'url': 'http://pypi/', 'config': {'registry': 'http://npm/registry'}}
     mgr = NPMManager(
         project='project',
-        create_tag='tag1',
         cache_list=[('name', cache_info)],
-        pinned_to=None,
         dryrun=False
     )
 
@@ -41,9 +39,7 @@ def test_npm_manager_pinned(mock_open, mock_config):
     cache_info = {'url': 'http://pypi/', 'config': {'registry': 'http://npm/registry'}}
     mgr = NPMManager(
         project='project',
-        create_tag='tag1',
         cache_list=[('cacheName', cache_info)],
-        pinned_to={'name': 'pinnedTag'},
         dryrun=False
     )
 

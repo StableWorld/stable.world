@@ -22,9 +22,7 @@ def test_pypi_manager(mock_open, mock_config):
     cache_info = {'url': 'http://pypi/', 'config': {'global': {'index-url': 'http://pypi/index'}}}
     mgr = PyPIManager(
         project='project',
-        create_tag='tag1',
         cache_list=[('cacheName', cache_info)],
-        pinned_to=None,
         dryrun=False
     )
 
@@ -46,9 +44,7 @@ def test_pypi_manager_pinned(mock_open, mock_config):
     cache_info = {'url': 'http://pypi/', 'config': {'global': {'index-url': 'http://pypi/index'}}}
     mgr = PyPIManager(
         project='project',
-        create_tag='tag1',
         cache_list=[('cacheName', cache_info)],
-        pinned_to={'name': 'pin1'},
         dryrun=False
     )
 

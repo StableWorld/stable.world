@@ -115,7 +115,10 @@ class Test(unittest.TestCase):
         history = self.requests_patch.request_history
 
         self.assertEqual(history[0].url, 'http://mock/auth/token')
-        self.assertEqual(history[0].json(), {'email': 'email', 'password': 'password', 'scopes': {'api': True}})
+        self.assertEqual(
+            history[0].json(),
+            {'email': 'email', 'password': 'password', 'scopes': {'api': True}}
+        )
 
         self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})
 
