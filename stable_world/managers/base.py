@@ -21,12 +21,10 @@ class BaseManager(object):
             if os.path.isfile(os.path.join(path, cls.PROGRAM)):
                 return True
 
-    def __init__(self, project, create_tag, cache_list, pinned_to, dryrun):
+    def __init__(self, project, cache_list, dryrun):
 
         self.project = project
-        self.create_tag = create_tag
         self.cache_list = cache_list
-        self.pinned_to = pinned_to
 
         self.dryrun = dryrun
 

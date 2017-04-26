@@ -4,9 +4,37 @@ import sys
 import click
 from itertools import groupby
 
-from .config import set_using, get_using, unset_using
-from . import utils, errors
-from . import managers
+from stable_world.config import set_using, get_using, unset_using
+from stable_world import utils, errors
+from stable_world import managers
+
+
+def setup_tags(client, project, create_tag, info, dryrun):
+    pinned_to = info['project']['pinned_to']
+
+    if pinned_to and create_tag:
+        click.secho('  Alert: ', fg='magenta', nl=False, bold=True)
+        click.echo('  Project %s is ' % project, nl=False)
+        click.secho('pinned', nl=False, bold=True)
+        click.echo(' to tag %s' % pinned_to['name'])
+        click.echo('  Tag "%s" will not be used' % create_tag)
+        click.echo('')
+    else:
+        if create_tag and not dryrun:
+            try:
+                client.add_tag(project, create_tag)
+            except errors.DuplicateKeyError:
+                utils.echo_warning()
+                click.echo('The tag already exists. You may want to create a new tag')
+                utils.echo_warning()
+                click.echo('You are going to record over any previous changes')
+                click.echo('')
+        elif create_tag and dryrun:
+            utils.echo_warning()
+            click.echo('Dryrun: not creating tag')
+
+        click.echo("  Tag %s added to project %s" % (create_tag, project))
+        click.echo('')
 
 
 def use_project(client, create_tag, project, dryrun):
@@ -22,43 +50,16 @@ def use_project(client, create_tag, project, dryrun):
         click.echo('')
         sys.exit(1)
 
-    pinned_to = info['project']['pinned_to']
-
-    if pinned_to:
-        click.secho('  Alert: ', fg='magenta', nl=False, bold=True)
-        click.echo('  Project %s is ' % project, nl=False)
-        click.secho('pinned', nl=False, bold=True)
-        click.echo(' to tag %s' % pinned_to['name'])
-
-        click.echo('  The current environment will be set up to replay %s' % pinned_to['name'])
-        click.echo('  Tag "%s" will not be used' % create_tag)
-        click.echo('')
-    else:
-        try:
-            if not dryrun:
-                client.add_tag(project, create_tag)
-            else:
-                utils.echo_warning()
-                click.echo('Dryrun: not creating tag')
-        except errors.DuplicateKeyError:
-            utils.echo_warning()
-            click.echo('The tag already exists. You may want to create a new tag')
-            utils.echo_warning()
-            click.echo('You are going to record over any previous changes')
-            click.echo('')
-
-        click.echo("  Tag %s added to project %s" % (create_tag, project))
-        click.echo('')
+    setup_tags(client, project, create_tag, info, dryrun)
 
     urls = info['project']['urls']
 
     groups = groupby(urls.items(), lambda item: item[1]['type'])
-    tag = pinned_to['name'] if pinned_to else create_tag
-    using_record = {'types': {}, 'tag': tag, 'project': project}
+    using_record = {'types': {}, 'project': project}
     for ty, cache_group in groups:
         # import pdb; pdb.set_trace()
         cache_list = list(cache_group)
-        details = managers.use(ty, project, create_tag, cache_list, pinned_to, dryrun)
+        details = managers.use(ty, project, cache_list, dryrun)
         using_record['types'][ty] = details
     click.echo('')
 
@@ -66,8 +67,7 @@ def use_project(client, create_tag, project, dryrun):
         set_using(using_record)
 
         utils.echo_success()
-        what = 'replaying from' if pinned_to else 'recording into'
-        click.echo('You are %s tag "%s" in project "%s"' % (what, tag, project))
+        click.echo('You are using project "{}"'.format(project))
         click.echo('')
     else:
         utils.echo_success()

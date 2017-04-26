@@ -10,10 +10,10 @@ from stable_world import __version__ as sw_version
 from .config import config_filename, update_token, config, read_config, make_dirs
 from .interact.setup_user import setup_user
 from .interact.setup_project import setup_project
-from . import utils, output
+from .interact.use import use_project, unuse_project
 from .output import error_output
 from .sw_logging import setup_logging
-from .use import use_project, unuse_project
+from . import utils, output
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -216,7 +216,7 @@ def tag_show(client, project, tag, full):
 
 @main.command()
 @click.option(
-    '-t', '--create-tag', required=True,
+    '-t', '--create-tag', required=False,
     help='tag name to create'
 )
 @utils.project_option(required=True)
