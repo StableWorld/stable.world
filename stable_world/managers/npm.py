@@ -29,7 +29,7 @@ class NPMManager(BaseManager):
         return os.path.expanduser('~/.npmrc')
 
     def use(self):
-        sw_url = self.get_base_url(basicAuthRequired=True)
+        sw_url = self.get_base_url()
 
         if os.path.exists(self.config_file):
             with open(self.config_file) as fd:
@@ -37,7 +37,10 @@ class NPMManager(BaseManager):
         else:
             npm_config = {}
 
+        npm_config['always-auth'] = 'true'
         npm_config['registry'] = sw_url
+        # TODO: implement me
+        npm_config['_auth'] = 'basic'
 
         if self.dryrun:
             click.echo('  Dryrun: Would have written config file'.format(self.config_file))
