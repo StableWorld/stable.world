@@ -226,11 +226,14 @@ def tag_show(client, project, tag, full):
     help='only print output don\'t create tag or modify config files'
 )
 @utils.email_option
+@utils.token_option
 @utils.password_option
-def use(create_tag, project, email, password, dryrun):
+def use(create_tag, project, email, password, token, dryrun):
     "Activate and record all usage for a project"
 
-    token = setup_project_token(email, password, project)
+    if not token:
+        token = setup_project_token(email, password, project)
+
     use_project(create_tag, project, token, dryrun)
 
 

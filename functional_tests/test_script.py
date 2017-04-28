@@ -206,8 +206,6 @@ class Test(unittest.TestCase):
             raise result.exception
         assert result.exit_code == 0
 
-        self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'myToken'})
-
         history = self.requests_patch.request_history
 
         self.assertEqual(history[0].url, 'http://mock/api/projects/test-project')
@@ -222,6 +220,7 @@ class Test(unittest.TestCase):
                     'config': {'channel': 'https://repo.continuum.io/pkgs/free/'},
                     'type': 'conda', 'url': 'https://repo.continuum.io/'
                 })],
+                'myToken',
                 False
             )
         )
@@ -234,6 +233,7 @@ class Test(unittest.TestCase):
                     'config': {'global': {'index-url': 'https://pypi.python.org/simple/'}},
                     'type': 'pypi', 'url': 'https://pypi.python.org/'
                 })],
+                'myToken',
                 False
             )
         )
