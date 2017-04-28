@@ -21,10 +21,11 @@ class BaseManager(object):
             if os.path.isfile(os.path.join(path, cls.PROGRAM)):
                 return True
 
-    def __init__(self, project, cache_list, dryrun):
+    def __init__(self, project, cache_list, token, dryrun):
 
         self.project = project
         self.cache_list = cache_list
+        self.token = token
 
         self.dryrun = dryrun
 
@@ -52,8 +53,8 @@ class BaseManager(object):
         if basicAuthRequired:
             api_uri = urlparse(api_url)
             api_url = urlunparse(api_uri._replace(netloc='{}:{}@{}'.format(
-                config['email'],
-                config['token'],
+                'token',
+                self.token,
                 api_uri.netloc
             )))
 

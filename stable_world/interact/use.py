@@ -5,6 +5,7 @@ import click
 from itertools import groupby
 
 from stable_world.config import set_using, get_using, unset_using
+from stable_world.client import Client
 from stable_world import utils, errors
 from stable_world import managers
 
@@ -29,27 +30,29 @@ def setup_tags(client, project, create_tag, info, dryrun):
                 utils.echo_warning()
                 click.echo('You are going to record over any previous changes')
                 click.echo('')
-        elif create_tag and dryrun:
-            utils.echo_warning()
-            click.echo('Dryrun: not creating tag')
+        elif create_tag:
+            if dryrun:
+                utils.echo_warning()
+                click.echo('Dryrun: not creating tag')
+            else:
+                click.echo("  Tag %s added to project %s" % (create_tag, project))
+                click.echo('')
 
-        click.echo("  Tag %s added to project %s" % (create_tag, project))
-        click.echo('')
 
-
-def use_project(client, create_tag, project, dryrun):
-    info = client.project(project)
+def use_project(create_tag, project, token, dryrun):
+    client = Client(None)
     already_using = get_using()
 
     if already_using:
         utils.echo_error()
-        click.echo('You are already using tag "{tag}" from project "{project}"'.format(**already_using))
+        click.echo('You are already using project "{project}"'.format(**already_using))
         click.echo('  To unuse this environment, please run the command:')
         click.echo('')
         click.echo('        stable.world unuse')
         click.echo('')
         sys.exit(1)
 
+    info = client.project(project)
     setup_tags(client, project, create_tag, info, dryrun)
 
     urls = info['project']['urls']
@@ -59,7 +62,7 @@ def use_project(client, create_tag, project, dryrun):
     for ty, cache_group in groups:
         # import pdb; pdb.set_trace()
         cache_list = list(cache_group)
-        details = managers.use(ty, project, cache_list, dryrun)
+        details = managers.use(ty, project, cache_list, token, dryrun)
         using_record['types'][ty] = details
     click.echo('')
 

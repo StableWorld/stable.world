@@ -23,6 +23,7 @@ def test_pypi_manager(mock_open, mock_config):
     mgr = PyPIManager(
         project='project',
         cache_list=[('cacheName', cache_info)],
+        token='token',
         dryrun=False
     )
 
@@ -33,7 +34,7 @@ def test_pypi_manager(mock_open, mock_config):
 
     pip_config = pip_config_io.getvalue()
 
-    assert 'index-url = https://mock/cache/cacheName/index' in pip_config
+    assert 'index-url = https://token:token@mock/cache/cacheName/index' in pip_config
     assert '.cache/stable.world/project-pypi' in pip_config
 
 
@@ -45,6 +46,7 @@ def test_pypi_manager_pinned(mock_open, mock_config):
     mgr = PyPIManager(
         project='project',
         cache_list=[('cacheName', cache_info)],
+        token='token',
         dryrun=False
     )
 
@@ -55,5 +57,5 @@ def test_pypi_manager_pinned(mock_open, mock_config):
 
     pip_config = pip_config_io.getvalue()
 
-    assert 'index-url = https://mock/cache/cacheName/index' in pip_config
+    assert 'index-url = https://token:token@mock/cache/cacheName/index' in pip_config
     assert '.cache/stable.world/project-pypi' in pip_config

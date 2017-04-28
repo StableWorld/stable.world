@@ -8,12 +8,13 @@ import click
 
 from stable_world import __version__ as sw_version
 from .config import config_filename, update_token, config, read_config, make_dirs
-from .interact.setup_user import setup_user
+from .interact.setup_user import setup_user, setup_project_token
 from .interact.setup_project import setup_project
 from .interact.use import use_project, unuse_project
 from .output import error_output
 from .sw_logging import setup_logging
 from . import utils, output
+
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -224,10 +225,13 @@ def tag_show(client, project, tag, full):
     '--dryrun/--no-dryrun',
     help='only print output don\'t create tag or modify config files'
 )
-@utils.login_required
-def use(client, create_tag, project, dryrun):
+@utils.email_option
+@utils.password_option
+def use(create_tag, project, email, password, dryrun):
     "Activate and record all usage for a project"
-    use_project(client, create_tag, project, dryrun)
+
+    token = setup_project_token(email, password, project)
+    use_project(create_tag, project, token, dryrun)
 
 
 @main.command()
@@ -295,7 +299,6 @@ def unpin(client, project):
 @utils.client
 def token(client, email, password, project):
     "Get your authentication token"
-    from stable_world.interact.setup_user import setup_project_token
 
     # Will raise not found exception
     client.project(project)

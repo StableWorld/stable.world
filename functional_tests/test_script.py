@@ -69,7 +69,7 @@ class Test(unittest.TestCase):
 
         self.assertEqual(history[0].url, 'http://mock/auth/token')
         self.assertEqual(history[0].json(), {
-            'email': 'email', 'password': 'password', 'scopes': {'api': True}
+            'email': 'email', 'password': 'password', 'scopes': {'api': 'write'}
         })
 
         self.assertEqual(self.update_config_file.call_args, None)
@@ -117,7 +117,7 @@ class Test(unittest.TestCase):
         self.assertEqual(history[0].url, 'http://mock/auth/token')
         self.assertEqual(
             history[0].json(),
-            {'email': 'email', 'password': 'password', 'scopes': {'api': True}}
+            {'email': 'email', 'password': 'password', 'scopes': {'api': 'write'}}
         )
 
         self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})

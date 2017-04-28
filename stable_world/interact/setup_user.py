@@ -1,5 +1,5 @@
 import click
-from ..config import update_token
+from ..config import config, update_token
 from .. import errors
 from ..client import Client
 # from getpass import getpass
@@ -36,7 +36,7 @@ def setup_user(email, password, token, login_only=False, confirm_password=True, 
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = client.token(email, password, scopes={'api': True})
+            token = client.token(email, password, scopes={'api': 'write'})
             update_token(email=email, token=token)
             click.echo('\n    Welcome back %s\n\n' % email)
             return client
@@ -70,6 +70,12 @@ def setup_project_token(email, password, project):
     Prompt user for email and password
     """
     client = Client(None)
+
+    if config.get('token'):
+        return config.get('token')
+
+    email = email or config.get('email')
+    password = password or config.get('password')
 
     click.echo(
         '\n    '

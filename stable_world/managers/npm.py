@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 import os
 import sys
 import click
+from base64 import b64encode
 from .base import BaseManager
 
 
@@ -40,7 +41,7 @@ class NPMManager(BaseManager):
         npm_config['always-auth'] = 'true'
         npm_config['registry'] = sw_url
         # TODO: implement me
-        npm_config['_auth'] = 'basic'
+        npm_config['_auth'] = b64encode('token:{}'.format(self.token).encode()).decode()
 
         if self.dryrun:
             click.echo('  Dryrun: Would have written config file'.format(self.config_file))
@@ -55,3 +56,5 @@ class NPMManager(BaseManager):
 
             with open(self.config_file, 'w') as fd:
                 write_npm_config(fd, npm_config)
+
+        return {'config_files': [self.config_file]}

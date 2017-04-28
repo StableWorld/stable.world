@@ -13,6 +13,7 @@ def test_npm_manager(mock_open, mock_config):
     mgr = NPMManager(
         project='project',
         cache_list=[('name', cache_info)],
+        token='token',
         dryrun=False
     )
 
@@ -29,7 +30,7 @@ def test_npm_manager(mock_open, mock_config):
     npm_config = npm_config_io.getvalue()
 
     assert 'registry=https://mock/cache/name/' in npm_config
-    assert '_auth=' in npm_config
+    assert '_auth=dG9rZW46dG9rZW4=' in npm_config
 
 
 @patch('stable_world.managers.base.config')
@@ -40,6 +41,7 @@ def test_npm_manager_pinned(mock_open, mock_config):
     mgr = NPMManager(
         project='project',
         cache_list=[('cacheName', cache_info)],
+        token='token',
         dryrun=False
     )
 
@@ -56,4 +58,4 @@ def test_npm_manager_pinned(mock_open, mock_config):
     npm_config = npm_config_io.getvalue()
 
     assert 'registry=https://mock/cache/cacheName/' in npm_config
-    assert '_auth=' in npm_config
+    assert '_auth=dG9rZW46dG9rZW4=' in npm_config
