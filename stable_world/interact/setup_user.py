@@ -65,13 +65,13 @@ def setup_user(email, password, token, login_only=False, confirm_password=True, 
         raise errors.UserError("Bye")
 
 
-def setup_project_token(email, password, project):
+def setup_project_token(email, password, project, use_config_token=True):
     """
     Prompt user for email and password
     """
     client = Client(None)
 
-    if config.get('token'):
+    if config.get('token') and use_config_token:
         return config.get('token')
 
     email = email or config.get('email')
@@ -97,6 +97,7 @@ def setup_project_token(email, password, project):
 
         try:
             token = client.token(email, password, scopes={'project': project})
+            config.update(password=password)
             return token
         except errors.PasswordError:
             password = None

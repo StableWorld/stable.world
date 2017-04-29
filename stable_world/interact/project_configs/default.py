@@ -42,6 +42,8 @@ class CustomProjectHelper(ProjectConfigurator):
 
     def setup_project_env(self):
 
+        token = self.get_token()
+
         click.echo('')
         click.echo(
             '  You need to navigate to where your project build lives and give your CI '
@@ -50,7 +52,7 @@ class CustomProjectHelper(ProjectConfigurator):
         click.echo('    Name:')
         click.secho('    STABLE_WORLD_TOKEN', dim=True)
         click.echo('    Value:')
-        click.secho('    {}'.format(config.config['token']), dim=True)
+        click.secho('    {}'.format(token), dim=True)
 
         click.pause('\n  Got it? (Press any key to continue ...)')
 
