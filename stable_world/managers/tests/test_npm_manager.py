@@ -12,9 +12,8 @@ def test_npm_manager(mock_open, mock_config):
     cache_info = {'url': 'http://pypi/', 'config': {'registry': 'http://npm/registry'}}
     mgr = NPMManager(
         project='project',
-        create_tag='tag1',
         cache_list=[('name', cache_info)],
-        pinned_to=None,
+        token='token',
         dryrun=False
     )
 
@@ -30,7 +29,8 @@ def test_npm_manager(mock_open, mock_config):
 
     npm_config = npm_config_io.getvalue()
 
-    assert 'registry=https://mock@email:mockToken@mock/cache/record/project/tag1/name/' in npm_config
+    assert 'registry=https://mock/cache/name/' in npm_config
+    assert '_auth=dG9rZW46dG9rZW4=' in npm_config
 
 
 @patch('stable_world.managers.base.config')
@@ -40,9 +40,8 @@ def test_npm_manager_pinned(mock_open, mock_config):
     cache_info = {'url': 'http://pypi/', 'config': {'registry': 'http://npm/registry'}}
     mgr = NPMManager(
         project='project',
-        create_tag='tag1',
-        cache_list=[('name', cache_info)],
-        pinned_to={'name': 'pinnedTag'},
+        cache_list=[('cacheName', cache_info)],
+        token='token',
         dryrun=False
     )
 
@@ -58,4 +57,5 @@ def test_npm_manager_pinned(mock_open, mock_config):
 
     npm_config = npm_config_io.getvalue()
 
-    assert 'registry=https://mock@email:mockToken@mock/cache/replay/project/pinnedTag/name/' in npm_config
+    assert 'registry=https://mock/cache/cacheName/' in npm_config
+    assert '_auth=dG9rZW46dG9rZW4=' in npm_config

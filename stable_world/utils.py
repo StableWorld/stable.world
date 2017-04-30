@@ -99,6 +99,17 @@ def login_required(func):
     return decorator
 
 
+def client(func):
+    """
+    Pass client to command
+    """
+    @wraps(func)
+    def decorator(**kwargs):
+        return func(Client(None), **kwargs)
+
+    return decorator
+
+
 def login_optional(func):
     """
     Check for login and add options to support this

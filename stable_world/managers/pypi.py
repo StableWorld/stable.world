@@ -27,7 +27,7 @@ class PyPIManager(BaseManager):
 
     def use(self):
 
-        sw_url = self.get_base_url()
+        sw_url = self.get_base_url(basicAuthRequired=True)
 
         parser = ConfigParser()
 

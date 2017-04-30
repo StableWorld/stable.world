@@ -68,6 +68,7 @@ class CircleProjectHelper(ProjectConfigurator):
         )
 
         click.echo('')
+        token = self.get_token()
         click.echo(
             '  You need to navigate to your circleci project '
             'and set a secure environment variable:'
@@ -78,7 +79,7 @@ class CircleProjectHelper(ProjectConfigurator):
         click.echo('    Name:')
         click.secho('    STABLE_WORLD_TOKEN', dim=True)
         click.echo('    Value:')
-        click.secho('    {}'.format(config.config['token']), dim=True)
+        click.secho('    {}'.format(token), dim=True)
         ok = click.confirm('\n  Launch browser', default=True)
         if ok:
             click.launch(circle_url)

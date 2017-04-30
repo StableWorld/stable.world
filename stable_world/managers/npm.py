@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 import os
 import sys
 import click
+from base64 import b64encode
 from .base import BaseManager
 
 
@@ -29,7 +30,7 @@ class NPMManager(BaseManager):
         return os.path.expanduser('~/.npmrc')
 
     def use(self):
-        sw_url = self.get_base_url(basicAuthRequired=True)
+        sw_url = self.get_base_url()
 
         if os.path.exists(self.config_file):
             with open(self.config_file) as fd:
@@ -37,7 +38,10 @@ class NPMManager(BaseManager):
         else:
             npm_config = {}
 
+        npm_config['always-auth'] = 'true'
         npm_config['registry'] = sw_url
+        # TODO: implement me
+        npm_config['_auth'] = b64encode('token:{}'.format(self.token).encode()).decode()
 
         if self.dryrun:
             click.echo('  Dryrun: Would have written config file'.format(self.config_file))
@@ -52,3 +56,5 @@ class NPMManager(BaseManager):
 
             with open(self.config_file, 'w') as fd:
                 write_npm_config(fd, npm_config)
+
+        return {'config_files': [self.config_file]}

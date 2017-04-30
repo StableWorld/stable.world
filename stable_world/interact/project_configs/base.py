@@ -1,6 +1,7 @@
 from random import choice
 import click
 from . import words
+from stable_world.interact.setup_user import setup_project_token
 
 
 def random_project_name():
@@ -52,3 +53,6 @@ class ProjectConfigurator(object):
     def success(self):
         click.secho('  Success, your build is now secure!', fg='green')
         click.echo('')
+
+    def get_token(self):
+        return setup_project_token(None, None, self.project_name, use_config_token=False)

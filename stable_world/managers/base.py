@@ -21,16 +21,11 @@ class BaseManager(object):
             if os.path.isfile(os.path.join(path, cls.PROGRAM)):
                 return True
 
-    def __init__(self, project, create_tag, cache_list, pinned_to, dryrun):
+    def __init__(self, project, cache_list, token, dryrun):
 
         self.project = project
-        self.create_tag = create_tag
         self.cache_list = cache_list
-        self.pinned_to = pinned_to
-        if pinned_to:
-            self.tag = pinned_to['name']
-        else:
-            self.tag = self.create_tag
+        self.token = token
 
         self.dryrun = dryrun
 
@@ -47,7 +42,7 @@ class BaseManager(object):
 
     @property
     def cache_dir(self):
-        part = '{}-{}-{}'.format(self.project, self.tag, self.NAME)
+        part = '{}-{}'.format(self.project, self.NAME)
         cache_dir = os.path.join('~', '.cache', 'stable.world', part)
         return os.path.expanduser(cache_dir)
 
@@ -58,15 +53,12 @@ class BaseManager(object):
         if basicAuthRequired:
             api_uri = urlparse(api_url)
             api_url = urlunparse(api_uri._replace(netloc='{}:{}@{}'.format(
-                config['email'],
-                config['token'],
+                'token',
+                self.token,
                 api_uri.netloc
             )))
 
-        if self.pinned_to:
-            return '%s/cache/%s/%s/%s/%s/' % (api_url, 'replay', self.project, self.tag, self.cache_name)
-        else:
-            return '%s/cache/%s/%s/%s/%s/' % (api_url, 'record', self.project, self.tag, self.cache_name)
+        return '%s/cache/%s/' % (api_url, self.cache_name)
 
     def use(self):
         if not self.dryrun:

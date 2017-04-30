@@ -8,12 +8,13 @@ import click
 
 from stable_world import __version__ as sw_version
 from .config import config_filename, update_token, config, read_config, make_dirs
-from .interact.setup_user import setup_user
+from .interact.setup_user import setup_user, setup_project_token
 from .interact.setup_project import setup_project
-from . import utils, output
+from .interact.use import use_project, unuse_project
 from .output import error_output
 from .sw_logging import setup_logging
-from .use import use_project, unuse_project
+from . import utils, output
+
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -216,7 +217,7 @@ def tag_show(client, project, tag, full):
 
 @main.command()
 @click.option(
-    '-t', '--create-tag', required=True,
+    '-t', '--create-tag', required=False,
     help='tag name to create'
 )
 @utils.project_option(required=True)
@@ -224,10 +225,16 @@ def tag_show(client, project, tag, full):
     '--dryrun/--no-dryrun',
     help='only print output don\'t create tag or modify config files'
 )
-@utils.login_required
-def use(client, create_tag, project, dryrun):
+@utils.email_option
+@utils.token_option
+@utils.password_option
+def use(create_tag, project, email, password, token, dryrun):
     "Activate and record all usage for a project"
-    use_project(client, create_tag, project, dryrun)
+
+    if not token:
+        token = setup_project_token(email, password, project)
+
+    use_project(create_tag, project, token, dryrun)
 
 
 @main.command()
@@ -291,12 +298,17 @@ def unpin(client, project):
 @main.command()
 @utils.email_option
 @utils.password_option
-@utils.token_option
-@utils.update_config_with_args
-def token(email, password, token):
+@utils.project_option(required=True)
+@utils.client
+def token(client, email, password, project):
     "Get your authentication token"
 
-    utils.ensure_login(email, password, token, hide_token=False)
+    # Will raise not found exception
+    client.project(project)
+
+    email = email or config.get('email')
+    token = setup_project_token(email, password, project)
+    print("  token:", token)
 
 
 @main.command()

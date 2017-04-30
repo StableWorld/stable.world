@@ -68,7 +68,9 @@ class Test(unittest.TestCase):
         history = self.requests_patch.request_history
 
         self.assertEqual(history[0].url, 'http://mock/auth/token')
-        self.assertEqual(history[0].json(), {'email': 'email', 'password': 'password'})
+        self.assertEqual(history[0].json(), {
+            'email': 'email', 'password': 'password', 'scopes': {'api': 'write'}
+        })
 
         self.assertEqual(self.update_config_file.call_args, None)
         self.assertEqual(
@@ -113,7 +115,10 @@ class Test(unittest.TestCase):
         history = self.requests_patch.request_history
 
         self.assertEqual(history[0].url, 'http://mock/auth/token')
-        self.assertEqual(history[0].json(), {'email': 'email', 'password': 'password'})
+        self.assertEqual(
+            history[0].json(),
+            {'email': 'email', 'password': 'password', 'scopes': {'api': 'write'}}
+        )
 
         self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})
 
@@ -201,8 +206,6 @@ class Test(unittest.TestCase):
             raise result.exception
         assert result.exit_code == 0
 
-        self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'myToken'})
-
         history = self.requests_patch.request_history
 
         self.assertEqual(history[0].url, 'http://mock/api/projects/test-project')
@@ -212,24 +215,26 @@ class Test(unittest.TestCase):
         self.assertEqual(
             use.call_args_list[0][0],
             (
-                'conda', 'test-project', 'create-tag',
+                'conda', 'test-project',
                 [('conda', {
                     'config': {'channel': 'https://repo.continuum.io/pkgs/free/'},
                     'type': 'conda', 'url': 'https://repo.continuum.io/'
                 })],
-                None, False
+                'myToken',
+                False
             )
         )
 
         self.assertEqual(
             use.call_args_list[1][0],
             (
-                'pypi', 'test-project', 'create-tag',
+                'pypi', 'test-project',
                 [('pypi', {
                     'config': {'global': {'index-url': 'https://pypi.python.org/simple/'}},
                     'type': 'pypi', 'url': 'https://pypi.python.org/'
                 })],
-                None, False
+                'myToken',
+                False
             )
         )
 
