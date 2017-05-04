@@ -17,6 +17,10 @@ class CustomProjectHelper(ProjectConfigurator):
     def is_valid(cls, project_dir):
         return True
 
+    def setup(self):
+        # TODO: test me
+        click.echo('  Setup a new project:\n')
+
     def setup_project_name(self):
         project_name = random_project_name()
 
@@ -72,6 +76,3 @@ class CustomProjectHelper(ProjectConfigurator):
         click.echo('  You need commit this and push to your repo')
 
         click.pause('\n  Got it? (Press any key to continue ...)')
-
-    def setup(self):
-        pass
