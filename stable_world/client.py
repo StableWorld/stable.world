@@ -8,7 +8,7 @@ from .py_helpers import JSONDecodeError, platform_uname
 
 from stable_world import __version__ as version
 
-from .config import config
+# from .config import config
 from . import errors
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def request(method):
     Decorate the request class with methods eg get, post
     """
     def req(self, path, payload=None):
-        url = '%s%s' % (config['url'], path)
+        url = '%s%s' % (self.site, path)
         res = self._session.request(method, url, json=payload)
         logger.debug('[%s] %s - %s', method.upper(), url, res.status_code)
         self._check_response(res)
@@ -48,7 +48,8 @@ class Client:
     """
     Client for connecting with the API
     """
-    def __init__(self, token):
+    def __init__(self, site, verify=True):
+        self.site = site
         self._session = requests.Session()
 
         uname = platform_uname()
@@ -64,7 +65,7 @@ class Client:
             'OS {2.system} {2.release} {2.machine}'
         ).format(*ctx)
 
-        self._session.verify = config.get('verify_https')
+        self._session.verify = verify
         self._session.headers['User-Agent'] = user_agent
 
     get = request('get')
