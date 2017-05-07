@@ -4,13 +4,9 @@ import requests_mock
 from click.testing import CliRunner
 from stable_world import errors, application
 from stable_world.script import main
-# import os
-# from stable_world import config2
-# import tempfile
 
 
 def application_mock():
-    # app = mock.Mock(spec_set=('client', 'token', 'email', 'password'))
     app = mock.Mock()
     app.client.site_url = 'mockURL'
     app.config = {'url': 'mockURL'}
@@ -233,11 +229,6 @@ class Test(unittest.TestCase):
             raise result.exception
         assert result.exit_code == 0
 
-        # history = self.requests_patch.request_history
-        #
-        # self.assertEqual(history[0].url, 'http://mock/api/projects/test-project')
-        # self.assertEqual(history[1].url, 'http://mock/api/tags/test-project/create-tag')
-        #
         self.assertEqual(use.call_count, 2)
         self.assertEqual(
             use.call_args_list[0][0],
