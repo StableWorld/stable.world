@@ -54,10 +54,11 @@ def use_project(app, create_tag, project, token, dryrun):
 
     urls = info['project']['urls']
 
-    groups = groupby(urls.items(), lambda item: item[1]['type'])
+    grouper = groupby(urls.items(), lambda item: item[1]['type'])
+    groups = sorted((key, list(group)) for key, group in grouper)
+
     using_record = {'types': {}, 'project': project}
     for ty, cache_group in groups:
-        # import pdb; pdb.set_trace()
         cache_list = list(cache_group)
         details = managers.use(app.client.site_url, ty, project, cache_list, token, dryrun)
         using_record['types'][ty] = details
