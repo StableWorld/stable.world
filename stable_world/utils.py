@@ -56,9 +56,9 @@ def login_required(func):
     @application.email_option
     @application.password_option
     @application.token_option
+    @application.pass_app
     @wraps(func)
     def decorator(app, **kwargs):
-
         ensure_login(app)
         func(app, **kwargs)
 

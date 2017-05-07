@@ -23,7 +23,9 @@ def setup_user(app, login_only=False, confirm_password=True, scopes=None):
         'by entering your email and password:'
         '\n'
     )
-    if not app.email:
+    email = app.email
+
+    if not email:
         email = click.prompt(' %30s' % 'email')
     else:
         click.echo(' %30s: %s' % ('email', email))
@@ -37,7 +39,7 @@ def setup_user(app, login_only=False, confirm_password=True, scopes=None):
         try:
             token = app.client.token(email, password, scopes={'api': 'write'})
             app.config.update(password=password)
-            app.update_netrc(email=email, token=token)
+            app.update_netrc(email, token)
             click.echo('\n    Welcome back %s\n\n' % email)
             return
         except errors.NotFound:

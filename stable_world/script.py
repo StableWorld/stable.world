@@ -54,10 +54,11 @@ def main(ctx, app, show_traceback, ignore_config, dir):
     if not show_traceback:
         sys.excepthook = error_output.brief_excepthook(app.cache_dirname)
 
-    app.make_directories()
-
     if not ignore_config:
         app.read_config()
+
+    app.update_config_from_options()
+    app.make_directories()
 
     if ctx.invoked_subcommand:
         return

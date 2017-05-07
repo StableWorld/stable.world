@@ -42,11 +42,14 @@ class StableWorldApplication:
 
     def make_directories(self):
         config2.make_directories(self.cache_dirname, self.config_filename)
+        config2.unpack_cache_files(self.cache_dirname)
 
     def read_config(self):
         config2.load_config(self.config_filename, self.config)
         config2.load_netrc(self.netrc_filename, self.config)
-        config2.unpack_cache_files(self.cache_dirname)
+
+    def update_config_from_options(self):
+        print("update_config_from_options", self.cli_options)
         self.config.update(self.cli_options)
 
         self.client = Client(
@@ -61,8 +64,9 @@ class StableWorldApplication:
             email=email, token=token
         )
 
-    def update_option(self, param, value):
-        self.cli_options[param] = value
+    def update_option(self, name, value):
+        print("update_option", name, value)
+        self.cli_options[name] = value
 
     def set_using(self):
         pass
@@ -86,14 +90,16 @@ def pass_app(f):
             raise RuntimeError('Managed to invoke callback without a '
                                'context object of type %r existing'
                                % StableWorldApplication.__name__)
+        app.update_config_from_options()
         return ctx.invoke(f, app, *args[1:], **kwargs)
     return new_func
 
 
 def set_config_option(ctx, param, value):
+    print("set_config_option", param.name, value)
     if value is not None:
         app = ctx.ensure_object(StableWorldApplication)
-        app.update_option(param, value)
+        app.update_option(param.name, value)
 
 
 # Options
