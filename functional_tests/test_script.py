@@ -33,48 +33,9 @@ class Test(unittest.TestCase):
     def setUp(self):
         self.OGApp = application.StableWorldApplication
         application.StableWorldApplication = mock.Mock
-        # self.patch = mock.patch('stable_world.application.StableWorldApplication', autospec=True)
-        # self.AppClass = self.patch.start()s
-        # tempfile.gettempdir()
-        # self.orig_cache_dirname = config.cache_dirname
-        # self.orig_config_filename = config.config_filename
-        # tmp = tempfile.mkdtemp()
-        # config.cache_dirname = os.path.join(tmp, 'cache')
-        # config.config_filename = os.path.join(tmp, 'config/test-config.ini')
-
-        # config2.make_dirs()
-
-        # self.default_config = dict(config.default_config)
-        # config.default_config.clear()
-        # config.default_config.update({'url': 'http://mock'})
-        # config.config.clear()
-        # config.config.update(config.default_config)
-
-        self.requests_patch = requests_mock.mock()
-        self.requests = self.requests_patch.start()
-
-        # self.update_config_file_patch = mock.patch('stable_world.config.update_config_file')
-        # self.update_config_file = self.update_config_file_patch.start()
-
-        # self.update_netrc_file_patch = mock.patch('stable_world.config.update_netrc_file')
-        # self.update_netrc_file = self.update_netrc_file_patch.start()
-        pass
 
     def tearDown(self):
         application.StableWorldApplication = self.OGApp
-        # self.patch.stop()
-        self.requests_patch.stop()
-
-        # self.update_config_file_patch.stop()
-        # self.update_netrc_file_patch.stop()
-        #
-        # config.cache_dirname = self.orig_cache_dirname
-        # config.config_filename = self.orig_config_filename
-        #
-        # config.default_config.clear()
-        # config.default_config.update(self.default_config)
-        # config.config.clear()
-        # config.config.update(config.default_config)
 
     @mock.patch('stable_world.interact.setup_project.ProjectConfigurator')
     def test_main(self, ProjectConfigurator):
