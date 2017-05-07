@@ -1,6 +1,5 @@
 import unittest
 import mock
-import requests_mock
 from click.testing import CliRunner
 from stable_world import errors, application
 from stable_world.script import main
