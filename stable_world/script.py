@@ -230,10 +230,12 @@ def tag_show(client, project, tag, full):
 @application.token_option
 @application.password_option
 @application.pass_app
-def use(app, create_tag, project, email, password, token, dryrun):
+def use(app, create_tag, project, dryrun):
     "Activate and record all usage for a project"
 
-    if not token:
+    if app.token:
+        token = app.token
+    else:
         token = setup_project_token(app, project)
 
     use_project(app, create_tag, project, token, dryrun)

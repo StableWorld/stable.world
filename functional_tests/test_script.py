@@ -12,6 +12,7 @@ from stable_world.script import main
 def application_mock():
     # app = mock.Mock(spec_set=('client', 'token', 'email', 'password'))
     app = mock.Mock()
+    app.client.site_url = 'mockURL'
     app.config = {'url': 'mockURL'}
     options = {}
 
@@ -185,78 +186,84 @@ class Test(unittest.TestCase):
         assert isinstance(result.exception, errors.UserError)
         assert result.exit_code != 0
 
-    # @mock.patch('stable_world.managers.use')
-    # def test_use(self, use):
-    #
-    #     urls = {
-    #         "conda": {
-    #             "config": {
-    #                 "channel": "https://repo.continuum.io/pkgs/free/"
-    #             },
-    #             "type": "conda",
-    #             "url": "https://repo.continuum.io/"
-    #         },
-    #         "pypi": {
-    #             "config": {
-    #                 "global": {
-    #                     "index-url": "https://pypi.python.org/simple/"
-    #                 }
-    #             },
-    #             "type": "pypi",
-    #             "url": "https://pypi.python.org/"
-    #         }
-    #     }
-    #
-    #     self.requests_patch.get('http://mock/api/projects/test-project',
-    #         json={'project': {'pinned_to': None, 'urls': urls}}
-    #     )
-    #     self.requests_patch.post('http://mock/api/tags/test-project/create-tag',
-    #         json={}
-    #     )
-    #
-    #     use.return_value = {}
-    #
-    #     result = CliRunner().invoke(
-    #         main, [
-    #             'use', '-p', 'test-project', '-t', 'create-tag',
-    #             '--email', 'email', '--token', 'myToken'
-    #         ],
-    #     )
-    #     if result.exception:
-    #         raise result.exception
-    #     assert result.exit_code == 0
-    #
-    #     history = self.requests_patch.request_history
-    #
-    #     self.assertEqual(history[0].url, 'http://mock/api/projects/test-project')
-    #     self.assertEqual(history[1].url, 'http://mock/api/tags/test-project/create-tag')
-    #
-    #     self.assertEqual(use.call_count, 2)
-    #     self.assertEqual(
-    #         use.call_args_list[0][0],
-    #         (
-    #             'conda', 'test-project',
-    #             [('conda', {
-    #                 'config': {'channel': 'https://repo.continuum.io/pkgs/free/'},
-    #                 'type': 'conda', 'url': 'https://repo.continuum.io/'
-    #             })],
-    #             'myToken',
-    #             False
-    #         )
-    #     )
-    #
-    #     self.assertEqual(
-    #         use.call_args_list[1][0],
-    #         (
-    #             'pypi', 'test-project',
-    #             [('pypi', {
-    #                 'config': {'global': {'index-url': 'https://pypi.python.org/simple/'}},
-    #                 'type': 'pypi', 'url': 'https://pypi.python.org/'
-    #             })],
-    #             'myToken',
-    #             False
-    #         )
-    #     )
+    @mock.patch('stable_world.managers.use')
+    def test_use(self, use):
+
+        urls = {
+            "conda": {
+                "config": {
+                    "channel": "https://repo.continuum.io/pkgs/free/"
+                },
+                "type": "conda",
+                "url": "https://repo.continuum.io/"
+            },
+            "pypi": {
+                "config": {
+                    "global": {
+                        "index-url": "https://pypi.python.org/simple/"
+                    }
+                },
+                "type": "pypi",
+                "url": "https://pypi.python.org/"
+            }
+        }
+
+        # self.requests_patch.get('http://mock/api/projects/test-project',
+        #     json={'project': {'pinned_to': None, 'urls': urls}}
+        # )
+        # self.requests_patch.post('http://mock/api/tags/test-project/create-tag',
+        #     json={}
+        # )
+
+        use.return_value = {}
+
+        obj = application_mock()
+        # User exists
+        obj.client.token.return_value = 'myToken'
+        obj.get_using.return_value = None
+        obj.client.project.return_value = {'project': {'pinned_to': None, 'urls': urls}}
+        result = CliRunner().invoke(
+            main, [
+                'use', '-p', 'test-project', '-t', 'create-tag',
+                '--email', 'email', '--token', 'myToken'
+            ],
+            obj=obj
+        )
+        if result.exception:
+            raise result.exception
+        assert result.exit_code == 0
+
+        # history = self.requests_patch.request_history
+        #
+        # self.assertEqual(history[0].url, 'http://mock/api/projects/test-project')
+        # self.assertEqual(history[1].url, 'http://mock/api/tags/test-project/create-tag')
+        #
+        self.assertEqual(use.call_count, 2)
+        self.assertEqual(
+            use.call_args_list[0][0],
+            (
+                'mockURL', 'conda', 'test-project',
+                [('conda', {
+                    'config': {'channel': 'https://repo.continuum.io/pkgs/free/'},
+                    'type': 'conda', 'url': 'https://repo.continuum.io/'
+                })],
+                'myToken',
+                False
+            )
+        )
+
+        self.assertEqual(
+            use.call_args_list[1][0],
+            (
+                'mockURL', 'pypi', 'test-project',
+                [('pypi', {
+                    'config': {'global': {'index-url': 'https://pypi.python.org/simple/'}},
+                    'type': 'pypi', 'url': 'https://pypi.python.org/'
+                })],
+                'myToken',
+                False
+            )
+        )
 
 
 if __name__ == "__main__":
