@@ -5,22 +5,6 @@ import click
 from .client import Client
 from .interact.setup_user import setup_user
 from . import application
-# from .env import env
-from .config import config
-
-# email_option = click.option(
-#     '--email', default=env.STABLE_WORLD_EMAIL,
-#     help='Your email'
-# )
-# password_option = click.option(
-#     '--password', default=env.STABLE_WORLD_PASSWORD,
-#     help='Your password'
-# )
-#
-# token_option = click.option(
-#     '--token', default=env.STABLE_WORLD_TOKEN,
-#     help='An authentication token'
-# )
 
 dir_option = click.option(
     '--dir', default=abspath('.'),
@@ -61,27 +45,8 @@ def ensure_login(app, hide_token=True):
             click.echo(' %30s: %s\n' % ('token', '*' * 10))
         else:
             click.echo(' %30s: %s\n' % ('token', app.token))
-        # if config.get('email') != email or config.get('token') != token:
-        #     app.update_netrc()
     else:
         setup_user(app)
-
-    # return Client(None)
-
-
-def update_config_with_args(func):
-    """
-    Set token and email arguments to the function
-    from the config
-    """
-    @wraps(func)
-    def decorator(**kwargs):
-        if not kwargs.get('email'):
-            kwargs['email'] = config.get('email')
-        if not kwargs.get('token'):
-            kwargs['token'] = config.get('token')
-        return func(**kwargs)
-    return decorator
 
 
 def login_required(func):

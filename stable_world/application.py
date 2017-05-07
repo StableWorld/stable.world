@@ -64,8 +64,20 @@ class StableWorldApplication:
     def update_option(self, param, value):
         self.cli_options[param] = value
 
+    def set_using(self):
+        pass
+
+    def get_using(self):
+        pass
+
+    def unset_using(self):
+        pass
+
 
 def pass_app(f):
+    '''
+    Decorator to pass application
+    '''
     @wraps(f)
     def new_func(*args, **kwargs):
         ctx = click.get_current_context()

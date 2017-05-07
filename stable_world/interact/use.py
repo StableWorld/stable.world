@@ -4,8 +4,6 @@ import sys
 import click
 from itertools import groupby
 
-from stable_world.config import set_using, get_using, unset_using
-from stable_world.client import Client
 from stable_world import utils, errors
 from stable_world import managers
 
@@ -39,9 +37,8 @@ def setup_tags(client, project, create_tag, info, dryrun):
                 click.echo('')
 
 
-def use_project(create_tag, project, token, dryrun):
-    client = Client(None)
-    already_using = get_using()
+def use_project(app, create_tag, project, token, dryrun):
+    already_using = app.get_using()
 
     if already_using:
         utils.echo_error()
@@ -52,8 +49,8 @@ def use_project(create_tag, project, token, dryrun):
         click.echo('')
         sys.exit(1)
 
-    info = client.project(project)
-    setup_tags(client, project, create_tag, info, dryrun)
+    info = app.client.project(project)
+    setup_tags(app.client, project, create_tag, info, dryrun)
 
     urls = info['project']['urls']
 
@@ -67,7 +64,7 @@ def use_project(create_tag, project, token, dryrun):
     click.echo('')
 
     if not dryrun:
-        set_using(using_record)
+        app.set_using(using_record)
 
         utils.echo_success()
         click.echo('You are using project "{}"'.format(project))
@@ -78,8 +75,8 @@ def use_project(create_tag, project, token, dryrun):
         click.echo('')
 
 
-def unuse_project():
-    using = get_using()
+def unuse_project(app):
+    using = app.get_using()
     if not using:
         utils.echo_error()
         click.echo('You are not currently using a project')
@@ -90,7 +87,7 @@ def unuse_project():
 
     click.echo('')
 
-    unset_using()
+    app.unset_using()
 
     utils.echo_success()
     click.echo("No longer using project %s" % (using['project']))

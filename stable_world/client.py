@@ -8,7 +8,6 @@ from .py_helpers import JSONDecodeError, platform_uname
 
 from stable_world import __version__ as version
 
-# from .config import config
 from . import errors
 
 logger = logging.getLogger(__name__)

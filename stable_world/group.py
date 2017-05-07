@@ -21,12 +21,6 @@ class StableWorldCommand(click.Command):
     def format_help(self, ctx, formatter):
         """Writes the help into the formatter if it exists.
 
-        This calls into the following methods:
-
-        -   :meth:`format_usage`
-        -   :meth:`format_help_text`
-        -   :meth:`format_options`
-        -   :meth:`format_epilog`
         """
 
         self.format_usage(ctx, formatter)

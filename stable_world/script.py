@@ -7,7 +7,6 @@ import sys
 import click
 
 from stable_world import __version__ as sw_version
-from .config import config_filename, update_token
 from .interact.setup_user import setup_user, setup_project_token
 from .interact.setup_project import setup_project
 from .interact.use import use_project, unuse_project
@@ -53,7 +52,7 @@ def main(ctx, app, show_traceback, ignore_config, dir):
 
     setup_logging()
     if not show_traceback:
-        sys.excepthook = error_output.brief_excepthook
+        sys.excepthook = error_output.brief_excepthook(app.cache_dirname)
 
     app.make_directories()
 
@@ -91,14 +90,15 @@ def register(app):
 
 
 @main.command()
-def logout():
+@application.pass_app
+def logout(app):
     "expire local token"
 
-    update_token(token=None, email=None)
+    app.update_netrc(token=None, email=None)
     click.echo(
         '\n\n    '
         'Token removed from %s file.'
-        '\n\n' % config_filename
+        '\n\n' % app.config_filename
     )
     return
 
@@ -228,13 +228,14 @@ def tag_show(client, project, tag, full):
 @application.email_option
 @application.token_option
 @application.password_option
-def use(create_tag, project, email, password, token, dryrun):
+@application.pass_app
+def use(app, create_tag, project, email, password, token, dryrun):
     "Activate and record all usage for a project"
 
     if not token:
-        token = setup_project_token(email, password, project)
+        token = setup_project_token(app, project)
 
-    use_project(create_tag, project, token, dryrun)
+    use_project(app, create_tag, project, token, dryrun)
 
 
 @main.command(category='Build')
