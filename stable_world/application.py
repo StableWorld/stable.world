@@ -114,7 +114,6 @@ def pass_app(f):
 
 
 def set_config_option(ctx, param, value):
-    print("set_config_option", param.name, value)
     if value is not None:
         app = ctx.ensure_object(StableWorldApplication)
         app.update_option(param.name, value)
