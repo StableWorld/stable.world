@@ -59,7 +59,7 @@ def use_project(app, create_tag, project, token, dryrun):
     for ty, cache_group in groups:
         # import pdb; pdb.set_trace()
         cache_list = list(cache_group)
-        details = managers.use(ty, project, cache_list, token, dryrun)
+        details = managers.use(app.client.site_url, ty, project, cache_list, token, dryrun)
         using_record['types'][ty] = details
     click.echo('')
 

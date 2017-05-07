@@ -5,7 +5,7 @@ import logging
 
 from stable_world.output.helpers import indent
 from stable_world.py_helpers import ConfigParser
-from stable_world import errors, config
+from stable_world import errors
 from stable_world.interact.yaml_insert import yaml_add_lines_to_machine_pre
 
 from .base import ProjectConfigurator
@@ -94,7 +94,7 @@ class CircleProjectHelper(ProjectConfigurator):
             text = ''
 
         add_lines = [
-            'curl {url}/install | sudo bash -s -- rc'.format(url=config.config['url']),
+            'curl {url}/install | sudo bash -s -- rc'.format(url=self.site_url),
             'stable.world use -p {project_name} -t ' +
             'build${{CIRCLE_BUILD_NUM}}'.format(project_name=self.project_name)
         ]

@@ -2,7 +2,7 @@ import unittest
 import mock
 import os
 import requests_mock
-from stable_world import config
+from stable_world import config2
 from click.testing import CliRunner
 from stable_world import errors
 from stable_world.script import main
@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
         config.cache_dirname = os.path.join(tmp, 'cache')
         config.config_filename = os.path.join(tmp, 'config/test-config.ini')
 
-        config.make_dirs()
+        config2.make_dirs()
 
         self.default_config = dict(config.default_config)
         config.default_config.clear()
@@ -50,8 +50,6 @@ class Test(unittest.TestCase):
 
     @mock.patch('stable_world.interact.setup_project.ProjectConfigurator')
     def test_main(self, ProjectConfigurator):
-
-        ProjectConfigurator
 
         runner = CliRunner()
 

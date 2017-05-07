@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import os
 import click
 from .push_file import push_file, pull_file
-from ..config import config
 from stable_world.py_helpers import urlparse, urlunparse
 
 
@@ -21,8 +20,9 @@ class BaseManager(object):
             if os.path.isfile(os.path.join(path, cls.PROGRAM)):
                 return True
 
-    def __init__(self, project, cache_list, token, dryrun):
+    def __init__(self, site_url, project, cache_list, token, dryrun):
 
+        self.site_url = site_url
         self.project = project
         self.cache_list = cache_list
         self.token = token
@@ -48,17 +48,16 @@ class BaseManager(object):
 
     def get_base_url(self, basicAuthRequired=False):
 
-        api_url = config['url']
-
+        site_url = self.site_url
         if basicAuthRequired:
-            api_uri = urlparse(api_url)
-            api_url = urlunparse(api_uri._replace(netloc='{}:{}@{}'.format(
+            site_uri = urlparse(self.site_url)
+            site_url = urlunparse(site_uri._replace(netloc='{}:{}@{}'.format(
                 'token',
                 self.token,
-                api_uri.netloc
+                site_uri.netloc
             )))
 
-        return '%s/cache/%s/' % (api_url, self.cache_name)
+        return '%s/cache/%s/' % (site_url, self.cache_name)
 
     def use(self):
         if not self.dryrun:

@@ -1,7 +1,7 @@
 from random import choice
 from stable_world.output.helpers import indent
 import click
-from stable_world import errors, config
+from stable_world import errors
 from . import words
 from .base import ProjectConfigurator
 
@@ -63,7 +63,7 @@ class CustomProjectHelper(ProjectConfigurator):
     def setup_project_ci(self):
 
         add_lines = [
-            'curl {url}/install | sudo bash -s -- rc'.format(url=config.config['url']),
+            'curl {url}/install | sudo bash -s -- rc'.format(url=self.site_url),
             'stable.world use -p {project_name} -t ' +
             'build${{CIRCLE_BUILD_NUM}}'.format(project_name=self.project_name)
         ]
