@@ -1,6 +1,5 @@
 import unittest
-from stable_world import config
-import tempfile
+from stable_world import config2
 example = '''
 machine api.heroku.com
     login test@gmail.com
@@ -16,15 +15,15 @@ machine surge.surge.sh
 
 class Test(unittest.TestCase):
 
-    def setUp(self):
-        config.config_filename = tempfile.mktemp(suffix=".swconfig")
-        config.netrc_filename = tempfile.mktemp(suffix=".netrc")
-        config.config.clear()
-        config.config.update(config.default_config)
+    # def setUp(self):
+    #     config.config_filename = tempfile.mktemp(suffix=".swconfig")
+    #     config.netrc_filename = tempfile.mktemp(suffix=".netrc")
+    #     config.config.clear()
+    #     config.config.update(config.default_config)
 
     def test_remove_machine_no_match(self):
 
-        result = config.remove_machine('host', example)
+        result = config2.remove_machine('host', example)
         self.assertEqual(result, example.rstrip())
 
     def test_remove_machine_start(self):
@@ -37,7 +36,7 @@ machine surge.surge.sh
     login test@gmail.com
     password someGreatToken3'''
 
-        result = config.remove_machine('api.heroku.com', example)
+        result = config2.remove_machine('api.heroku.com', example)
         self.assertEqual(result, expected)
 
     def test_remove_machine_middle(self):
@@ -50,7 +49,7 @@ machine surge.surge.sh
     login test@gmail.com
     password someGreatToken3'''
 
-        result = config.remove_machine('git.heroku.com', example)
+        result = config2.remove_machine('git.heroku.com', example)
         self.assertEqual(result, expected)
 
     def test_remove_machine_end(self):
@@ -63,17 +62,8 @@ machine git.heroku.com
     login test@gmail.com
     password someGreatToken2'''
 
-        result = config.remove_machine('surge.surge.sh', example)
+        result = config2.remove_machine('surge.surge.sh', example)
         self.assertEqual(result, expected)
-
-    def test_update_config_file(self):
-        config.update_config(foo='bar')
-        # config.update_config_file()
-
-        config.config.clear()
-        config.load_config()
-
-        self.assertEqual(config.config['foo'], 'bar')
 
 
 if __name__ == '__main__':

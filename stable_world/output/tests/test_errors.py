@@ -19,7 +19,7 @@ def test_write_error(default_text_stderr, sw_open):
         raise IOError()
     except IOError:
         exctype, value, traceback = sys.exc_info()
-        error_output.write_error_log(exctype, value, traceback)
+        error_output.write_error_log('filename', exctype, value, traceback)
 
     sw_open.assert_called_once()
 
@@ -37,11 +37,13 @@ def test_write_error(default_text_stderr, sw_open):
 def test_brief_excepthook(write_error_log, default_text_stderr):
 
     stderr_io = default_text_stderr.return_value = io.StringIO()
+
+    brief_excepthook = error_output.brief_excepthook('filename')
     try:
         raise errors.UserError('custom user error')
     except errors.UserError:
         exctype, value, traceback = sys.exc_info()
-        error_output.brief_excepthook(exctype, value, traceback)
+        brief_excepthook(exctype, value, traceback)
 
     assert 'UserError: custom user error' in stderr_io.getvalue()
     write_error_log.assert_not_called()
