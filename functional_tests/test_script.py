@@ -7,7 +7,7 @@ from stable_world.script import main
 
 def application_mock():
     app = mock.Mock()
-    app.client.site_url = 'mockURL'
+    app.client.site = 'mockURL'
     app.config = {'url': 'mockURL'}
     options = {}
 
