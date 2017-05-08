@@ -24,7 +24,8 @@ class StableWorldApplication:
         }
         self.client = Client(
             self.config.get('url'),
-            self.config.get('verify_https', True)
+            self.config.get('verify_https', True),
+            self.config.get('token'),
         )
 
         self.cli_options = {}
@@ -50,12 +51,12 @@ class StableWorldApplication:
         config2.load_netrc(self.netrc_filename, self.config)
 
     def update_config_from_options(self):
-        print("update_config_from_options", self.cli_options)
         self.config.update(self.cli_options)
 
         self.client = Client(
             self.config.get('url'),
-            self.config.get('verify_https', True)
+            self.config.get('verify_https', True),
+            self.config.get('token'),
         )
 
     def update_netrc(self, email, token):
@@ -66,7 +67,6 @@ class StableWorldApplication:
         )
 
     def update_option(self, name, value):
-        print("update_option", name, value)
         self.cli_options[name] = value
 
     def get_using(self):
