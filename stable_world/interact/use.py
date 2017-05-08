@@ -60,7 +60,7 @@ def use_project(app, create_tag, project, token, dryrun):
     using_record = {'types': {}, 'project': project}
     for ty, cache_group in groups:
         cache_list = list(cache_group)
-        details = managers.use(app.client.site_url, ty, project, cache_list, token, dryrun)
+        details = managers.use(app.client.site, ty, project, cache_list, token, dryrun)
         using_record['types'][ty] = details
     click.echo('')
 

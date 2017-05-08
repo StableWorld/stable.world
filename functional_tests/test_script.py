@@ -164,13 +164,6 @@ class Test(unittest.TestCase):
             }
         }
 
-        # self.requests_patch.get('http://mock/api/projects/test-project',
-        #     json={'project': {'pinned_to': None, 'urls': urls}}
-        # )
-        # self.requests_patch.post('http://mock/api/tags/test-project/create-tag',
-        #     json={}
-        # )
-
         use.return_value = {}
 
         obj = application_mock()

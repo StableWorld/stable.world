@@ -243,9 +243,10 @@ def use(app, create_tag, project, dryrun):
 
 
 @main.command(category='Build')
-def unuse():
+@application.pass_app
+def unuse(app):
     "Deactivate a project"
-    unuse_project()
+    unuse_project(app)
 
 
 @main.command(category='Build')
