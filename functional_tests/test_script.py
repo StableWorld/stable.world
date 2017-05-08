@@ -209,6 +209,22 @@ class Test(unittest.TestCase):
             )
         )
 
+    def test_tag_list(self):
+        obj = application_mock()
+        obj.client.project.return_value = {'tags': [{'created': '2016.01.01', 'name': 'tagname'}]}
+        result = CliRunner().invoke(
+            main,
+            ['tag:list', '-p', 'far-shoehorn', '--token=token', '--email=email'],
+            obj=obj
+        )
+
+        if result.exception:
+            raise result.exception
+        assert result.exit_code == 0
+
+        obj.client.project.assert_called_with('far-shoehorn')
+        assert 'tagname' in result.output
+
 
 if __name__ == "__main__":
     unittest.main()

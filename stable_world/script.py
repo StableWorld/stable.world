@@ -197,9 +197,9 @@ def tag_create(app, project, tag):
 @main.command('tag:list')
 @utils.project_option(required=True)
 @utils.login_optional
-def tag_list(client, project):
+def tag_list(app, project):
     "List tags in a project"
-    info = client.project(project)
+    info = app.client.project(project)
     output.tags.print_tags(info['tags'][::-1])
 
 
