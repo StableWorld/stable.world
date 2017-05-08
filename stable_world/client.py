@@ -43,29 +43,33 @@ def url(url_template, test_method='options'):
     return decorator
 
 
-class Client:
+class Client(object):
     """
     Client for connecting with the API
     """
-    def __init__(self, site, verify=True):
+    def __init__(self, site, verify=True, token=None):
         self.site = site
         self._session = requests.Session()
+        self._session.verify = verify
 
+        self._session.headers['User-Agent'] = self.user_agent
+
+        if token:
+            self._session.auth = ('token', token)
+
+    @property
+    def user_agent(self):
         uname = platform_uname()
-
         ctx = (
             version,
             sys.version_info,
             uname
         )
-        user_agent = (
+        return (
             'stable.world {0}; '
             'Python {1.major}.{1.minor}.{1.micro}; '
             'OS {2.system} {2.release} {2.machine}'
         ).format(*ctx)
-
-        self._session.verify = verify
-        self._session.headers['User-Agent'] = user_agent
 
     get = request('get')
     post = request('post')

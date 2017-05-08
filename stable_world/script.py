@@ -11,6 +11,7 @@ from .interact.setup_user import setup_user, setup_project_token
 from .interact.setup_project import setup_project
 from .interact.use import use_project, unuse_project
 from .output import error_output
+from .env import env
 from .sw_logging import setup_logging
 from . import utils, output, application, group
 
@@ -51,7 +52,7 @@ def main(ctx, app, show_traceback, ignore_config, dir):
     """
 
     setup_logging()
-    if not show_traceback:
+    if not show_traceback and not env.DEBUG:
         sys.excepthook = error_output.brief_excepthook(app.cache_dirname)
 
     if not ignore_config:
