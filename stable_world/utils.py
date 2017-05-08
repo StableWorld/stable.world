@@ -1,8 +1,6 @@
 from functools import wraps
 from os.path import abspath
 import click
-
-from .client import Client
 from .interact.setup_user import setup_user
 from . import application
 
