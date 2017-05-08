@@ -51,8 +51,11 @@ class Client(object):
         self.site = site
         self._session = requests.Session()
         self._session.verify = verify
-        self._session.auth = ('token', token)
+
         self._session.headers['User-Agent'] = self.user_agent
+
+        if token:
+            self._session.auth = ('token', token)
 
     @property
     def user_agent(self):

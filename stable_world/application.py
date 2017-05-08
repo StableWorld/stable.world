@@ -22,13 +22,15 @@ class StableWorldApplication:
         self.config = {
             'url': env.STABLE_WORLD_URL
         }
+        self.create_client()
+        self.cli_options = {}
+
+    def create_client(self):
         self.client = Client(
             self.config.get('url'),
             self.config.get('verify_https', True),
             self.config.get('token'),
         )
-
-        self.cli_options = {}
 
     @property
     def token(self):
@@ -52,12 +54,7 @@ class StableWorldApplication:
 
     def update_config_from_options(self):
         self.config.update(self.cli_options)
-
-        self.client = Client(
-            self.config.get('url'),
-            self.config.get('verify_https', True),
-            self.config.get('token'),
-        )
+        self.create_client()
 
     def update_netrc(self, email, token):
         self.config.update(email=email, token=token)
@@ -65,6 +62,8 @@ class StableWorldApplication:
             self.netrc_filename, self.config['url'],
             email=email, token=token
         )
+
+        self.create_client()
 
     def update_option(self, name, value):
         self.cli_options[name] = value

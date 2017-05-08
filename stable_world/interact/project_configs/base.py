@@ -19,27 +19,31 @@ class ProjectConfigurator(object):
         ProjectConfigurator.CONFIGS_HELPERS[key] = detector
 
     @staticmethod
-    def get(key, client, project_dir):
+    def get(key, app, project_dir):
         Cls = ProjectConfigurator.CONFIGS_HELPERS[key]
-        return Cls(client, project_dir)
+        return Cls(app, project_dir)
 
     @staticmethod
     def default(key):
         ProjectConfigurator.CONFIGS_HELPER_DEFAULT = 'custom'
 
     @classmethod
-    def detect(cls, client, project_dir):
+    def detect(cls, app, project_dir):
         for detector in ProjectConfigurator.CONFIGS_HELPERS.values():
             if detector.is_valid(project_dir):
-                return detector(client, project_dir)
+                return detector(app, project_dir)
 
         if cls.CONFIGS_HELPER_DEFAULT:
-            return cls.CONFIGS_HELPER_DEFAULT(client, project_dir)
+            return cls.CONFIGS_HELPER_DEFAULT(app, project_dir)
 
-    def __init__(self, client, project_dir):
-        self.client = client
-        self.client = client
+    def __init__(self, app, project_dir):
+        self.app = app
+        self.client = app.client
         self.project_dir = project_dir
+
+    @property
+    def site_url(self):
+        return self.app.config['url']
 
     def setup_project_name(self):
         raise NotImplementedError()
@@ -55,4 +59,4 @@ class ProjectConfigurator(object):
         click.echo('')
 
     def get_token(self):
-        return setup_project_token(None, None, self.project_name, use_config_token=False)
+        return setup_project_token(self.app, project=self.project_name, use_config_token=False)

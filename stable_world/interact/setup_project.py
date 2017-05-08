@@ -5,9 +5,9 @@ from .project_configs import ProjectConfigurator
 def setup_project(app, project_dir, ty=None):
 
     if ty:
-        project_config = ProjectConfigurator.get(ty, app.client, project_dir)
+        project_config = ProjectConfigurator.get(ty, app, project_dir)
     else:
-        project_config = ProjectConfigurator.detect(app.client, project_dir)
+        project_config = ProjectConfigurator.detect(app, project_dir)
 
     project_config.setup()
 
