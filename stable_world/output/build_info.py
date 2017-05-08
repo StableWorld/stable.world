@@ -4,7 +4,6 @@ from dateutil.parser import parse as parse_date
 from dateutil.tz import tzutc
 from contextlib import contextmanager
 
-from stable_world.config import config
 from stable_world import errors, __version__ as version
 from .utils import prettydate
 
@@ -87,7 +86,7 @@ def build_info(client):
 
     click.echo("")
     click.echo("  CLI Version: {}".format(version))
-    click.echo("  STABLE_WORLD_URL: {}".format(config['url']))
+    click.echo("  STABLE_WORLD_URL: {}".format(client.site))
     click.echo("")
 
     echo_auth_info(client)

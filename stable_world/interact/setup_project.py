@@ -2,12 +2,12 @@
 from .project_configs import ProjectConfigurator
 
 
-def setup_project(project_dir, client, ty=None):
+def setup_project(app, project_dir, ty=None):
 
     if ty:
-        project_config = ProjectConfigurator.get(ty, client, project_dir)
+        project_config = ProjectConfigurator.get(ty, app.client, project_dir)
     else:
-        project_config = ProjectConfigurator.detect(client, project_dir)
+        project_config = ProjectConfigurator.detect(app.client, project_dir)
 
     project_config.setup()
 

@@ -15,19 +15,18 @@ class AnyIO(io.StringIO):
         return io.StringIO.write(self, data)
 
 
-@patch('stable_world.managers.base.config')
 @patch('stable_world.managers.pypi.open')
-def test_pypi_manager(mock_open, mock_config):
+def test_pypi_manager(mock_open):
 
     cache_info = {'url': 'http://pypi/', 'config': {'global': {'index-url': 'http://pypi/index'}}}
     mgr = PyPIManager(
+        'https://mock',
         project='project',
         cache_list=[('cacheName', cache_info)],
         token='token',
         dryrun=False
     )
 
-    mock_config.__getitem__ = lambda sd, item: {'url': 'https://mock'}[item]
     pip_config_io = mock_open().__enter__.return_value = AnyIO()
 
     mgr.use()
@@ -38,19 +37,18 @@ def test_pypi_manager(mock_open, mock_config):
     assert '.cache/stable.world/project-pypi' in pip_config
 
 
-@patch('stable_world.managers.base.config')
 @patch('stable_world.managers.pypi.open')
-def test_pypi_manager_pinned(mock_open, mock_config):
+def test_pypi_manager_pinned(mock_open):
 
     cache_info = {'url': 'http://pypi/', 'config': {'global': {'index-url': 'http://pypi/index'}}}
     mgr = PyPIManager(
+        'https://mock',
         project='project',
         cache_list=[('cacheName', cache_info)],
         token='token',
         dryrun=False
     )
 
-    mock_config.__getitem__ = lambda sd, item: {'url': 'https://mock'}[item]
     pip_config_io = mock_open().__enter__.return_value = AnyIO()
 
     mgr.use()

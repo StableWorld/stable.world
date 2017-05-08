@@ -1,7 +1,7 @@
 import click
-from ..config import config, update_token
+# from ..config import config, update_token
 from .. import errors
-from ..client import Client
+# from ..client import Client
 # from getpass import getpass
 
 try:
@@ -10,11 +10,10 @@ except NameError:
     raw_input = input
 
 
-def setup_user(email, password, token, login_only=False, confirm_password=True, scopes=None):
+def setup_user(app, login_only=False, confirm_password=True, scopes=None):
     """
     Prompt user for email and password
     """
-    client = Client(None)
 
     click.echo(
         '\n    '
@@ -24,22 +23,25 @@ def setup_user(email, password, token, login_only=False, confirm_password=True, 
         'by entering your email and password:'
         '\n'
     )
+    email = app.email
 
     if not email:
         email = click.prompt(' %30s' % 'email')
     else:
         click.echo(' %30s: %s' % ('email', email))
 
+    password = app.password
     for i in range(3):
 
         if not password:
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = client.token(email, password, scopes={'api': 'write'})
-            update_token(email=email, token=token)
+            token = app.client.token(email, password, scopes={'api': 'write'})
+            app.config.update(password=password)
+            app.update_netrc(email, token)
             click.echo('\n    Welcome back %s\n\n' % email)
-            return client
+            return
         except errors.NotFound:
             if login_only:
                 raise
@@ -49,10 +51,10 @@ def setup_user(email, password, token, login_only=False, confirm_password=True, 
                 confirm_password = click.prompt(' %30s' % 'password', hide_input=True)
                 if confirm_password != password:
                     raise errors.UserError("Passwords do no match, pelase try again")
-            token = client.register(email, password)
-            update_token(email=email, token=token)
+            token = app.client.register(email, password)
+            app.update_netrc(email, token)
             click.echo('\n    Registered new user %s\n\n' % email)
-            return client
+            return
         except errors.PasswordError:
             password = None
             continue
@@ -65,17 +67,16 @@ def setup_user(email, password, token, login_only=False, confirm_password=True, 
         raise errors.UserError("Bye")
 
 
-def setup_project_token(email, password, project, use_config_token=True):
+def setup_project_token(app, project, use_config_token=True):
     """
     Prompt user for email and password
     """
-    client = Client(None)
 
-    if config.get('token') and use_config_token:
-        return config.get('token')
+    if app.token and use_config_token:
+        return app.token
 
-    email = email or config.get('email')
-    password = password or config.get('password')
+    email = app.email
+    password = app.password
 
     click.echo(
         '\n    '
@@ -96,8 +97,8 @@ def setup_project_token(email, password, project, use_config_token=True):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = client.token(email, password, scopes={'project': project})
-            config.update(password=password)
+            token = app.client.token(email, password, scopes={'project': project})
+            app.config.update(password=password)
             return token
         except errors.PasswordError:
             password = None

@@ -7,19 +7,21 @@ import sys
 import click
 
 from stable_world import __version__ as sw_version
-from .config import config_filename, update_token, config, read_config, make_dirs
 from .interact.setup_user import setup_user, setup_project_token
 from .interact.setup_project import setup_project
 from .interact.use import use_project, unuse_project
 from .output import error_output
 from .sw_logging import setup_logging
-from . import utils, output
-
+from . import utils, output, application, group
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
-@click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
+@click.group(
+    invoke_without_command=True,
+    context_settings=CONTEXT_SETTINGS,
+    cls=group.StableWorldGroup
+)
 @click.option(
     '--show-traceback/--dont-show-traceback', default=False,
     help='Show full traceback on a critical error'
@@ -29,12 +31,13 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     help="Don't read the config file from disk"
 )
 @click.version_option(sw_version)
-@utils.email_option
-@utils.password_option
-@utils.token_option
+@application.email_option
+@application.password_option
+@application.token_option
 @utils.dir_option
+@application.pass_app
 @click.pass_context
-def main(ctx, email, password, token, show_traceback, ignore_config, dir):
+def main(ctx, app, show_traceback, ignore_config, dir):
     """
     Stable.World cli
 
@@ -49,66 +52,64 @@ def main(ctx, email, password, token, show_traceback, ignore_config, dir):
 
     setup_logging()
     if not show_traceback:
-        sys.excepthook = error_output.brief_excepthook
-
-    make_dirs()
+        sys.excepthook = error_output.brief_excepthook(app.cache_dirname)
 
     if not ignore_config:
-        read_config()
+        app.read_config()
+
+    app.update_config_from_options()
+    app.make_directories()
 
     if ctx.invoked_subcommand:
         return
 
-    ensure_login = utils.update_config_with_args(utils.ensure_login)
-    client = ensure_login(email=email, password=password, token=token)
-    setup_project(dir, client)
+    utils.ensure_login(app)
+    setup_project(app, dir)
 
 
-@main.command()
-@utils.email_option
-@utils.password_option
-@utils.token_option
-@utils.update_config_with_args
-def login(email, password, token):
+@main.command(category='Authentication')
+@application.email_option
+@application.password_option
+@application.token_option
+@application.pass_app
+def login(app):
     "only performs authentication step"
-    setup_user(email, password, token, login_only=True)
+    setup_user(app, login_only=True)
+    return
+
+
+@main.command(category='Authentication')
+@application.email_option
+@application.password_option
+@application.token_option
+@application.pass_app
+def register(app):
+    "only performs authentication step"
+    confirm_password = not app.password
+    setup_user(app, login_only=False, confirm_password=confirm_password)
     return
 
 
 @main.command()
-@utils.email_option
-@utils.password_option
-@utils.token_option
-@utils.update_config_with_args
-def register(email, password, token):
-    "only performs authentication step"
-    confirm_password = not password
-    setup_user(
-        email, password, token,
-        login_only=False, confirm_password=confirm_password
-    )
-    return
-
-
-@main.command()
-def logout():
+@application.pass_app
+def logout(app):
     "expire local token"
 
-    update_token(token=None, email=None)
+    app.update_netrc(token=None, email=None)
     click.echo(
         '\n\n    '
         'Token removed from %s file.'
-        '\n\n' % config_filename
+        '\n\n' % app.config_filename
     )
     return
 
 
-@main.command()
+@main.command(category='Authentication')
 @utils.login_optional
-def whoami(client):
+def whoami(app):
     "show who you are logged in as"
 
-    email = client.whoami()
+    email = app.client.whoami()
     click.echo('\n\n    Logged in as %s\n\n' % email)
     return
 
@@ -116,40 +117,40 @@ def whoami(client):
 @main.command('project:create')
 @utils.project_option(required=True)
 @utils.login_required
-def project_create(client, project):
+def project_create(app, project):
     "Create a new project"
     if project:
-        info = client.add_project(project)
+        info = app.client.add_project(project)
     else:
-        info = setup_project(client)
+        info = setup_project(app)
     output.projects.print_project(info['project'])
     utils.echo_success()
     click.echo('Project %s added!' % info['project']['name'])
 
 
-@main.command('list')
+@main.command('project:list')
 @utils.login_required
-def list_cmd(client):
+def list_cmd(app):
     "list all projects you have access to"
-    projects = client.projects()
+    projects = app.client.projects()
     output.projects.print_projects(projects)
 
 
 @main.command('project')
 @utils.project_option(required=True)
 @utils.login_required
-def project(client, project):
+def project(app, project):
     "show a published project"
-    info = client.project(project)
+    info = app.client.project(project)
     output.projects.print_project(info['project'])
 
 
 @main.command('project:destroy')
 @utils.project_option(required=True)
 @utils.login_required
-def project_destroy(client, project):
+def project_destroy(app, project):
     "tear down a published project"
-    client.delete_project(project)
+    app.client.delete_project(project)
     utils.echo_success()
     click.echo(' Project %s removed' % project)
 
@@ -160,10 +161,10 @@ def project_destroy(client, project):
 @click.option('--type', help='type of cache')
 @click.option('--name', required=True, help='Give it a name')
 @utils.login_required
-def project_cache_add(client, project, url, type, name):
+def project_cache_add(app, project, url, type, name):
     "Add a cache to the project"
 
-    client.add_url(project, url, name, type)
+    app.client.add_url(project, url, name, type)
 
     utils.echo_success()
     click.echo(' Cache %s was added as %s' % (url, name))
@@ -173,10 +174,10 @@ def project_cache_add(client, project, url, type, name):
 @utils.project_option(required=True)
 @click.option('-n', '--name', help='name of cache to remove')
 @utils.login_required
-def project_cache_remove(client, project, name):
+def project_cache_remove(app, project, name):
     "Remove a cache from the project"
 
-    info = client.remove_url(project, name)
+    info = app.client.remove_url(project, name)
     utils.echo_success()
     click.echo(' Cache %s (%s) was removed' % (info['url'], name))
 
@@ -185,9 +186,9 @@ def project_cache_remove(client, project, name):
 @utils.project_option(required=True)
 @click.option('-t', '--tag', required=True, help='name of tag to create')
 @utils.login_required
-def tag_create(client, project, tag):
+def tag_create(app, project, tag):
     "Add a tag to a project"
-    client.add_tag(project, tag)
+    app.client.add_tag(project, tag)
     utils.echo_success()
     click.echo("Tag %s added to project %s" % (tag, project))
 
@@ -215,7 +216,7 @@ def tag_show(client, project, tag, full):
     output.tags.print_objects(info)
 
 
-@main.command()
+@main.command(category='Build')
 @click.option(
     '-t', '--create-tag', required=False,
     help='tag name to create'
@@ -225,28 +226,32 @@ def tag_show(client, project, tag, full):
     '--dryrun/--no-dryrun',
     help='only print output don\'t create tag or modify config files'
 )
-@utils.email_option
-@utils.token_option
-@utils.password_option
-def use(create_tag, project, email, password, token, dryrun):
+@application.email_option
+@application.token_option
+@application.password_option
+@application.pass_app
+def use(app, create_tag, project, dryrun):
     "Activate and record all usage for a project"
 
-    if not token:
-        token = setup_project_token(email, password, project)
+    if app.token:
+        token = app.token
+    else:
+        token = setup_project_token(app, project)
 
-    use_project(create_tag, project, token, dryrun)
+    use_project(app, create_tag, project, token, dryrun)
 
 
-@main.command()
+@main.command(category='Build')
 def unuse():
     "Deactivate a project"
     unuse_project()
 
 
-@main.command()
-def using():
+@main.command(category='Build')
+@application.pass_app
+def using(app):
     "Deactivate a project"
-    using = config.get('using', None)
+    using = app.config.get('using', None)
     if not using:
         click.echo('You are not currently using a project')
         sys.exit(1)
@@ -263,14 +268,14 @@ def using():
 )
 @utils.project_option(required=True)
 @utils.login_optional
-def diff(client, project, tags):
+def diff(app, project, tags):
     """Show the difference between two tags in a project"""
     if ':' in tags:
         first, last = tags.split(':')
     else:
         first, last = tags, None
 
-    diff_result = client.diff(project, first, last)
+    diff_result = app.client.diff(project, first, last)
     output.tags.diff_tags(diff_result)
 
 
@@ -278,9 +283,9 @@ def diff(client, project, tags):
 @utils.project_option(required=True)
 @utils.tag_option(required=True)
 @utils.login_required
-def pin(client, project, tag):
+def pin(app, project, tag):
     "Pin a project to a tag."
-    client.pin(project, tag)
+    app.client.pin(project, tag)
     utils.echo_success()
     click.echo("Project %s pinned to tag %s" % (project, tag))
 
@@ -288,50 +293,54 @@ def pin(client, project, tag):
 @main.command()
 @utils.project_option(required=True)
 @utils.login_required
-def unpin(client, project):
+def unpin(app, project):
     "Remove pin to tag"
-    client.unpin(project)
+    app.client.unpin(project)
     utils.echo_success()
     click.echo("Unpinned Project %s" % (project))
 
 
-@main.command()
-@utils.email_option
-@utils.password_option
+@main.command(category='Authentication')
+@application.email_option
+@application.password_option
 @utils.project_option(required=True)
 @utils.client
-def token(client, email, password, project):
+def token(app, project):
     "Get your authentication token"
 
     # Will raise not found exception
-    client.project(project)
+    app.client.project(project)
 
-    email = email or config.get('email')
-    token = setup_project_token(email, password, project)
+    token = setup_project_token(app, project)
     print("  token:", token)
 
 
 @main.command()
 @utils.login_optional
-def info(client):
+def info(app):
     "Fetch environment and server informations"
-    output.build_info.build_info(client)
+    output.build_info.build_info(app.client)
+
+
+@main.command('setup')
+def setup(app, dir):
+    "Set up new project"
 
 
 @main.command('setup:custom')
 @utils.dir_option
 @utils.login_required
-def setup_custom(client, dir):
+def setup_custom(app, dir):
     "Set up new custom project"
-    setup_project(dir, client, 'custom')
+    setup_project(app, dir, 'custom')
 
 
 @main.command('setup:circle')
 @utils.dir_option
 @utils.login_required
-def setup_circle(client, dir):
+def setup_circle(app, dir):
     "Set up new project on circleci"
-    setup_project(dir, client, 'circleci')
+    setup_project(app, dir, 'circleci')
 
 
 if __name__ == '__main__':

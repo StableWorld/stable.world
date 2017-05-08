@@ -1,82 +1,60 @@
 import unittest
 import mock
-import os
-import requests_mock
-from stable_world import config
 from click.testing import CliRunner
-from stable_world import errors
+from stable_world import errors, application
 from stable_world.script import main
-import tempfile
+
+
+def application_mock():
+    app = mock.Mock()
+    app.client.site_url = 'mockURL'
+    app.config = {'url': 'mockURL'}
+    options = {}
+
+    def update_config_from_options():
+        app.token = options.get('token')
+        app.email = options.get('email')
+        app.config.update(options)
+
+    def update_option(name, value):
+        options[name] = value
+
+    app.token = None
+    app.email = None
+    app.password = None
+    app.update_option = update_option
+    app.update_config_from_options = update_config_from_options
+    return app
 
 
 class Test(unittest.TestCase):
 
     def setUp(self):
-        tempfile.gettempdir()
-        self.orig_cache_dirname = config.cache_dirname
-        self.orig_config_filename = config.config_filename
-        tmp = tempfile.mkdtemp()
-        config.cache_dirname = os.path.join(tmp, 'cache')
-        config.config_filename = os.path.join(tmp, 'config/test-config.ini')
-
-        config.make_dirs()
-
-        self.default_config = dict(config.default_config)
-        config.default_config.clear()
-        config.default_config.update({'url': 'http://mock'})
-        config.config.clear()
-        config.config.update(config.default_config)
-        self.requests_patch = requests_mock.mock()
-        self.requests = self.requests_patch.start()
-
-        self.update_config_file_patch = mock.patch('stable_world.config.update_config_file')
-        self.update_config_file = self.update_config_file_patch.start()
-
-        self.update_netrc_file_patch = mock.patch('stable_world.config.update_netrc_file')
-        self.update_netrc_file = self.update_netrc_file_patch.start()
+        self.OGApp = application.StableWorldApplication
+        application.StableWorldApplication = mock.Mock
 
     def tearDown(self):
-        self.requests_patch.stop()
-        self.update_config_file_patch.stop()
-        self.update_netrc_file_patch.stop()
-
-        config.cache_dirname = self.orig_cache_dirname
-        config.config_filename = self.orig_config_filename
-
-        config.default_config.clear()
-        config.default_config.update(self.default_config)
-        config.config.clear()
-        config.config.update(config.default_config)
+        application.StableWorldApplication = self.OGApp
 
     @mock.patch('stable_world.interact.setup_project.ProjectConfigurator')
     def test_main(self, ProjectConfigurator):
 
-        ProjectConfigurator
-
         runner = CliRunner()
 
-        self.requests_patch.post('http://mock/auth/token', json={'token': 'mockToken'})
-        # self.requests_patch.post('http://mock/api/projects/test-project', json={})
+        obj = application_mock()
 
-        result = runner.invoke(main, ['--token=', '--email='], input='email\npassword\n')
+        # User exists
+        obj.client.token.return_value = 'myToken'
+
+        result = runner.invoke(main, ['--token=', '--email='], input='email\npassword\n', obj=obj)
 
         if result.exception:
             raise result.exception
 
         assert result.exit_code == 0
 
-        history = self.requests_patch.request_history
-
-        self.assertEqual(history[0].url, 'http://mock/auth/token')
-        self.assertEqual(history[0].json(), {
-            'email': 'email', 'password': 'password', 'scopes': {'api': 'write'}
-        })
-
-        self.assertEqual(self.update_config_file.call_args, None)
-        self.assertEqual(
-            self.update_netrc_file.call_args[1],
-            {'email': 'email', 'token': 'mockToken'}
-        )
+        obj.client.token.assert_called_with('email', 'password', scopes={'api': 'write'})
+        obj.update_netrc.assert_called_with('email', 'myToken')
 
         ProjectConfigurator.detect().setup.assert_called()
         ProjectConfigurator.detect().setup_project_name.assert_called()
@@ -85,84 +63,83 @@ class Test(unittest.TestCase):
 
     def test_destroy(self):
 
-        self.requests_patch.delete('http://mock/api/projects/far-shoehorn', json={'ok': True})
-
+        obj = application_mock()
+        # obj.email = 'email'
+        # obj.token = 'myToken'
         result = CliRunner().invoke(
             main,
-            ['project:destroy', '-p', 'far-shoehorn', '--token=token', '--email=email']
+            ['project:destroy', '-p', 'far-shoehorn', '--token=token', '--email=email'],
+            obj=obj
         )
+
         if result.exception:
             raise result.exception
-
         assert result.exit_code == 0
 
-        history = self.requests_patch.request_history
-        self.assertIn('Project far-shoehorn removed', result.output)
-        self.assertEqual(history[0].url, 'http://mock/api/projects/far-shoehorn')
+        obj.client.delete_project.assert_called_with('far-shoehorn')
 
     def test_login(self):
 
-        self.requests_patch.post('http://mock/auth/token', json={'token': 'mockToken'})
+        obj = application_mock()
+        obj.client.token.return_value = 'myToken'
 
         result = CliRunner().invoke(
             main, ['login'],
-            input='email\npassword\n'
+            input='email\npassword\n',
+            obj=obj
         )
         if result.exception:
             raise result.exception
         assert result.exit_code == 0
 
-        history = self.requests_patch.request_history
-
-        self.assertEqual(history[0].url, 'http://mock/auth/token')
-        self.assertEqual(
-            history[0].json(),
-            {'email': 'email', 'password': 'password', 'scopes': {'api': 'write'}}
-        )
-
-        self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})
-
-    def test_register(self):
-
-        self.requests_patch.post('http://mock/auth/token', json={'error': 'NotFound'}, status_code=404)
-        self.requests_patch.post('http://mock/auth/register', json={'token': 'mockToken'})
-
-        result = CliRunner().invoke(
-            main, ['register'],
-            input='email\npassword\npassword\n'
-        )
-        if result.exception:
-            raise result.exception
-        assert result.exit_code == 0
-        history = self.requests_patch.request_history
-
-        self.assertEqual(history[1].url, 'http://mock/auth/register')
-        self.assertEqual(history[1].json(), {'email': 'email', 'password': 'password'})
-
-        self.assertEqual(self.update_netrc_file.call_args[1], {'email': 'email', 'token': 'mockToken'})
-
-    def test_register_wrong_confirm_password(self):
-
-        self.requests_patch.post('http://mock/auth/token', json={'error': 'NotFound'}, status_code=404)
-        self.requests_patch.post('http://mock/auth/register', json={'token': 'mockToken'})
-
-        result = CliRunner().invoke(
-            main, ['register'],
-            input='email\npassword\nwrongPassword\n'
-        )
-        assert isinstance(result.exception, errors.UserError)
-        assert result.exit_code != 0
+        obj.client.token.assert_called_with('email', 'password', scopes={'api': 'write'})
+        obj.update_netrc.assert_called_with('email', 'myToken')
 
     def test_login_user_does_not_exist(self):
 
-        self.requests_patch.post('http://mock/auth/token', json={'error': 'NotFound'}, status_code=404)
+        obj = application_mock()
+        obj.client.token.side_effect = errors.NotFound('')
 
         result = CliRunner().invoke(
             main, ['login'],
-            input='email\npassword\n'
+            input='email\npassword\n',
+            obj=obj
         )
-
         assert isinstance(result.exception, errors.NotFound)
+        assert result.exit_code != 0
+
+        obj.update_netrc.assert_not_called()
+
+    def test_register(self):
+
+        obj = application_mock()
+        obj.client.token.side_effect = errors.NotFound('')
+        obj.client.register.return_value = 'myToken'
+
+        result = CliRunner().invoke(
+            main, ['register'],
+            input='email\npassword\npassword\n',
+            obj=obj
+        )
+        if result.exception:
+            raise result.exception
+        assert result.exit_code == 0
+
+        obj.client.register.assert_called_with('email', 'password')
+        obj.update_netrc.assert_called_with('email', 'myToken')
+
+    def test_register_wrong_confirm_password(self):
+
+        obj = application_mock()
+        obj.client.token.side_effect = errors.NotFound('')
+        obj.client.register.return_value = 'myToken'
+
+        result = CliRunner().invoke(
+            main, ['register'],
+            input='email\npassword\nwrongPassword\n',
+            obj=obj
+        )
+        assert isinstance(result.exception, errors.UserError)
         assert result.exit_code != 0
 
     @mock.patch('stable_world.managers.use')
@@ -187,35 +164,36 @@ class Test(unittest.TestCase):
             }
         }
 
-        self.requests_patch.get('http://mock/api/projects/test-project',
-            json={'project': {'pinned_to': None, 'urls': urls}}
-        )
-        self.requests_patch.post('http://mock/api/tags/test-project/create-tag',
-            json={}
-        )
+        # self.requests_patch.get('http://mock/api/projects/test-project',
+        #     json={'project': {'pinned_to': None, 'urls': urls}}
+        # )
+        # self.requests_patch.post('http://mock/api/tags/test-project/create-tag',
+        #     json={}
+        # )
 
         use.return_value = {}
 
+        obj = application_mock()
+        # User exists
+        obj.client.token.return_value = 'myToken'
+        obj.get_using.return_value = None
+        obj.client.project.return_value = {'project': {'pinned_to': None, 'urls': urls}}
         result = CliRunner().invoke(
             main, [
                 'use', '-p', 'test-project', '-t', 'create-tag',
                 '--email', 'email', '--token', 'myToken'
             ],
+            obj=obj
         )
         if result.exception:
             raise result.exception
         assert result.exit_code == 0
 
-        history = self.requests_patch.request_history
-
-        self.assertEqual(history[0].url, 'http://mock/api/projects/test-project')
-        self.assertEqual(history[1].url, 'http://mock/api/tags/test-project/create-tag')
-
         self.assertEqual(use.call_count, 2)
         self.assertEqual(
             use.call_args_list[0][0],
             (
-                'conda', 'test-project',
+                'mockURL', 'conda', 'test-project',
                 [('conda', {
                     'config': {'channel': 'https://repo.continuum.io/pkgs/free/'},
                     'type': 'conda', 'url': 'https://repo.continuum.io/'
@@ -228,7 +206,7 @@ class Test(unittest.TestCase):
         self.assertEqual(
             use.call_args_list[1][0],
             (
-                'pypi', 'test-project',
+                'mockURL', 'pypi', 'test-project',
                 [('pypi', {
                     'config': {'global': {'index-url': 'https://pypi.python.org/simple/'}},
                     'type': 'pypi', 'url': 'https://pypi.python.org/'
