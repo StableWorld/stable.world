@@ -211,9 +211,9 @@ def tag_list(app, project):
     help='If exact (default) show this tag only, otherwise show all previous tags.'
 )
 @utils.login_optional
-def tag_show(client, project, tag, full):
+def tag_show(app, project, tag, full):
     "List tags in a project"
-    info = client.tag_objects(project, tag, exact=not full)
+    info = app.client.tag_objects(project, tag, exact=not full)
     output.tags.print_objects(info)
 
 
@@ -306,7 +306,7 @@ def unpin(app, project):
 @application.email_option
 @application.password_option
 @utils.project_option(required=True)
-@utils.client
+@application.pass_app
 def token(app, project):
     "Get your authentication token"
 

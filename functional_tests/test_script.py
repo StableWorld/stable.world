@@ -225,6 +225,26 @@ class Test(unittest.TestCase):
         obj.client.project.assert_called_with('far-shoehorn')
         assert 'tagname' in result.output
 
+    def test_tag_show(self):
+        obj = application_mock()
+        obj.client.tag_objects.return_value = {'objects': [
+            {'tag': 'tag1', 'source': 'http://source/1'},
+            {'tag': 'tag2', 'source': 'http://source/2'}
+        ]}
+        result = CliRunner().invoke(
+            main,
+            ['tag:show', '-p', 'far-shoehorn', '-t', 'tag1', '--token=token', '--email=email'],
+            obj=obj
+        )
+
+        if result.exception:
+            raise result.exception
+        assert result.exit_code == 0
+
+        obj.client.tag_objects.assert_called_with('far-shoehorn', 'tag1', exact=True)
+        assert 'http://source/1' in result.output
+        assert 'http://source/2' in result.output
+
 
 if __name__ == "__main__":
     unittest.main()
