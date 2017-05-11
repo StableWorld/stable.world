@@ -1,8 +1,6 @@
 from functools import wraps
 from os.path import abspath
 import click
-
-from .client import Client
 from .interact.setup_user import setup_user
 from . import application
 
@@ -61,17 +59,6 @@ def login_required(func):
     def decorator(app, **kwargs):
         ensure_login(app)
         func(app, **kwargs)
-
-    return decorator
-
-
-def client(func):
-    """
-    Pass client to command
-    """
-    @wraps(func)
-    def decorator(**kwargs):
-        return func(Client(None), **kwargs)
 
     return decorator
 

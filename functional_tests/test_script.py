@@ -7,7 +7,7 @@ from stable_world.script import main
 
 def application_mock():
     app = mock.Mock()
-    app.client.site_url = 'mockURL'
+    app.client.site = 'mockURL'
     app.config = {'url': 'mockURL'}
     options = {}
 
@@ -164,13 +164,6 @@ class Test(unittest.TestCase):
             }
         }
 
-        # self.requests_patch.get('http://mock/api/projects/test-project',
-        #     json={'project': {'pinned_to': None, 'urls': urls}}
-        # )
-        # self.requests_patch.post('http://mock/api/tags/test-project/create-tag',
-        #     json={}
-        # )
-
         use.return_value = {}
 
         obj = application_mock()
@@ -215,6 +208,42 @@ class Test(unittest.TestCase):
                 False
             )
         )
+
+    def test_tag_list(self):
+        obj = application_mock()
+        obj.client.project.return_value = {'tags': [{'created': '2016.01.01', 'name': 'tagname'}]}
+        result = CliRunner().invoke(
+            main,
+            ['tag:list', '-p', 'far-shoehorn', '--token=token', '--email=email'],
+            obj=obj
+        )
+
+        if result.exception:
+            raise result.exception
+        assert result.exit_code == 0
+
+        obj.client.project.assert_called_with('far-shoehorn')
+        assert 'tagname' in result.output
+
+    def test_tag_show(self):
+        obj = application_mock()
+        obj.client.tag_objects.return_value = {'objects': [
+            {'tag': 'tag1', 'source': 'http://source/1'},
+            {'tag': 'tag2', 'source': 'http://source/2'}
+        ]}
+        result = CliRunner().invoke(
+            main,
+            ['tag:show', '-p', 'far-shoehorn', '-t', 'tag1', '--token=token', '--email=email'],
+            obj=obj
+        )
+
+        if result.exception:
+            raise result.exception
+        assert result.exit_code == 0
+
+        obj.client.tag_objects.assert_called_with('far-shoehorn', 'tag1', exact=True)
+        assert 'http://source/1' in result.output
+        assert 'http://source/2' in result.output
 
 
 if __name__ == "__main__":

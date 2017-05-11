@@ -4,6 +4,7 @@ import sys
 import click
 from itertools import groupby
 
+# from stable_world.simple_token import test_token
 from stable_world import utils, errors
 from stable_world import managers
 
@@ -38,6 +39,9 @@ def setup_tags(client, project, create_tag, info, dryrun):
 
 
 def use_project(app, create_tag, project, token, dryrun):
+
+    app.client.check_project_token(project, token)
+
     already_using = app.get_using()
 
     if already_using:
@@ -60,7 +64,7 @@ def use_project(app, create_tag, project, token, dryrun):
     using_record = {'types': {}, 'project': project}
     for ty, cache_group in groups:
         cache_list = list(cache_group)
-        details = managers.use(app.client.site_url, ty, project, cache_list, token, dryrun)
+        details = managers.use(app.client.site, ty, project, cache_list, token, dryrun)
         using_record['types'][ty] = details
     click.echo('')
 

@@ -13,7 +13,7 @@ from .interact.use import use_project, unuse_project
 from .output import error_output
 from .env import env
 from .sw_logging import setup_logging
-from . import utils, output, application, group
+from . import utils, output, application, group, errors
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -194,12 +194,23 @@ def tag_create(app, project, tag):
     click.echo("Tag %s added to project %s" % (tag, project))
 
 
+@main.command('tag')
+@utils.project_option(required=True)
+@click.option('-t', '--tag', required=True, help='name of tag to create')
+@utils.login_required
+def tag(app, project, tag):
+    "Add a tag to a project"
+    app.client.add_tag(project, tag)
+    utils.echo_success()
+    click.echo("Tag %s added to project %s" % (tag, project))
+
+
 @main.command('tag:list')
 @utils.project_option(required=True)
 @utils.login_optional
-def tag_list(client, project):
+def tag_list(app, project):
     "List tags in a project"
-    info = client.project(project)
+    info = app.client.project(project)
     output.tags.print_tags(info['tags'][::-1])
 
 
@@ -211,9 +222,9 @@ def tag_list(client, project):
     help='If exact (default) show this tag only, otherwise show all previous tags.'
 )
 @utils.login_optional
-def tag_show(client, project, tag, full):
+def tag_show(app, project, tag, full):
     "List tags in a project"
-    info = client.tag_objects(project, tag, exact=not full)
+    info = app.client.tag_objects(project, tag, exact=not full)
     output.tags.print_objects(info)
 
 
@@ -234,18 +245,24 @@ def tag_show(client, project, tag, full):
 def use(app, create_tag, project, dryrun):
     "Activate and record all usage for a project"
 
-    if app.token:
-        token = app.token
-    else:
-        token = setup_project_token(app, project)
+    token = app.token
+    if token:
+        try:
+            app.client.check_project_token(project, token)
+        except errors.BadAuthorization:
+            token = None
+
+    if not token:
+        token = setup_project_token(app, project, use_config_token=False)
 
     use_project(app, create_tag, project, token, dryrun)
 
 
 @main.command(category='Build')
-def unuse():
+@application.pass_app
+def unuse(app):
     "Deactivate a project"
-    unuse_project()
+    unuse_project(app)
 
 
 @main.command(category='Build')
@@ -305,7 +322,7 @@ def unpin(app, project):
 @application.email_option
 @application.password_option
 @utils.project_option(required=True)
-@utils.client
+@application.pass_app
 def token(app, project):
     "Get your authentication token"
 

@@ -16,6 +16,10 @@ class NotFound(UserError):
     pass
 
 
+class BadAuthorization(UserError):
+    pass
+
+
 class HTTPException(UserError):
 
     @property

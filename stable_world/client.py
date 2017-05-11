@@ -17,9 +17,13 @@ def request(method):
     """
     Decorate the request class with methods eg get, post
     """
-    def req(self, path, payload=None):
+    def req(self, path, payload=None, auth=None):
         url = '%s%s' % (self.site, path)
-        res = self._session.request(method, url, json=payload)
+        kwargs = {}
+        if auth:
+            kwargs['auth'] = auth
+        res = self._session.request(method, url, json=payload, **kwargs)
+
         logger.debug('[%s] %s - %s', method.upper(), url, res.status_code)
         self._check_response(res)
         logger.debug(res.json())
@@ -163,6 +167,12 @@ class Client(object):
     @url('/api/projects/{project}')
     def project(self, url, project):
         res = self.get(url.format(project=project))
+        return res
+
+    @url('/api/projects/{project}/checkToken')
+    def check_project_token(self, url, project, token):
+        res = self.post(url.format(project=project), auth=('token', token))
+
         return res
 
     @url('/api/projects/{project}')
