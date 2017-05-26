@@ -21,7 +21,7 @@ def test_pypi_manager(mock_open):
     cache_info = {'url': 'http://pypi/', 'config': {'global': {'index-url': 'http://pypi/index'}}}
     mgr = PyPIManager(
         'https://mock',
-        project='project',
+        bucket='bucket',
         cache_list=[('cacheName', cache_info)],
         token='token',
         dryrun=False
@@ -34,7 +34,7 @@ def test_pypi_manager(mock_open):
     pip_config = pip_config_io.getvalue()
 
     assert 'index-url = https://token:token@mock/cache/cacheName/index' in pip_config
-    assert '.cache/stable.world/project-pypi' in pip_config
+    assert '.cache/stable.world/bucket-pypi' in pip_config
 
 
 @patch('stable_world.managers.pypi.open')
@@ -43,7 +43,7 @@ def test_pypi_manager_pinned(mock_open):
     cache_info = {'url': 'http://pypi/', 'config': {'global': {'index-url': 'http://pypi/index'}}}
     mgr = PyPIManager(
         'https://mock',
-        project='project',
+        bucket='bucket',
         cache_list=[('cacheName', cache_info)],
         token='token',
         dryrun=False
@@ -56,4 +56,4 @@ def test_pypi_manager_pinned(mock_open):
     pip_config = pip_config_io.getvalue()
 
     assert 'index-url = https://token:token@mock/cache/cacheName/index' in pip_config
-    assert '.cache/stable.world/project-pypi' in pip_config
+    assert '.cache/stable.world/bucket-pypi' in pip_config
