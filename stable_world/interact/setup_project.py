@@ -1,18 +1,18 @@
 
-from .project_configs import ProjectConfigurator
+from .bucket_configs import BucketConfigurator
 
 
-def setup_project(app, project_dir, ty=None):
+def setup_bucket(app, working_dir, ty=None):
 
     if ty:
-        project_config = ProjectConfigurator.get(ty, app, project_dir)
+        bucket_config = BucketConfigurator.get(ty, app, working_dir)
     else:
-        project_config = ProjectConfigurator.detect(app, project_dir)
+        bucket_config = BucketConfigurator.detect(app, working_dir)
 
-    project_config.setup()
+    bucket_config.setup()
 
-    project_config.setup_project_name()
-    project_config.setup_project_env()
-    project_config.setup_project_ci()
+    bucket_config.setup_bucket_name()
+    bucket_config.setup_bucket_env()
+    bucket_config.setup_bucket_ci()
 
-    project_config.success()
+    bucket_config.success()

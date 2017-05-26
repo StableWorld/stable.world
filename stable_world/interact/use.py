@@ -38,7 +38,7 @@ def setup_tags(client, project, create_tag, info, dryrun):
                 click.echo('')
 
 
-def use_project(app, create_tag, project, token, dryrun):
+def use_bucket(app, create_tag, project, token, dryrun):
 
     app.client.check_project_token(project, token)
 
@@ -80,7 +80,7 @@ def use_project(app, create_tag, project, token, dryrun):
         click.echo('')
 
 
-def unuse_project(app):
+def unuse_bucket(app):
     using = app.get_using()
     if not using:
         utils.echo_error()

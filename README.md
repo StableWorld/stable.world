@@ -37,7 +37,7 @@ $ stable.world
     Logged in as test@example.com
 
 
-              name your project: 'brief-fusarium' ? [Y/n]:
+              name your bucket: 'brief-fusarium' ? [Y/n]:
 
 ```
 
@@ -48,10 +48,10 @@ or a custom build environment, you can
 add the following line to the top of your build script:
 
 ```
-stable.world use -p <project-name> --create-tag <unique-build-number>
+stable.world use -p <bucket-name> --create-tag <unique-build-number>
 ```
 
-  * Replace `<project-name>` with your project name, eg. in the example above
+  * Replace `<bucket-name>` with your bucket name, eg. in the example above
 This would be `brief-fusarium`.
   * Replace `<unique-build-number>` with a unique build number of your choice.
     This is going to stave the all of your dependencies you you can easily revert back to
@@ -68,10 +68,10 @@ Ok now when things hit the fan, we can check what dependencies changed from this
 version to the last:
 
 ```
-stable.world diff -p <project-name> -t <from-tag>:<to-tag>
+stable.world diff -p <bucket-name> -t <from-tag>:<to-tag>
 ```
 
-* Replace `<project-name>` with your project name, eg. in the example above
+* Replace `<bucket-name>` with your bucket name, eg. in the example above
 This would be `brief-fusarium`.
 * Replace `<from-tag>:<to-tag>` with the tags you want to compare.
 
@@ -86,7 +86,7 @@ is an unexplained failure in `Tavis-Build-101` we can see what changed:
 Hmm, maybe a new version of package was released and is causing my build to fail...
 Lets **pin** the world to the last success and trigger a rebuild.
 ```
-stable.world pin -p <project-name> -t <last-success-tag>
+stable.world pin -p <bucket-name> -t <last-success-tag>
 ```
 
 Example:
@@ -100,7 +100,7 @@ with the new package.
 Lets unpin the package
 
 ```
-stable.world pin -p <project-name>
+stable.world pin -p <bucket-name>
 ```
 
 Example:

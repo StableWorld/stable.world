@@ -43,10 +43,10 @@ Authentication Commands
    :prog: stable.world whoami
 
 
-Project Commands
+Bucket Commands
 ----------------
 
-These commands manipulate stable.world projects
+These commands manipulate stable.world buckets
 
 .. click:: stable_world.script:diff
    :prog: stable.world diff
@@ -56,24 +56,24 @@ These commands manipulate stable.world projects
    :prog: stable.world list
 
 
-.. click:: stable_world.script:project
-   :prog: stable.world project
+.. click:: stable_world.script:bucket
+   :prog: stable.world bucket
 
 
-.. click:: stable_world.script:project_cache_add
-   :prog: stable.world project:cache:add
+.. click:: stable_world.script:bucket_cache_add
+   :prog: stable.world bucket:cache:add
 
 
-.. click:: stable_world.script:project_cache_remove
-   :prog: stable.world project:cache:remove
+.. click:: stable_world.script:bucket_cache_remove
+   :prog: stable.world bucket:cache:remove
 
 
-.. click:: stable_world.script:project_create
-   :prog: stable.world project:create
+.. click:: stable_world.script:bucket_create
+   :prog: stable.world bucket:create
 
 
-.. click:: stable_world.script:project_destroy
-   :prog: stable.world project:destroy
+.. click:: stable_world.script:bucket_destroy
+   :prog: stable.world bucket:destroy
 
 
 Tag Commands

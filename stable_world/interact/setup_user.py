@@ -67,7 +67,7 @@ def setup_user(app, login_only=False, confirm_password=True, scopes=None):
         raise errors.UserError("Bye")
 
 
-def setup_project_token(app, project, use_config_token=True):
+def setup_bucket_token(app, project, use_config_token=True):
     """
     Prompt user for email and password
     """

@@ -1,4 +1,4 @@
-import unittest
+bucketimport unittest
 import mock
 from click.testing import CliRunner
 from stable_world import errors, application
@@ -36,8 +36,8 @@ class Test(unittest.TestCase):
     def tearDown(self):
         application.StableWorldApplication = self.OGApp
 
-    @mock.patch('stable_world.interact.setup_project.ProjectConfigurator')
-    def test_main(self, ProjectConfigurator):
+    @mock.patch('stable_world.interact.setup_bucket.BucketConfigurator')
+    def test_main(self, BucketConfigurator):
 
         runner = CliRunner()
 
@@ -56,10 +56,10 @@ class Test(unittest.TestCase):
         obj.client.token.assert_called_with('email', 'password', scopes={'api': 'write'})
         obj.update_netrc.assert_called_with('email', 'myToken')
 
-        ProjectConfigurator.detect().setup.assert_called()
-        ProjectConfigurator.detect().setup_project_name.assert_called()
-        ProjectConfigurator.detect().setup_project_env.assert_called()
-        ProjectConfigurator.detect().setup_project_ci.assert_called()
+        BucketConfigurator.detect().setup.assert_called()
+        BucketConfigurator.detect().setup_bucket_name.assert_called()
+        BucketConfigurator.detect().setup_bucket_env.assert_called()
+        BucketConfigurator.detect().setup_bucket_ci.assert_called()
 
     def test_destroy(self):
 
@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
         # obj.token = 'myToken'
         result = CliRunner().invoke(
             main,
-            ['project:destroy', '-p', 'far-shoehorn', '--token=token', '--email=email'],
+            ['bucket:destroy', '-p', 'far-shoehorn', '--token=token', '--email=email'],
             obj=obj
         )
 
@@ -76,7 +76,7 @@ class Test(unittest.TestCase):
             raise result.exception
         assert result.exit_code == 0
 
-        obj.client.delete_project.assert_called_with('far-shoehorn')
+        obj.client.delete_bucket.assert_called_with('far-shoehorn')
 
     def test_login(self):
 
@@ -170,10 +170,10 @@ class Test(unittest.TestCase):
         # User exists
         obj.client.token.return_value = 'myToken'
         obj.get_using.return_value = None
-        obj.client.project.return_value = {'project': {'pinned_to': None, 'urls': urls}}
+        obj.client.bucket.return_value = {'bucket': {'pinned_to': None, 'urls': urls}}
         result = CliRunner().invoke(
             main, [
-                'use', '-p', 'test-project', '-t', 'create-tag',
+                'use', '-p', 'test-bucket', '-t', 'create-tag',
                 '--email', 'email', '--token', 'myToken'
             ],
             obj=obj
@@ -186,7 +186,7 @@ class Test(unittest.TestCase):
         self.assertEqual(
             use.call_args_list[0][0],
             (
-                'mockURL', 'conda', 'test-project',
+                'mockURL', 'conda', 'test-bucket',
                 [('conda', {
                     'config': {'channel': 'https://repo.continuum.io/pkgs/free/'},
                     'type': 'conda', 'url': 'https://repo.continuum.io/'
@@ -199,7 +199,7 @@ class Test(unittest.TestCase):
         self.assertEqual(
             use.call_args_list[1][0],
             (
-                'mockURL', 'pypi', 'test-project',
+                'mockURL', 'pypi', 'test-bucket',
                 [('pypi', {
                     'config': {'global': {'index-url': 'https://pypi.python.org/simple/'}},
                     'type': 'pypi', 'url': 'https://pypi.python.org/'
@@ -211,7 +211,7 @@ class Test(unittest.TestCase):
 
     def test_tag_list(self):
         obj = application_mock()
-        obj.client.project.return_value = {'tags': [{'created': '2016.01.01', 'name': 'tagname'}]}
+        obj.client.bucket.return_value = {'tags': [{'created': '2016.01.01', 'name': 'tagname'}]}
         result = CliRunner().invoke(
             main,
             ['tag:list', '-p', 'far-shoehorn', '--token=token', '--email=email'],
@@ -222,7 +222,7 @@ class Test(unittest.TestCase):
             raise result.exception
         assert result.exit_code == 0
 
-        obj.client.project.assert_called_with('far-shoehorn')
+        obj.client.bucket.assert_called_with('far-shoehorn')
         assert 'tagname' in result.output
 
     def test_tag_show(self):

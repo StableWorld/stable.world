@@ -143,73 +143,73 @@ class Client(object):
         res = self.get(url)
         return res['user'].get('email', 'anonymous')
 
-    @url('/api/projects/{project}')
-    def add_project(self, url, project):
-        res = self.post(url.format(project=project))
+    @url('/api/buckets/{bucket}')
+    def add_bucket(self, url, bucket):
+        res = self.post(url.format(bucket=bucket))
         return res
 
-    @url('/api/projects/{project}/url/{name}')
-    def add_url(self, url, project, cache_url, name, type):
-        to = url.format(project=project, name=name)
+    @url('/api/buckets/{bucket}/url/{name}')
+    def add_url(self, url, bucket, cache_url, name, type):
+        to = url.format(bucket=bucket, name=name)
         self.post(to, {'url': cache_url, 'type': type})
         return
 
-    @url('/api/projects/{project}/url/{name}')
-    def remove_url(self, project, name):
-        res = self.delete(url.format(project=project, name=name))
+    @url('/api/buckets/{bucket}/url/{name}')
+    def remove_url(self, bucket, name):
+        res = self.delete(url.format(bucket=bucket, name=name))
         return res
 
-    @url('/api/projects/')
-    def projects(self, url):
+    @url('/api/buckets/')
+    def buckets(self, url):
         res = self.get(url)
-        return res['projects']
+        return res['buckets']
 
-    @url('/api/projects/{project}')
-    def project(self, url, project):
-        res = self.get(url.format(project=project))
+    @url('/api/buckets/{bucket}')
+    def bucket(self, url, bucket):
+        res = self.get(url.format(bucket=bucket))
         return res
 
-    @url('/api/projects/{project}/checkToken')
-    def check_project_token(self, url, project, token):
-        res = self.post(url.format(project=project), auth=('token', token))
+    @url('/api/buckets/{bucket}/checkToken')
+    def check_bucket_token(self, url, bucket, token):
+        res = self.post(url.format(bucket=bucket), auth=('token', token))
 
         return res
 
-    @url('/api/projects/{project}')
-    def delete_project(self, url, project):
-        self.delete(url.format(project=project))
+    @url('/api/buckets/{bucket}')
+    def delete_bucket(self, url, bucket):
+        self.delete(url.format(bucket=bucket))
         return
 
-    @url('/api/tags/{project}/{name}')
-    def add_tag(self, url, project, name):
+    @url('/api/tags/{bucket}/{name}')
+    def add_tag(self, url, bucket, name):
         self.post(
-            url.format(project=project, name=name),
+            url.format(bucket=bucket, name=name),
             dict(hostname=platform.node())
         )
         return
 
-    @url('/api/tags/{project}/{first}/diff/{last}')
-    @url('/api/tags/{project}/{first}/diff')
-    def diff(self, url_one, url_two, project, first, last=None):
+    @url('/api/tags/{bucket}/{first}/diff/{last}')
+    @url('/api/tags/{bucket}/{first}/diff')
+    def diff(self, url_one, url_two, bucket, first, last=None):
         if last:
-            payload = self.get(url_one.format(project=project, first=first, last=last))
+            payload = self.get(url_one.format(bucket=bucket, first=first, last=last))
         else:
-            payload = self.get(url_two.format(project=project, first=first))
+            payload = self.get(url_two.format(bucket=bucket, first=first))
         return payload
 
-    @url('/api/projects/{project}/pin/{tag}')
-    def pin(self, url, project, tag):
-        self.post(url.format(project=project, tag=tag))
+    @url('/api/buckets/{bucket}/pin/{tag}')
+    def pin(self, url, bucket, tag):
+        self.post(url.format(bucket=bucket, tag=tag))
         return
 
-    @url('/api/projects/{project}/pin')
-    def unpin(self, url, project):
-        self.delete(url.format(project=project))
+    @url('/api/buckets/{bucket}/pin')
+    def unpin(self, url, bucket):
+        self.delete(url.format(bucket=bucket))
         return
 
-    @url('/api/tags/{project}/{tag}/objects')
-    def tag_objects(self, url, project, tag, exact=False):
+    @url('/api/tags/{bucket}/{tag}/objects')
+    def tag_objects(self, url, bucket, tag, exact=False):
         to = (url + '?exact={exact}').format(
-            project=project, tag=tag, exact='yes' if exact else ''
+            bucket=bucket, tag=tag, exact='yes' if exact else ''
         )
         return self.get(to)
