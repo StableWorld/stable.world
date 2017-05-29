@@ -1,4 +1,4 @@
-bucketimport unittest
+import unittest
 import mock
 from click.testing import CliRunner
 from stable_world import errors, application
