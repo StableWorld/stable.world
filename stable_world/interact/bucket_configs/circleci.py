@@ -8,39 +8,39 @@ from stable_world.py_helpers import ConfigParser
 from stable_world import errors
 from stable_world.interact.yaml_insert import yaml_add_lines_to_machine_pre
 
-from .base import ProjectConfigurator
+from .base import BucketConfigurator
 
 logger = logging.getLogger(__name__)
 
 GIT_URL_RE = re.compile(
     '^(git@(?P<sshhost>[\w.]+):)'
     '|(https://(.*?@)?(?P<httphost>[\w.]+)/)'
-    '(?P<project>[\w.]+/[\w.]+?)'
+    '(?P<bucket>[\w.]+/[\w.]+?)'
     '(.git)?$'
 )
 
 
-class CircleProjectHelper(ProjectConfigurator):
+class CircleBucketHelper(BucketConfigurator):
 
     @classmethod
-    def is_valid(cls, project_dir):
-        logger.info('Found CircleCI project "{}"'.format(project_dir))
-        if isfile(join(project_dir, 'circle.yml')):
+    def is_valid(cls, working_dir):
+        logger.info('Found CircleCI bucket "{}"'.format(working_dir))
+        if isfile(join(working_dir, 'circle.yml')):
             return True
 
-        logger.info('Could not find circle.yml file in {}'.format(project_dir))
+        logger.info('Could not find circle.yml file in {}'.format(working_dir))
 
     def get_git_remote(self):
         parser = ConfigParser()
-        parser.read(join(self.project_dir, '.git', 'config'))
+        parser.read(join(self.working_dir, '.git', 'config'))
         return parser.get('remote "origin"', 'url')
 
     def __init__(self, *args):
-        ProjectConfigurator.__init__(self, *args)
+        BucketConfigurator.__init__(self, *args)
 
     def setup(self):
         # TODO: configur git remote
-        click.echo('  Setup your CircleCI Project:\n')
+        click.echo('  Setup your CircleCI Bucket:\n')
 
         uri = self.get_git_remote()
 
@@ -50,9 +50,9 @@ class CircleProjectHelper(ProjectConfigurator):
             raise errors.UserError('Literally can not even match %s' % uri)
 
         self.values = GIT_URL_RE.match(uri).groupdict()
-        self.initial_project_name = self.values.get('project').replace('/', '-')
+        self.initial_bucket_name = self.values.get('bucket').replace('/', '-')
 
-    def setup_project_env(self):
+    def setup_bucket_env(self):
         host = self.values.get('httphost') or self.values.get('sshhost')
 
         repo_part = None
@@ -61,16 +61,16 @@ class CircleProjectHelper(ProjectConfigurator):
         elif host == 'bitbucket.org':
             repo_part = 'bb'
 
-        project = self.values.get('project')
+        bucket = self.values.get('bucket')
 
-        circle_url = 'https://circleci.com/{repo_part}/{project}/edit#env-vars'.format(
-            repo_part=repo_part, project=project
+        circle_url = 'https://circleci.com/{repo_part}/{bucket}/edit#env-vars'.format(
+            repo_part=repo_part, bucket=bucket
         )
 
         click.echo('')
         token = self.get_token()
         click.echo(
-            '  You need to navigate to your circleci project '
+            '  You need to navigate to your circleci bucket '
             'and set a secure environment variable:'
         )
         click.echo('\n    Go to ', nl=False)
@@ -84,8 +84,8 @@ class CircleProjectHelper(ProjectConfigurator):
         if ok:
             click.launch(circle_url)
 
-    def setup_project_ci(self):
-        circle_yaml = join(self.project_dir, 'circle.yml')
+    def setup_bucket_ci(self):
+        circle_yaml = join(self.working_dir, 'circle.yml')
 
         if exists(circle_yaml):
             with open(circle_yaml) as fd:
@@ -95,8 +95,8 @@ class CircleProjectHelper(ProjectConfigurator):
 
         add_lines = [
             'curl {url}/install | sudo bash -s -- rc'.format(url=self.site_url),
-            'stable.world use -p {project_name} -t ' +
-            'build${{CIRCLE_BUILD_NUM}}'.format(project_name=self.project_name)
+            'stable.world use -p {bucket_name} -t ' +
+            'build${{CIRCLE_BUILD_NUM}}'.format(bucket_name=self.bucket_name)
         ]
 
         default = indent(yaml_add_lines_to_machine_pre('', add_lines), '    + ')
@@ -119,33 +119,33 @@ class CircleProjectHelper(ProjectConfigurator):
 
         click.pause('  Got it? (Press any key to continue ...)')
 
-    def setup_project_name(self):
+    def setup_bucket_name(self):
 
-        project_name = self.initial_project_name
+        bucket_name = self.initial_bucket_name
 
         while 1:
-            if project_name:
+            if bucket_name:
                 ok = click.confirm(
-                    ' %30s: \'%s\'?' % ('name your project', project_name),
+                    ' %30s: \'%s\'?' % ('name your bucket', bucket_name),
                     default=True
                 )
                 click.echo('')
                 if ok:
                     try:
-                        self.client.add_project(project_name)
+                        self.client.add_bucket(bucket_name)
                         break
                     except errors.DuplicateKeyError:
                         click.echo('')
-                        tml = '  The project "%s" alreadys exists'
+                        tml = '  The bucket "%s" alreadys exists'
                         click.secho('  Warning: ', nl=False, fg='magenta')
-                        click.echo(tml % project_name)
-                        click.echo('  Project names must be unique')
-                        ok = click.confirm('Use existing project?', default=False)
+                        click.echo(tml % bucket_name)
+                        click.echo('  Bucket names must be unique')
+                        ok = click.confirm('Use existing bucket?', default=False)
                         if ok:
                             break
                         else:
                             continue
 
-            project_name = click.prompt(' %30s' % 'name your project')
+            bucket_name = click.prompt(' %30s' % 'name your bucket')
 
-        self.project_name = project_name
+        self.bucket_name = bucket_name

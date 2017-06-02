@@ -67,7 +67,7 @@ def setup_user(app, login_only=False, confirm_password=True, scopes=None):
         raise errors.UserError("Bye")
 
 
-def setup_project_token(app, project, use_config_token=True):
+def setup_bucket_token(app, bucket, use_config_token=True):
     """
     Prompt user for email and password
     """
@@ -82,7 +82,7 @@ def setup_project_token(app, project, use_config_token=True):
         '\n    '
         'Welcome to stable.world! (http://stable.world)'
         '\n    '
-        'To create a project token we need you to re-enter your password '
+        'To create a bucket token we need you to re-enter your password '
         '\n'
     )
 
@@ -97,7 +97,7 @@ def setup_project_token(app, project, use_config_token=True):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = app.client.token(email, password, scopes={'project': project})
+            token = app.client.token(email, password, scopes={'bucket': bucket})
             app.config.update(password=password)
             return token
         except errors.PasswordError:

@@ -3,54 +3,54 @@ from stable_world.output.helpers import indent
 import click
 from stable_world import errors
 from . import words
-from .base import ProjectConfigurator
+from .base import BucketConfigurator
 
 
-def random_project_name():
-    'Generate a random project name'
+def random_bucket_name():
+    'Generate a random bucket name'
     return '%s-%s' % (choice(words.adjectives), choice(words.nouns))
 
 
-class CustomProjectHelper(ProjectConfigurator):
+class CustomBucketHelper(BucketConfigurator):
 
     @classmethod
-    def is_valid(cls, project_dir):
+    def is_valid(cls, working_dir):
         return True
 
     def setup(self):
         # TODO: test me
-        click.echo('  Setup a new project:\n')
+        click.echo('  Setup a new bucket:\n')
 
-    def setup_project_name(self):
-        project_name = random_project_name()
+    def setup_bucket_name(self):
+        bucket_name = random_bucket_name()
 
         # TODO: fix interaction here, should not prompt user after they have entered
         while 1:
-            if project_name:
+            if bucket_name:
                 ok = click.confirm(
-                    ' %30s: \'%s\' ?' % ('name your project', project_name),
+                    ' %30s: \'%s\' ?' % ('name your bucket', bucket_name),
                     default=True
                 )
                 click.echo('')
                 if ok:
                     try:
-                        self.project_name = project_name
-                        return self.client.add_project(project_name)
+                        self.bucket_name = bucket_name
+                        return self.client.add_bucket(bucket_name)
                     except errors.DuplicateKeyError:
                         click.echo('')
-                        tml = '  ERROR: The project "%s" alreadys exists'
-                        click.echo(tml % project_name)
-                        click.echo('  Project names must be unique')
+                        tml = '  ERROR: The bucket "%s" alreadys exists'
+                        click.echo(tml % bucket_name)
+                        click.echo('  Bucket names must be unique')
 
-            project_name = click.prompt(' %30s' % 'name your project')
+            bucket_name = click.prompt(' %30s' % 'name your bucket')
 
-    def setup_project_env(self):
+    def setup_bucket_env(self):
 
         token = self.get_token()
 
         click.echo('')
         click.echo(
-            '  You need to navigate to where your project build lives and give your CI '
+            '  You need to navigate to where your bucket build lives and give your CI '
             'this secure environment variable:\n'
         )
         click.echo('    Name:')
@@ -60,12 +60,12 @@ class CustomProjectHelper(ProjectConfigurator):
 
         click.pause('\n  Got it? (Press any key to continue ...)')
 
-    def setup_project_ci(self):
+    def setup_bucket_ci(self):
 
         add_lines = [
             'curl {url}/install | sudo bash -s -- rc'.format(url=self.site_url),
-            'stable.world use -p {project_name} -t ' +
-            'build${{CIRCLE_BUILD_NUM}}'.format(project_name=self.project_name)
+            'stable.world use -p {bucket_name} -t ' +
+            'build${{CIRCLE_BUILD_NUM}}'.format(bucket_name=self.bucket_name)
         ]
         default = indent('\n'.join(add_lines), '    + ')
         click.echo('')

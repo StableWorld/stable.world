@@ -7,9 +7,9 @@ import sys
 import click
 
 from stable_world import __version__ as sw_version
-from .interact.setup_user import setup_user, setup_project_token
-from .interact.setup_project import setup_project
-from .interact.use import use_project, unuse_project
+from .interact.setup_user import setup_user, setup_bucket_token
+from .interact.setup_bucket import setup_bucket
+from .interact.use import use_bucket, unuse_bucket
 from .output import error_output
 from .env import env
 from .sw_logging import setup_logging
@@ -65,7 +65,7 @@ def main(ctx, app, show_traceback, ignore_config, dir):
         return
 
     utils.ensure_login(app)
-    setup_project(app, dir)
+    setup_bucket(app, dir)
 
 
 @main.command(category='Authentication')
@@ -115,116 +115,116 @@ def whoami(app):
     return
 
 
-@main.command('project:create')
-@utils.project_option(required=True)
+@main.command('bucket:create')
+@utils.bucket_option(required=True)
 @utils.login_required
-def project_create(app, project):
-    "Create a new project"
-    if project:
-        info = app.client.add_project(project)
+def bucket_create(app, bucket):
+    "Create a new bucket"
+    if bucket:
+        info = app.client.add_bucket(bucket)
     else:
-        info = setup_project(app)
-    output.projects.print_project(info['project'])
+        info = setup_bucket(app)
+    output.buckets.print_bucket(info['bucket'])
     utils.echo_success()
-    click.echo('Project %s added!' % info['project']['name'])
+    click.echo('Bucket %s added!' % info['bucket']['name'])
 
 
-@main.command('project:list')
+@main.command('bucket:list')
 @utils.login_required
 def list_cmd(app):
-    "list all projects you have access to"
-    projects = app.client.projects()
-    output.projects.print_projects(projects)
+    "list all buckets you have access to"
+    buckets = app.client.buckets()
+    output.buckets.print_buckets(buckets)
 
 
-@main.command('project')
-@utils.project_option(required=True)
+@main.command('bucket')
+@utils.bucket_option(required=True)
 @utils.login_required
-def project(app, project):
-    "show a published project"
-    info = app.client.project(project)
-    output.projects.print_project(info['project'])
+def bucket(app, bucket):
+    "show a published bucket"
+    info = app.client.bucket(bucket)
+    output.buckets.print_bucket(info['bucket'])
 
 
-@main.command('project:destroy')
-@utils.project_option(required=True)
+@main.command('bucket:destroy')
+@utils.bucket_option(required=True)
 @utils.login_required
-def project_destroy(app, project):
-    "tear down a published project"
-    app.client.delete_project(project)
+def bucket_destroy(app, bucket):
+    "tear down a published bucket"
+    app.client.delete_bucket(bucket)
     utils.echo_success()
-    click.echo(' Project %s removed' % project)
+    click.echo(' Bucket %s removed' % bucket)
 
 
-@main.command('project:cache:add')
-@utils.project_option(required=True)
+@main.command('bucket:cache:add')
+@utils.bucket_option(required=True)
 @click.option('--url', help='The url endpoint to cache')
 @click.option('--type', help='type of cache')
 @click.option('--name', required=True, help='Give it a name')
 @utils.login_required
-def project_cache_add(app, project, url, type, name):
-    "Add a cache to the project"
+def bucket_cache_add(app, bucket, url, type, name):
+    "Add a cache to the bucket"
 
-    app.client.add_url(project, url, name, type)
+    app.client.add_url(bucket, url, name, type)
 
     utils.echo_success()
     click.echo(' Cache %s was added as %s' % (url, name))
 
 
-@main.command('project:cache:remove')
-@utils.project_option(required=True)
+@main.command('bucket:cache:remove')
+@utils.bucket_option(required=True)
 @click.option('-n', '--name', help='name of cache to remove')
 @utils.login_required
-def project_cache_remove(app, project, name):
-    "Remove a cache from the project"
+def bucket_cache_remove(app, bucket, name):
+    "Remove a cache from the bucket"
 
-    info = app.client.remove_url(project, name)
+    info = app.client.remove_url(bucket, name)
     utils.echo_success()
     click.echo(' Cache %s (%s) was removed' % (info['url'], name))
 
 
 @main.command('tag:create')
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @click.option('-t', '--tag', required=True, help='name of tag to create')
 @utils.login_required
-def tag_create(app, project, tag):
-    "Add a tag to a project"
-    app.client.add_tag(project, tag)
+def tag_create(app, bucket, tag):
+    "Add a tag to a bucket"
+    app.client.add_tag(bucket, tag)
     utils.echo_success()
-    click.echo("Tag %s added to project %s" % (tag, project))
+    click.echo("Tag %s added to bucket %s" % (tag, bucket))
 
 
 @main.command('tag')
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @click.option('-t', '--tag', required=True, help='name of tag to create')
 @utils.login_required
-def tag(app, project, tag):
-    "Add a tag to a project"
-    app.client.add_tag(project, tag)
+def tag(app, bucket, tag):
+    "Add a tag to a bucket"
+    app.client.add_tag(bucket, tag)
     utils.echo_success()
-    click.echo("Tag %s added to project %s" % (tag, project))
+    click.echo("Tag %s added to bucket %s" % (tag, bucket))
 
 
 @main.command('tag:list')
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @utils.login_optional
-def tag_list(app, project):
-    "List tags in a project"
-    info = app.client.project(project)
+def tag_list(app, bucket):
+    "List tags in a bucket"
+    info = app.client.bucket(bucket)
     output.tags.print_tags(info['tags'][::-1])
 
 
 @main.command('tag:show')
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @utils.tag_option(required=True)
 @click.option(
     '--full/--exact',
     help='If exact (default) show this tag only, otherwise show all previous tags.'
 )
 @utils.login_optional
-def tag_show(app, project, tag, full):
-    "List tags in a project"
-    info = app.client.tag_objects(project, tag, exact=not full)
+def tag_show(app, bucket, tag, full):
+    "List tags in a bucket"
+    info = app.client.tag_objects(bucket, tag, exact=not full)
     output.tags.print_objects(info)
 
 
@@ -233,7 +233,7 @@ def tag_show(app, project, tag, full):
     '-t', '--create-tag', required=False,
     help='tag name to create'
 )
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @click.option(
     '--dryrun/--no-dryrun',
     help='only print output don\'t create tag or modify config files'
@@ -242,39 +242,39 @@ def tag_show(app, project, tag, full):
 @application.token_option
 @application.password_option
 @application.pass_app
-def use(app, create_tag, project, dryrun):
-    "Activate and record all usage for a project"
+def use(app, create_tag, bucket, dryrun):
+    "Activate and record all usage for a bucket"
 
     token = app.token
     if token:
         try:
-            app.client.check_project_token(project, token)
+            app.client.check_bucket_token(bucket, token)
         except errors.BadAuthorization:
             token = None
 
     if not token:
-        token = setup_project_token(app, project, use_config_token=False)
+        token = setup_bucket_token(app, bucket, use_config_token=False)
 
-    use_project(app, create_tag, project, token, dryrun)
+    use_bucket(app, create_tag, bucket, token, dryrun)
 
 
 @main.command(category='Build')
 @application.pass_app
 def unuse(app):
-    "Deactivate a project"
-    unuse_project(app)
+    "Deactivate a bucket"
+    unuse_bucket(app)
 
 
 @main.command(category='Build')
 @application.pass_app
 def using(app):
-    "Deactivate a project"
+    "Deactivate a bucket"
     using = app.config.get('using', None)
     if not using:
-        click.echo('You are not currently using a project')
+        click.echo('You are not currently using a bucket')
         sys.exit(1)
     else:
-        click.echo('You are using project "%(project)s", tag "%(tag)s"' % using)
+        click.echo('You are using bucket "%(bucket)s", tag "%(tag)s"' % using)
 
     return
 
@@ -284,52 +284,52 @@ def using(app):
     '-t', '--tags', required=True,
     help='Tag all requests with this tag'
 )
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @utils.login_optional
-def diff(app, project, tags):
-    """Show the difference between two tags in a project"""
+def diff(app, bucket, tags):
+    """Show the difference between two tags in a bucket"""
     if ':' in tags:
         first, last = tags.split(':')
     else:
         first, last = tags, None
 
-    diff_result = app.client.diff(project, first, last)
+    diff_result = app.client.diff(bucket, first, last)
     output.tags.diff_tags(diff_result)
 
 
 @main.command()
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @utils.tag_option(required=True)
 @utils.login_required
-def pin(app, project, tag):
-    "Pin a project to a tag."
-    app.client.pin(project, tag)
+def pin(app, bucket, tag):
+    "Pin a bucket to a tag."
+    app.client.pin(bucket, tag)
     utils.echo_success()
-    click.echo("Project %s pinned to tag %s" % (project, tag))
+    click.echo("Bucket %s pinned to tag %s" % (bucket, tag))
 
 
 @main.command()
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @utils.login_required
-def unpin(app, project):
+def unpin(app, bucket):
     "Remove pin to tag"
-    app.client.unpin(project)
+    app.client.unpin(bucket)
     utils.echo_success()
-    click.echo("Unpinned Project %s" % (project))
+    click.echo("Unpinned Bucket %s" % (bucket))
 
 
 @main.command(category='Authentication')
 @application.email_option
 @application.password_option
-@utils.project_option(required=True)
+@utils.bucket_option(required=True)
 @application.pass_app
-def token(app, project):
+def token(app, bucket):
     "Get your authentication token"
 
     # Will raise not found exception
-    app.client.project(project)
+    app.client.bucket(bucket)
 
-    token = setup_project_token(app, project)
+    token = setup_bucket_token(app, bucket)
     print("  token:", token)
 
 
@@ -342,23 +342,23 @@ def info(app):
 
 @main.command('setup')
 def setup(app, dir):
-    "Set up new project"
+    "Set up new bucket"
 
 
 @main.command('setup:custom')
 @utils.dir_option
 @utils.login_required
 def setup_custom(app, dir):
-    "Set up new custom project"
-    setup_project(app, dir, 'custom')
+    "Set up new custom bucket"
+    setup_bucket(app, dir, 'custom')
 
 
 @main.command('setup:circle')
 @utils.dir_option
 @utils.login_required
 def setup_circle(app, dir):
-    "Set up new project on circleci"
-    setup_project(app, dir, 'circleci')
+    "Set up new bucket on circleci"
+    setup_bucket(app, dir, 'circleci')
 
 
 if __name__ == '__main__':

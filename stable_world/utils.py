@@ -6,7 +6,7 @@ from . import application
 
 dir_option = click.option(
     '--dir', default=abspath('.'),
-    help='The Directory of the project you want to setup'
+    help='The Directory of the bucket you want to setup'
 )
 
 
@@ -22,17 +22,17 @@ def echo_warning():
     click.secho('  Warning: ', nl=False, fg='magenta')
 
 
-def project_option(required=False):
+def bucket_option(required=False):
     return click.option(
-        '-p', '--project', required=required,
-        help='Name of project'
+        '-p', '--bucket', required=required,
+        help='Name of bucket'
     )
 
 
 def tag_option(required=False):
     return click.option(
         '-t', '--tag', required=True,
-        help='Name of tag in project'
+        help='Name of tag in bucket'
     )
 
 

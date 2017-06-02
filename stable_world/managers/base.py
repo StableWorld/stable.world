@@ -20,10 +20,10 @@ class BaseManager(object):
             if os.path.isfile(os.path.join(path, cls.PROGRAM)):
                 return True
 
-    def __init__(self, site_url, project, cache_list, token, dryrun):
+    def __init__(self, site_url, bucket, cache_list, token, dryrun):
 
         self.site_url = site_url
-        self.project = project
+        self.bucket = bucket
         self.cache_list = cache_list
         self.token = token
 
@@ -42,7 +42,7 @@ class BaseManager(object):
 
     @property
     def cache_dir(self):
-        part = '{}-{}'.format(self.project, self.NAME)
+        part = '{}-{}'.format(self.bucket, self.NAME)
         cache_dir = os.path.join('~', '.cache', 'stable.world', part)
         return os.path.expanduser(cache_dir)
 

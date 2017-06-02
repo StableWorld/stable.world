@@ -1,7 +1,7 @@
 
 
 from . import tags
-from . import projects
+from . import buckets
 from . import build_info
 
-__all__ = 'tags', 'projects', 'build_info'
+__all__ = 'tags', 'buckets', 'build_info'
