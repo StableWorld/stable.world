@@ -2,7 +2,7 @@ import os
 import json
 from functools import wraps
 import click
-from stable_world import config2
+from stable_world import config
 from stable_world.env import env
 from stable_world.client import Client
 
@@ -15,9 +15,9 @@ class StableWorldApplication:
     '''
 
     def __init__(self):
-        self.config_filename = config2.abs_expand(env.STABLE_WORLD_CONFIG)
-        self.netrc_filename = config2.abs_expand(os.path.join('~', '.netrc'))
-        self.cache_dirname = config2.abs_expand(env.STABLE_WORLD_CACHE_DIR)
+        self.config_filename = config.abs_expand(env.STABLE_WORLD_CONFIG)
+        self.netrc_filename = config.abs_expand(os.path.join('~', '.netrc'))
+        self.cache_dirname = config.abs_expand(env.STABLE_WORLD_CACHE_DIR)
 
         self.config = {
             'url': env.STABLE_WORLD_URL
@@ -45,12 +45,12 @@ class StableWorldApplication:
         return self.config.get('password')
 
     def make_directories(self):
-        config2.make_directories(self.cache_dirname, self.config_filename)
-        config2.unpack_cache_files(self.cache_dirname)
+        config.make_directories(self.cache_dirname, self.config_filename)
+        config.unpack_cache_files(self.cache_dirname)
 
     def read_config(self):
-        config2.load_config(self.config_filename, self.config)
-        config2.load_netrc(self.netrc_filename, self.config)
+        config.load_config(self.config_filename, self.config)
+        config.load_netrc(self.netrc_filename, self.config)
 
     def update_config_from_options(self):
         self.config.update(self.cli_options)
@@ -58,7 +58,7 @@ class StableWorldApplication:
 
     def update_netrc(self, email, token):
         self.config.update(email=email, token=token)
-        config2.update_netrc_file(
+        config.update_netrc_file(
             self.netrc_filename, self.config['url'],
             email=email, token=token
         )
