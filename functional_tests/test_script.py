@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
         # obj.token = 'myToken'
         result = CliRunner().invoke(
             main,
-            ['bucket:destroy', '-p', 'far-shoehorn', '--token=token', '--email=email'],
+            ['bucket:destroy', '-b', 'far-shoehorn', '--token=token', '--email=email'],
             obj=obj
         )
 
@@ -173,7 +173,7 @@ class Test(unittest.TestCase):
         obj.client.bucket.return_value = {'bucket': {'pinned_to': None, 'urls': urls}}
         result = CliRunner().invoke(
             main, [
-                'use', '-p', 'test-bucket', '-t', 'create-tag',
+                'use', '-b', 'test-bucket', '-t', 'create-tag',
                 '--email', 'email', '--token', 'myToken'
             ],
             obj=obj
@@ -214,7 +214,7 @@ class Test(unittest.TestCase):
         obj.client.bucket.return_value = {'tags': [{'created': '2016.01.01', 'name': 'tagname'}]}
         result = CliRunner().invoke(
             main,
-            ['tag:list', '-p', 'far-shoehorn', '--token=token', '--email=email'],
+            ['tag:list', '-b', 'far-shoehorn', '--token=token', '--email=email'],
             obj=obj
         )
 
@@ -233,7 +233,7 @@ class Test(unittest.TestCase):
         ]}
         result = CliRunner().invoke(
             main,
-            ['tag:show', '-p', 'far-shoehorn', '-t', 'tag1', '--token=token', '--email=email'],
+            ['tag:show', '-b', 'far-shoehorn', '-t', 'tag1', '--token=token', '--email=email'],
             obj=obj
         )
 

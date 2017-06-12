@@ -64,7 +64,7 @@ class CustomBucketHelper(BucketConfigurator):
 
         add_lines = [
             'curl {url}/install | sudo bash -s -- rc'.format(url=self.site_url),
-            'stable.world use -p {bucket_name} -t ' +
+            'stable.world use -b {bucket_name} -t ' +
             'build${{CIRCLE_BUILD_NUM}}'.format(bucket_name=self.bucket_name)
         ]
         default = indent('\n'.join(add_lines), '    + ')

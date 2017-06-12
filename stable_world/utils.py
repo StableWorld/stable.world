@@ -24,7 +24,7 @@ def echo_warning():
 
 def bucket_option(required=False):
     return click.option(
-        '-p', '--bucket', required=required,
+        '-b', '--bucket', required=required,
         help='Name of bucket'
     )
 
