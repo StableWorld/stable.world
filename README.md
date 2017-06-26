@@ -48,7 +48,7 @@ or a custom build environment, you can
 add the following line to the top of your build script:
 
 ```
-stable.world use -p <bucket-name> --create-tag <unique-build-number>
+stable.world use -b <bucket-name> --create-tag <unique-build-number>
 ```
 
   * Replace `<bucket-name>` with your bucket name, eg. in the example above
@@ -59,7 +59,7 @@ This would be `brief-fusarium`.
 
 Example:
 ```
-    stable.world use -p brief-fusarium --create-tag "Tavis-Build-${TRAVIS_BUILD_NUMBER}"
+    stable.world use -b brief-fusarium --create-tag "Tavis-Build-${TRAVIS_BUILD_NUMBER}"
 ```
 
 # When things **wrong** with your build, stable.world is here to help!
@@ -68,7 +68,7 @@ Ok now when things hit the fan, we can check what dependencies changed from this
 version to the last:
 
 ```
-stable.world diff -p <bucket-name> -t <from-tag>:<to-tag>
+stable.world diff -b <bucket-name> -t <from-tag>:<to-tag>
 ```
 
 * Replace `<bucket-name>` with your bucket name, eg. in the example above
@@ -80,18 +80,18 @@ In this example, if everything in `Tavis-Build-100` was successful, but there
 is an unexplained failure in `Tavis-Build-101` we can see what changed:
 
 ```
-    stable.world diff -p brief-fusarium -t Tavis-Build-100:Tavis-Build-101
+    stable.world diff -b brief-fusarium -t Tavis-Build-100:Tavis-Build-101
 ```
 
 Hmm, maybe a new version of package was released and is causing my build to fail...
 Lets **pin** the world to the last success and trigger a rebuild.
 ```
-stable.world pin -p <bucket-name> -t <last-success-tag>
+stable.world pin -b <bucket-name> -t <last-success-tag>
 ```
 
 Example:
 ```
-    stable.world pin -p brief-fusarium -t Tavis-Build-100
+    stable.world pin -b brief-fusarium -t Tavis-Build-100
 ```
 
 OK, our devs and testers have pinned the version in the requirements file or fixed the issue
@@ -100,10 +100,10 @@ with the new package.
 Lets unpin the package
 
 ```
-stable.world pin -p <bucket-name>
+stable.world pin -b <bucket-name>
 ```
 
 Example:
 ```
-    stable.world unpin -p brief-fusarium
+    stable.world unpin -b brief-fusarium
 ```
