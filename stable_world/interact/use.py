@@ -4,41 +4,11 @@ import sys
 import click
 from itertools import groupby
 
-# from stable_world.simple_token import test_token
-from stable_world import utils, errors
+from stable_world import utils
 from stable_world import managers
 
 
-def setup_tags(client, bucket, create_tag, info, dryrun):
-    pinned_to = info['bucket']['pinned_to']
-
-    if pinned_to and create_tag:
-        click.secho('  Alert: ', fg='magenta', nl=False, bold=True)
-        click.echo('  bucket %s is ' % bucket, nl=False)
-        click.secho('pinned', nl=False, bold=True)
-        click.echo(' to tag %s' % pinned_to['name'])
-        click.echo('  Tag "%s" will not be used' % create_tag)
-        click.echo('')
-    else:
-        if create_tag and not dryrun:
-            try:
-                client.add_tag(bucket, create_tag)
-            except errors.DuplicateKeyError:
-                utils.echo_warning()
-                click.echo('The tag already exists. You may want to create a new tag')
-                utils.echo_warning()
-                click.echo('You are going to record over any previous changes')
-                click.echo('')
-        elif create_tag:
-            if dryrun:
-                utils.echo_warning()
-                click.echo('Dryrun: not creating tag')
-            else:
-                click.echo("  Tag %s added to bucket %s" % (create_tag, bucket))
-                click.echo('')
-
-
-def use_bucket(app, create_tag, bucket, token, dryrun):
+def use_bucket(app, bucket, token, dryrun):
 
     app.client.check_bucket_token(bucket, token)
 
@@ -54,7 +24,13 @@ def use_bucket(app, create_tag, bucket, token, dryrun):
         sys.exit(1)
 
     info = app.client.bucket(bucket)
-    setup_tags(app.client, bucket, create_tag, info, dryrun)
+
+    if info['bucket']['frozen']:
+        click.secho('  Alert: ', fg='magenta', nl=False, bold=True)
+        click.echo('  bucket %s is ' % bucket, nl=False)
+        click.secho('frozen', nl=False, bold=True)
+        click.echo('.  New objects will not be added to bucket')
+        click.echo('')
 
     urls = info['bucket']['urls']
 

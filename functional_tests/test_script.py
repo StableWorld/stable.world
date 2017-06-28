@@ -170,10 +170,10 @@ class Test(unittest.TestCase):
         # User exists
         obj.client.token.return_value = 'myToken'
         obj.get_using.return_value = None
-        obj.client.bucket.return_value = {'bucket': {'pinned_to': None, 'urls': urls}}
+        obj.client.bucket.return_value = {'bucket': {'urls': urls}}
         result = CliRunner().invoke(
             main, [
-                'use', '-b', 'test-bucket', '-t', 'create-tag',
+                'use', '-b', 'test-bucket',
                 '--email', 'email', '--token', 'myToken'
             ],
             obj=obj
@@ -208,42 +208,6 @@ class Test(unittest.TestCase):
                 False
             )
         )
-
-    def test_tag_list(self):
-        obj = application_mock()
-        obj.client.bucket.return_value = {'tags': [{'created': '2016.01.01', 'name': 'tagname'}]}
-        result = CliRunner().invoke(
-            main,
-            ['tag:list', '-b', 'far-shoehorn', '--token=token', '--email=email'],
-            obj=obj
-        )
-
-        if result.exception:
-            raise result.exception
-        assert result.exit_code == 0
-
-        obj.client.bucket.assert_called_with('far-shoehorn')
-        assert 'tagname' in result.output
-
-    def test_tag_show(self):
-        obj = application_mock()
-        obj.client.tag_objects.return_value = {'objects': [
-            {'tag': 'tag1', 'source': 'http://source/1'},
-            {'tag': 'tag2', 'source': 'http://source/2'}
-        ]}
-        result = CliRunner().invoke(
-            main,
-            ['tag:show', '-b', 'far-shoehorn', '-t', 'tag1', '--token=token', '--email=email'],
-            obj=obj
-        )
-
-        if result.exception:
-            raise result.exception
-        assert result.exit_code == 0
-
-        obj.client.tag_objects.assert_called_with('far-shoehorn', 'tag1', exact=True)
-        assert 'http://source/1' in result.output
-        assert 'http://source/2' in result.output
 
 
 if __name__ == "__main__":

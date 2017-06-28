@@ -1,7 +1,6 @@
 import requests
 import logging
 import sys
-import platform
 from functools import wraps
 
 from .py_helpers import JSONDecodeError, platform_uname
@@ -180,36 +179,20 @@ class Client(object):
         self.delete(url.format(bucket=bucket))
         return
 
-    @url('/api/tags/{bucket}/{name}')
-    def add_tag(self, url, bucket, name):
-        self.post(
-            url.format(bucket=bucket, name=name),
-            dict(hostname=platform.node())
-        )
+    @url('/api/buckets/{bucket}/freeze')
+    def freeze(self, url, bucket):
+        self.post(url.format(bucket=bucket))
         return
 
-    @url('/api/tags/{bucket}/{first}/diff/{last}')
-    @url('/api/tags/{bucket}/{first}/diff')
-    def diff(self, url_one, url_two, bucket, first, last=None):
-        if last:
-            payload = self.get(url_one.format(bucket=bucket, first=first, last=last))
-        else:
-            payload = self.get(url_two.format(bucket=bucket, first=first))
-        return payload
-
-    @url('/api/buckets/{bucket}/pin/{tag}')
-    def pin(self, url, bucket, tag):
-        self.post(url.format(bucket=bucket, tag=tag))
-        return
-
-    @url('/api/buckets/{bucket}/pin')
-    def unpin(self, url, bucket):
+    @url('/api/buckets/{bucket}/freeze')
+    def unfreeze(self, url, bucket):
         self.delete(url.format(bucket=bucket))
         return
 
-    @url('/api/tags/{bucket}/{tag}/objects')
-    def tag_objects(self, url, bucket, tag, exact=False):
-        to = (url + '?exact={exact}').format(
-            bucket=bucket, tag=tag, exact='yes' if exact else ''
-        )
-        return self.get(to)
+    @url('/api/access/{bucket}/since/{when}')
+    def objects_since(self, url, bucket, when):
+        return self.get(url.format(bucket=bucket, when=when.isoformat()))
+
+    @url('/api/access/{bucket}/rollback/{when}')
+    def rollback(self, url, bucket, when):
+        return self.get(url.format(bucket=bucket, when=when.isoformat()))

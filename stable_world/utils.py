@@ -29,10 +29,10 @@ def bucket_option(required=False):
     )
 
 
-def tag_option(required=False):
+def when_option(required=False):
     return click.option(
-        '-t', '--tag', required=True,
-        help='Name of tag in bucket'
+        '-w', '--when', required=required,
+        help='Time'
     )
 
 
