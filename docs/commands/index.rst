@@ -81,8 +81,8 @@ These commands manipulate stable.world buckets
 .. click:: stable_world.script:bucket_unfreeze
    :prog: stable.world bucket:unfreeze
 
-.. click:: stable_world.script:bucket_since
-   :prog: stable.world bucket:since
+.. click:: stable_world.script:bucket_objects
+   :prog: stable.world bucket:objects
 
 .. click:: stable_world.script:bucket_rollback
    :prog: stable.world bucket:rollback

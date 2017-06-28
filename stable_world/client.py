@@ -193,6 +193,10 @@ class Client(object):
     def objects_since(self, url, bucket, when):
         return self.get(url.format(bucket=bucket, when=when.isoformat()))
 
+    @url('/api/access/{bucket}')
+    def objects(self, url, bucket):
+        return self.get(url.format(bucket=bucket))
+
     @url('/api/access/{bucket}/rollback/{when}')
     def rollback(self, url, bucket, when):
         return self.get(url.format(bucket=bucket, when=when.isoformat()))

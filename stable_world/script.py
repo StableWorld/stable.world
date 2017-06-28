@@ -230,18 +230,38 @@ def using(app):
     return
 
 
-@main.command('bucket:since')
+@main.command('bucket:objects')
 @click.option(
-    '-w', '--when', required=True,
-    help='Show all objects added to buckets since a date'
+    '-a', '--after', required=False, default=None,
+    help='Show all objects added to buckets after a date'
 )
 @utils.bucket_option(required=True)
 @utils.login_optional
-def bucket_since(app, bucket, when):
+def bucket_objects(app, bucket, after=None):
     """Show the objects added to a bucket since a time"""
 
-    since = app.client.since(bucket, when)
-    output.buckets.since(since)
+    if after:
+        objects = app.client.objects_since(bucket, after)
+    else:
+        objects = app.client.objects(bucket)
+
+    output.buckets.since(objects)
+
+
+@main.command('bucket:rollback')
+@click.option(
+    '-w', '--when', required=True, default=None,
+    help='Rollback after'
+)
+@utils.bucket_option(required=True)
+@utils.login_optional
+def bucket_rollback(app, bucket, when):
+    """Show the objects added to a bucket since a time"""
+
+    app.client.rollback(bucket, when)
+
+    utils.echo_success()
+    click.echo("Bucket %s rolled back to " % (bucket, when))
 
 
 @main.command('bucket:freeze')
