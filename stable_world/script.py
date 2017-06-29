@@ -251,7 +251,8 @@ def bucket_objects(app, bucket, after=None):
 @main.command('bucket:rollback')
 @click.option(
     '-w', '--when', required=True, default=None,
-    help='Rollback after'
+    type=utils.datetime_type,
+    help='Rollback after',
 )
 @utils.bucket_option(required=True)
 @utils.login_optional
@@ -261,7 +262,7 @@ def bucket_rollback(app, bucket, when):
     app.client.rollback(bucket, when)
 
     utils.echo_success()
-    click.echo("Bucket %s rolled back to " % (bucket, when))
+    click.echo("Bucket %s rolled back to %s" % (bucket, when.ctime()))
 
 
 @main.command('bucket:freeze')
@@ -279,7 +280,7 @@ def freeze(app, bucket):
 @utils.login_required
 def unfreeze(app, bucket):
     "Unfreeze a bucket so it can be modified"
-    app.client.unpin(bucket)
+    app.client.unfreeze(bucket)
     utils.echo_success()
     click.echo("Unfroze Bucket %s" % (bucket))
 

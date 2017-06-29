@@ -199,4 +199,4 @@ class Client(object):
 
     @url('/api/access/{bucket}/rollback/{when}')
     def rollback(self, url, bucket, when):
-        return self.get(url.format(bucket=bucket, when=when.isoformat()))
+        return self.post(url.format(bucket=bucket, when=when.isoformat()))

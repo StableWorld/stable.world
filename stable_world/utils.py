@@ -4,6 +4,10 @@ import click
 from .interact.setup_user import setup_user
 from . import application
 
+from dateutil.parser import parse as parse_datetime
+from datetime import datetime, timedelta
+from dateutil.tz import tzlocal
+
 dir_option = click.option(
     '--dir', default=abspath('.'),
     help='The Directory of the bucket you want to setup'
@@ -34,6 +38,27 @@ def when_option(required=False):
         '-w', '--when', required=required,
         help='Time'
     )
+
+
+def localnow():
+    return datetime.now().replace(tzinfo=tzlocal())
+
+
+timeKeyWords = {
+    'now': localnow,
+    'yesterday': lambda: localnow() - timedelta(days=1),
+    'last week': lambda: localnow() - timedelta(days=7),
+}
+
+
+def datetime_type(value):
+    if value in timeKeyWords:
+        return timeKeyWords[value]()
+
+    dt = parse_datetime(value)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=tzlocal())
+    return dt
 
 
 def ensure_login(app, hide_token=True):

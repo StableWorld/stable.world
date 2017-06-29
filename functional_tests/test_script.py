@@ -170,7 +170,7 @@ class Test(unittest.TestCase):
         # User exists
         obj.client.token.return_value = 'myToken'
         obj.get_using.return_value = None
-        obj.client.bucket.return_value = {'bucket': {'urls': urls}}
+        obj.client.bucket.return_value = {'bucket': {'urls': urls, 'frozen': False}}
         result = CliRunner().invoke(
             main, [
                 'use', '-b', 'test-bucket',
