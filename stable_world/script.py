@@ -245,7 +245,7 @@ def bucket_objects(app, bucket, after=None):
     else:
         objects = app.client.objects(bucket)
 
-    output.buckets.since(objects)
+    output.buckets.print_objects(objects)
 
 
 @main.command('bucket:rollback')
