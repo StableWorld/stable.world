@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
 
         assert result.exit_code == 0
 
-        obj.client.token.assert_called_with('email', 'password', scopes={'api': 'write'})
+        obj.client.token.assert_called_with('email', 'password', scopes=['api', 'bucket'])
         obj.update_netrc.assert_called_with('email', 'myToken')
 
         BucketConfigurator.detect().setup.assert_called()
@@ -92,7 +92,7 @@ class Test(unittest.TestCase):
             raise result.exception
         assert result.exit_code == 0
 
-        obj.client.token.assert_called_with('email', 'password', scopes={'api': 'write'})
+        obj.client.token.assert_called_with('email', 'password', scopes=['api', 'bucket'])
         obj.update_netrc.assert_called_with('email', 'myToken')
 
     def test_login_user_does_not_exist(self):

@@ -37,7 +37,7 @@ def setup_user(app, login_only=False, confirm_password=True, scopes=None):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = app.client.token(email, password, scopes={'api': 'write'})
+            token = app.client.token(email, password, scopes=['api', 'bucket'])
             app.config.update(password=password)
             app.update_netrc(email, token)
             click.echo('\n    Welcome back %s\n\n' % email)
@@ -97,7 +97,7 @@ def setup_bucket_token(app, bucket, use_config_token=True):
             password = click.prompt(' %30s' % 'password', hide_input=True)
 
         try:
-            token = app.client.token(email, password, scopes={'bucket': bucket})
+            token = app.client.token(email, password, scopes=['bucket'])
             app.config.update(password=password)
             return token
         except errors.PasswordError:
