@@ -39,13 +39,19 @@ class Test(unittest.TestCase):
     def test_freeze(self):
         obj = application_mock()
 
-        obj.client.token.return_value = 'myToken'
-        obj.email = 'fake-email'
-        obj.token = 'fake-token'
-
         result = CliRunner().invoke(
-            main, ['--email', 'email', '--password', 'password', 'bucket:freeze', '--bucket', 'b1'],
+            main, ['--email', 'email', '--token', 'token', 'bucket:freeze', '--bucket', 'b1'],
             obj=obj
         )
-        print(result.output)
+        assert 'Success: Bucket b1 frozen' in result.output
+        assert result.exit_code == 0
+
+    def test_unfreeze(self):
+        obj = application_mock()
+
+        result = CliRunner().invoke(
+            main, ['--email', 'email', '--token', 'token', 'bucket:unfreeze', '--bucket', 'b1'],
+            obj=obj
+        )
+        assert 'Success: Unfroze Bucket b1' in result.output
         assert result.exit_code == 0
