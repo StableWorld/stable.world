@@ -29,3 +29,15 @@ def print_bucket(bucket):
     click.echo('  Caches:')
     for name, info in bucket['urls'].items():
         click.echo('    %10s => %s' % (name, info['url']))
+
+
+def print_objects(info):
+
+    objects = info.get('objects')
+
+    if not objects:
+        click.echo('  No sources in this bucket')
+        return
+
+    for obj in objects:
+        click.echo('   - {}'.format(obj['source']))

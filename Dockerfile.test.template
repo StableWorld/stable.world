@@ -4,7 +4,7 @@ COPY versioneer.py /app/versioneer.py
 COPY functional_tests /app/functional_tests
 COPY stable_world/ /app/stable_world
 WORKDIR /app
-
+RUN find . -name "*.pyc" -exec rm -f {} \;
 RUN python setup.py develop
 
 COPY requirements.txt /app/requirements.txt

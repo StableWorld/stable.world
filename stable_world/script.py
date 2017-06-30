@@ -183,66 +183,17 @@ def bucket_cache_remove(app, bucket, name):
     click.echo(' Cache %s (%s) was removed' % (info['url'], name))
 
 
-@main.command('tag:create')
-@utils.bucket_option(required=True)
-@click.option('-t', '--tag', required=True, help='name of tag to create')
-@utils.login_required
-def tag_create(app, bucket, tag):
-    "Add a tag to a bucket"
-    app.client.add_tag(bucket, tag)
-    utils.echo_success()
-    click.echo("Tag %s added to bucket %s" % (tag, bucket))
-
-
-@main.command('tag')
-@utils.bucket_option(required=True)
-@click.option('-t', '--tag', required=True, help='name of tag to create')
-@utils.login_required
-def tag(app, bucket, tag):
-    "Add a tag to a bucket"
-    app.client.add_tag(bucket, tag)
-    utils.echo_success()
-    click.echo("Tag %s added to bucket %s" % (tag, bucket))
-
-
-@main.command('tag:list')
-@utils.bucket_option(required=True)
-@utils.login_optional
-def tag_list(app, bucket):
-    "List tags in a bucket"
-    info = app.client.bucket(bucket)
-    output.tags.print_tags(info['tags'][::-1])
-
-
-@main.command('tag:show')
-@utils.bucket_option(required=True)
-@utils.tag_option(required=True)
-@click.option(
-    '--full/--exact',
-    help='If exact (default) show this tag only, otherwise show all previous tags.'
-)
-@utils.login_optional
-def tag_show(app, bucket, tag, full):
-    "List tags in a bucket"
-    info = app.client.tag_objects(bucket, tag, exact=not full)
-    output.tags.print_objects(info)
-
-
 @main.command(category='Build')
-@click.option(
-    '-t', '--create-tag', required=False,
-    help='tag name to create'
-)
 @utils.bucket_option(required=True)
 @click.option(
     '--dryrun/--no-dryrun',
-    help='only print output don\'t create tag or modify config files'
+    help='only print output don\'t modify config files'
 )
 @application.email_option
 @application.token_option
 @application.password_option
 @application.pass_app
-def use(app, create_tag, bucket, dryrun):
+def use(app, bucket, dryrun):
     "Activate and record all usage for a bucket"
 
     token = app.token
@@ -255,7 +206,7 @@ def use(app, create_tag, bucket, dryrun):
     if not token:
         token = setup_bucket_token(app, bucket, use_config_token=False)
 
-    use_bucket(app, create_tag, bucket, token, dryrun)
+    use_bucket(app, bucket, token, dryrun)
 
 
 @main.command(category='Build')
@@ -274,48 +225,64 @@ def using(app):
         click.echo('You are not currently using a bucket')
         sys.exit(1)
     else:
-        click.echo('You are using bucket "%(bucket)s", tag "%(tag)s"' % using)
+        click.echo('You are using bucket "%(bucket)s"' % using)
 
     return
 
 
-@main.command()
+@main.command('bucket:objects')
 @click.option(
-    '-t', '--tags', required=True,
-    help='Tag all requests with this tag'
+    '-a', '--after', required=False, default=None,
+    help='Show all objects added to buckets after a date'
 )
 @utils.bucket_option(required=True)
 @utils.login_optional
-def diff(app, bucket, tags):
-    """Show the difference between two tags in a bucket"""
-    if ':' in tags:
-        first, last = tags.split(':')
+def bucket_objects(app, bucket, after=None):
+    """Show the objects added to a bucket since a time"""
+
+    if after:
+        objects = app.client.objects_since(bucket, after)
     else:
-        first, last = tags, None
+        objects = app.client.objects(bucket)
 
-    diff_result = app.client.diff(bucket, first, last)
-    output.tags.diff_tags(diff_result)
+    output.buckets.print_objects(objects)
 
 
-@main.command()
+@main.command('bucket:rollback')
+@click.option(
+    '-w', '--when', required=True, default=None,
+    type=utils.datetime_type,
+    help='Rollback after',
+)
 @utils.bucket_option(required=True)
-@utils.tag_option(required=True)
-@utils.login_required
-def pin(app, bucket, tag):
-    "Pin a bucket to a tag."
-    app.client.pin(bucket, tag)
+@utils.login_optional
+def bucket_rollback(app, bucket, when):
+    """Show the objects added to a bucket since a time"""
+
+    app.client.rollback(bucket, when)
+
     utils.echo_success()
-    click.echo("Bucket %s pinned to tag %s" % (bucket, tag))
+    click.echo("Bucket %s rolled back to %s" % (bucket, when.ctime()))
 
 
-@main.command()
+@main.command('bucket:freeze')
 @utils.bucket_option(required=True)
 @utils.login_required
-def unpin(app, bucket):
-    "Remove pin to tag"
-    app.client.unpin(bucket)
+def freeze(app, bucket):
+    "Freeze a bucket so it can not be modified"
+    app.client.freeze(bucket)
     utils.echo_success()
-    click.echo("Unpinned Bucket %s" % (bucket))
+    click.echo("Bucket %s frozen" % (bucket))
+
+
+@main.command('bucket:unfreeze')
+@utils.bucket_option(required=True)
+@utils.login_required
+def unfreeze(app, bucket):
+    "Unfreeze a bucket so it can be modified"
+    app.client.unfreeze(bucket)
+    utils.echo_success()
+    click.echo("Unfroze Bucket %s" % (bucket))
 
 
 @main.command(category='Authentication')

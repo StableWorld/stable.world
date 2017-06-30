@@ -75,36 +75,23 @@ These commands manipulate stable.world buckets
 .. click:: stable_world.script:bucket_destroy
    :prog: stable.world bucket:destroy
 
+.. click:: stable_world.script:bucket_freeze
+   :prog: stable.world bucket:freeze
 
-Tag Commands
-------------
+.. click:: stable_world.script:bucket_unfreeze
+   :prog: stable.world bucket:unfreeze
 
-.. click:: stable_world.script:tag_create
-   :prog: stable.world tag:create
+.. click:: stable_world.script:bucket_objects
+   :prog: stable.world bucket:objects
 
+.. click:: stable_world.script:bucket_rollback
+   :prog: stable.world bucket:rollback
 
-.. click:: stable_world.script:tag_list
-   :prog: stable.world tag:list
-
-
-.. click:: stable_world.script:tag_show
-   :prog: stable.world tag:show
-
-
-.. click:: stable_world.script:unpin
-   :prog: stable.world unpin
 
 BuildTime Commands
 ------------------
 
 These commands can be used in your build script
-
-.. click:: stable_world.script:pin
-   :prog: stable.world pin
-
-.. click:: stable_world.script:unuse
-   :prog: stable.world unuse
-
 
 .. click:: stable_world.script:use
    :prog: stable.world use
