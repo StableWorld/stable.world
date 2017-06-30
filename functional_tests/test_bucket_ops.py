@@ -1,7 +1,7 @@
 import unittest
 import mock
 from click.testing import CliRunner
-from stable_world import errors, application
+from stable_world import application
 from stable_world.script import main
 
 
