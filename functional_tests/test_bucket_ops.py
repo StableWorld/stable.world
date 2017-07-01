@@ -1,18 +1,9 @@
-import mock
 from click.testing import CliRunner
-from stable_world import application
 from stable_world.script import main
 from fixture import CLITest
 
 
 class Test(CLITest):
-
-    def setUp(self):
-        self.OGApp = application.StableWorldApplication
-        application.StableWorldApplication = mock.Mock
-
-    def tearDown(self):
-        application.StableWorldApplication = self.OGApp
 
     def test_bucket(self):
         obj = self.application_mock()

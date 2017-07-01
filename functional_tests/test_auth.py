@@ -1,19 +1,12 @@
 import unittest
 import mock
 from click.testing import CliRunner
-from stable_world import errors, application
+from stable_world import errors
 from stable_world.script import main
 from fixture import CLITest
 
 
 class Test(CLITest):
-
-    def setUp(self):
-        self.OGApp = application.StableWorldApplication
-        application.StableWorldApplication = mock.Mock
-
-    def tearDown(self):
-        application.StableWorldApplication = self.OGApp
 
     @mock.patch('stable_world.interact.setup_bucket.BucketConfigurator')
     def test_main(self, BucketConfigurator):
