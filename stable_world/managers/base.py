@@ -52,7 +52,7 @@ class BaseManager(object):
                 site_uri.netloc
             )))
 
-        return '%s/cache/%s/' % (site_url, self.cache_name)
+        return '%s/cache/%s/%s/' % (site_url, self.bucket, self.cache_name)
 
     def use(self):
         if not self.dryrun:

@@ -38,6 +38,6 @@ class Test(CLITest):
         assert 'Writing pip config file' in result.output
 
         configvalue = config_file.getvalue()
-        assert 'index-url = //token:chicken@/mockURL/cache/pypi/' in configvalue
+        assert 'index-url = //token:chicken@/mockURL/cache/bucket11/pypi/' in configvalue
         assert 'cache-dir = ' in configvalue
-        assert '/stable.world/bucket11' in configvalue
+        assert '.cache/stable.world/bucket11' in configvalue
