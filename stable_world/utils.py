@@ -26,6 +26,10 @@ def echo_warning():
     click.secho('  Warning: ', nl=False, fg='magenta')
 
 
+def bucket_name_argument():
+    return click.argument('name', envvar='STABLE_WORLD_BUCKET')
+
+
 def bucket_option(required=False):
     return click.option(
         '-b', '--bucket', required=required,

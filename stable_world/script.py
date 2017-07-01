@@ -119,17 +119,14 @@ def whoami(app):
 
 
 @main.command('bucket:create')
-@utils.bucket_option(required=True)
+@click.argument('name')
 @utils.login_required
-def bucket_create(app, bucket):
+def bucket_create(app, name):
     "Create a new bucket"
-    if bucket:
-        info = app.client.add_bucket(bucket)
-    else:
-        info = setup_bucket(app)
+    info = app.client.add_bucket(name)
     output.buckets.print_bucket(info['bucket'])
     utils.echo_success()
-    click.echo('Bucket %s added!' % info['bucket']['name'])
+    click.echo('Bucket "%s" added!' % info['bucket']['name'])
 
 
 @main.command('bucket:list')
@@ -141,53 +138,53 @@ def list_cmd(app):
 
 
 @main.command('bucket')
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @utils.login_required
-def bucket(app, bucket):
+def bucket(app, name):
     "show a published bucket"
-    info = app.client.bucket(bucket)
+    info = app.client.bucket(name)
     output.buckets.print_bucket(info['bucket'])
 
 
 @main.command('bucket:destroy')
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @utils.login_required
-def bucket_destroy(app, bucket):
+def bucket_destroy(app, name):
     "tear down a published bucket"
-    app.client.delete_bucket(bucket)
+    app.client.delete_bucket(name)
     utils.echo_success()
     click.echo(' Bucket %s removed' % bucket)
 
 
 @main.command('bucket:cache:add')
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @click.option('--url', help='The url endpoint to cache')
 @click.option('--type', help='type of cache')
-@click.option('--name', required=True, help='Give it a name')
+@click.option('-n', '--cache-name', required=True, help='Give it a name')
 @utils.login_required
-def bucket_cache_add(app, bucket, url, type, name):
+def bucket_cache_add(app, name, url, type, cache_name):
     "Add a cache to the bucket"
 
-    app.client.add_url(bucket, url, name, type)
+    app.client.add_url(name, url, cache_name, type)
 
     utils.echo_success()
-    click.echo(' Cache %s was added as %s' % (url, name))
+    click.echo(' Cache %s was added as %s' % (url, cache_name))
 
 
 @main.command('bucket:cache:remove')
-@utils.bucket_option(required=True)
-@click.option('-n', '--name', help='name of cache to remove')
+@utils.bucket_name_argument()
+@click.option('-n', '--cache-name', help='name of cache to remove')
 @utils.login_required
-def bucket_cache_remove(app, bucket, name):
+def bucket_cache_remove(app, name, cache_name):
     "Remove a cache from the bucket"
 
-    info = app.client.remove_url(bucket, name)
+    info = app.client.remove_url(name, cache_name)
     utils.echo_success()
-    click.echo(' Cache %s (%s) was removed' % (info['url'], name))
+    click.echo(' Cache %s (%s) was removed' % (info['url'], cache_name))
 
 
 @main.command(category='Build')
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @click.option(
     '--dryrun/--no-dryrun',
     help='only print output don\'t modify config files'
@@ -196,20 +193,20 @@ def bucket_cache_remove(app, bucket, name):
 @application.token_option
 @application.password_option
 @application.pass_app
-def use(app, bucket, dryrun):
+def use(app, name, dryrun):
     "Activate and record all usage for a bucket"
 
     token = app.token
     if token:
         try:
-            app.client.check_bucket_token(bucket, token)
+            app.client.check_bucket_token(name, token)
         except errors.BadAuthorization:
             token = None
 
     if not token:
-        token = setup_bucket_token(app, bucket, use_config_token=False)
+        token = setup_bucket_token(app, name, use_config_token=False)
 
-    use_bucket(app, bucket, token, dryrun)
+    use_bucket(app, name, token, dryrun)
 
 
 @main.command(category='Build')
@@ -238,15 +235,15 @@ def using(app):
     '-a', '--after', required=False, default=None,
     help='Show all objects added to buckets after a date'
 )
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @utils.login_optional
-def bucket_objects(app, bucket, after=None):
+def bucket_objects(app, name, after=None):
     """Show the objects added to a bucket since a time"""
 
     if after:
-        objects = app.client.objects_since(bucket, after)
+        objects = app.client.objects_since(name, after)
     else:
-        objects = app.client.objects(bucket)
+        objects = app.client.objects(name)
 
     output.buckets.print_objects(objects)
 
@@ -257,47 +254,48 @@ def bucket_objects(app, bucket, after=None):
     type=utils.datetime_type,
     help='Rollback after',
 )
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @utils.login_optional
-def bucket_rollback(app, bucket, when):
+def bucket_rollback(app, name, when):
     """Show the objects added to a bucket since a time"""
 
-    app.client.rollback(bucket, when)
+    app.client.rollback(name, when)
 
     utils.echo_success()
-    click.echo("Bucket %s rolled back to %s" % (bucket, when.ctime()))
+    click.echo("Bucket %s rolled back to %s" % (name, when.ctime()))
 
 
 @main.command('bucket:freeze')
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @utils.login_required
-def freeze(app, bucket):
+def freeze(app, name):
     "Freeze a bucket so it can not be modified"
-    app.client.freeze(bucket)
+    app.client.freeze(name)
     utils.echo_success()
-    click.echo("Bucket %s frozen" % (bucket))
+    click.echo("Bucket %s frozen" % (name))
 
 
 @main.command('bucket:unfreeze')
-@utils.bucket_option(required=True)
+@utils.bucket_name_argument()
 @utils.login_required
-def unfreeze(app, bucket):
+def unfreeze(app, name):
     "Unfreeze a bucket so it can be modified"
-    app.client.unfreeze(bucket)
+    app.client.unfreeze(name)
     utils.echo_success()
-    click.echo("Unfroze Bucket %s" % (bucket))
+    click.echo("Unfroze Bucket %s" % (name))
 
 
 @main.command(category='Authentication')
 @application.email_option
 @application.password_option
-@utils.bucket_option(required=True)
+@utils.bucket_option(required=False)
 @application.pass_app
 def token(app, bucket):
     "Get your authentication token"
 
     # Will raise not found exception
-    app.client.bucket(bucket)
+    if bucket:
+        app.client.bucket(bucket)
 
     token = setup_bucket_token(app, bucket)
     print("  token:", token)
@@ -310,34 +308,25 @@ def info(app):
     output.build_info.build_info(app.client)
 
 
-@main.command('setup')
-def setup(app, dir):
-    "Set up new bucket"
+@main.command('ci')
+def ci(app, dir):
+    "Set up stable.world in your continuous delivery pipline"
 
 
-@main.command('setup:custom')
+@main.command('ci:bash')
 @utils.dir_option
 @utils.login_required
-def setup_custom(app, dir):
-    "Set up new custom bucket"
+def ci_bash(app, dir):
+    "Set up stable.world in your continuous delivery pipline using bash"
     setup_bucket(app, dir, 'custom')
 
 
-@main.command('setup:circle')
+@main.command('ci:circle')
 @utils.dir_option
 @utils.login_required
 def setup_circle(app, dir):
-    "Set up new bucket on circleci"
+    "Set up stable.world in your continuous delivery pipline using circleci"
     setup_bucket(app, dir, 'circleci')
-
-
-# @main.command('pip')
-# @utils.bucket_option(required=True)
-# @utils.login_optional
-# @click.argument('pip_args', nargs=-1, type=click.UNPROCESSED)
-# def pip(app, bucket, pip_args):
-#     print("pip_args", pip_args)
-#     # execute_pip(app, bucket, pip_args)
 
 
 @main.command(context_settings=dict(
