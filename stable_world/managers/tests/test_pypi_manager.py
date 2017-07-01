@@ -1,18 +1,8 @@
 from __future__ import unicode_literals
 
 from mock import patch
-import io
+import six
 from stable_world.managers.pypi import PyPIManager
-from stable_world.py_helpers import PY2
-
-
-class AnyIO(io.StringIO):
-    def write(self, data):
-        if PY2 and not isinstance(data, unicode):  # noqa: F821
-            # F**k unicode in python2
-            data = data.decode()
-
-        return io.StringIO.write(self, data)
 
 
 @patch('stable_world.managers.pypi.open')
@@ -27,7 +17,7 @@ def test_pypi_manager(mock_open):
         dryrun=False
     )
 
-    pip_config_io = mock_open().__enter__.return_value = AnyIO()
+    pip_config_io = mock_open().__enter__.return_value = six.StringIO()
 
     mgr.use()
 

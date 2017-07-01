@@ -1,7 +1,7 @@
 import mock
-import io
+import six
 from stable_world.script import configure
-from fixture import CLITest
+from fixture import CLITest, AnyIO
 from click.testing import CliRunner
 
 
@@ -21,7 +21,7 @@ class Test(CLITest):
             }}
         }}
 
-        config_file = io.StringIO()
+        config_file = six.StringIO()
         config_file.close = lambda: None
         pypi_open.return_value = config_file
 
