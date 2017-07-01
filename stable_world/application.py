@@ -68,32 +68,6 @@ class StableWorldApplication:
     def update_option(self, name, value):
         self.cli_options[name] = value
 
-    def get_using(self):
-        '''
-        Detect if 'use' has been called and return the record
-        '''
-
-        using_file = os.path.join(self.cache_dirname, 'using.json')
-
-        if not os.path.exists(using_file):
-            return None
-
-        with open(using_file) as fd:
-            return json.load(fd)
-
-    def set_using(self, records):
-        using_file = os.path.join(self.cache_dirname, 'using.json')
-
-        with open(using_file, 'w') as fd:
-            json.dump(records, fd, indent=2)
-
-    def unset_using(self):
-
-        using_file = os.path.join(self.cache_dirname, 'using.json')
-
-        if os.path.exists(using_file):
-            os.unlink(using_file)
-
 
 def pass_app(f):
     '''

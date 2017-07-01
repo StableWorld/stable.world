@@ -9,12 +9,16 @@ import click
 from stable_world import __version__ as sw_version
 from .interact.setup_user import setup_user, setup_bucket_token
 from .interact.setup_bucket import setup_bucket
-from .interact.use import use_bucket, unuse_bucket
+from .interact.use import check_bucket
 from .output import error_output
 from .env import env
 from .sw_logging import setup_logging
 from .executors import execute_pip
-from . import utils, output, application, group, errors
+from . import errors, utils, output, application, group
+
+from .managers.pypi import PyPIManager
+from .managers.npm import NPMManager
+
 
 CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help'],
@@ -184,39 +188,6 @@ def bucket_cache_remove(app, name, cache_name):
 
 
 @main.command(category='Build')
-@utils.bucket_name_argument()
-@click.option(
-    '--dryrun/--no-dryrun',
-    help='only print output don\'t modify config files'
-)
-@application.email_option
-@application.token_option
-@application.password_option
-@application.pass_app
-def use(app, name, dryrun):
-    "Activate and record all usage for a bucket"
-
-    token = app.token
-    if token:
-        try:
-            app.client.check_bucket_token(name, token)
-        except errors.BadAuthorization:
-            token = None
-
-    if not token:
-        token = setup_bucket_token(app, name, use_config_token=False)
-
-    use_bucket(app, name, token, dryrun)
-
-
-@main.command(category='Build')
-@application.pass_app
-def unuse(app):
-    "Deactivate a bucket"
-    unuse_bucket(app)
-
-
-@main.command(category='Build')
 @application.pass_app
 def using(app):
     "Deactivate a bucket"
@@ -338,6 +309,55 @@ def setup_circle(app, dir):
 def pip(app, bucket, pip_args):
     """A wrapper around Python's timeit."""
     execute_pip(app, bucket, pip_args)
+
+
+@main.group(chain=True)
+@click.option(
+    '--dryrun/--no-dryrun',
+    help='only print output don\'t modify config files'
+)
+@utils.bucket_option(required=True)
+def configure(bucket, dryrun):
+    "Create user configuration files for commands"
+    # Handled in process_configure
+    pass
+
+
+@configure.resultcallback()
+@click.pass_context
+def process_configure(ctx, managers, bucket, dryrun):
+
+    app = ctx.obj
+    token = app.token
+
+    if token:
+        try:
+            app.client.check_bucket_token(bucket, token)
+        except errors.BadAuthorization:
+            token = None
+
+    if not token:
+        token = setup_bucket_token(app, bucket, use_config_token=False)
+
+    urls = check_bucket(app, bucket, token)
+
+    for Manager in managers:
+        mgr = Manager(app.client.site, urls, bucket, token, dryrun)
+        mgr.use()
+
+
+@configure.command('pip')
+@click.pass_context
+def configure_pip(ctx):
+    "set pip user configuration files"
+    return PyPIManager
+
+
+@configure.command('npm')
+@application.pass_app
+def configure_npm(app):
+    "set npm user configuration files"
+    return NPMManager
 
 
 if __name__ == '__main__':

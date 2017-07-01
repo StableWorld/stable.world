@@ -1,5 +1,7 @@
 import unittest
+import traceback
 import mock
+import six
 from stable_world import application
 
 
@@ -32,3 +34,14 @@ class CLITest(unittest.TestCase):
         app.update_option = update_option
         app.update_config_from_options = update_config_from_options
         return app
+
+    def assert_success(self, result):
+        print(result.output)
+
+        if result.exc_info:
+            try:
+                six.reraise(*result.exc_info)
+            except SystemExit:
+                pass
+
+        assert result.exit_code == 0

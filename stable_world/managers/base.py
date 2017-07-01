@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import os
 import click
+from pipes import quote
 from .push_file import push_file, pull_file
 from stable_world.py_helpers import urlparse, urlunparse
 
@@ -20,21 +21,16 @@ class BaseManager(object):
             if os.path.isfile(os.path.join(path, cls.PROGRAM)):
                 return True
 
-    def __init__(self, site_url, bucket, cache_list, token, dryrun):
+    def __init__(self, site_url, urls, bucket, token, dryrun):
 
         self.site_url = site_url
         self.bucket = bucket
-        self.cache_list = cache_list
         self.token = token
 
         self.dryrun = dryrun
 
-        cache_info = list(cache_list)
-        if not cache_info:
-            return {}
-
-        assert len(cache_info) == 1
-        self.cache_name, self.cache_info = cache_info[0]
+        self.cache_name = self.NAME
+        self.cache_info = urls[self.NAME]
 
     @property
     def config_file(self):
@@ -42,8 +38,7 @@ class BaseManager(object):
 
     @property
     def cache_dir(self):
-        part = '{}-{}'.format(self.bucket, self.NAME)
-        cache_dir = os.path.join('~', '.cache', 'stable.world', part)
+        cache_dir = os.path.join('~', '.cache', 'stable.world', self.bucket)
         return os.path.expanduser(cache_dir)
 
     def get_base_url(self, basicAuthRequired=False):
@@ -71,5 +66,5 @@ class BaseManager(object):
             return
 
         for config_file in info.get('config_files', []):
-            click.echo('Removing {} config file "{}"'.format(cls.NAME, config_file))
+            click.echo('Removing {} config file {}'.format(cls.NAME, quote(config_file)))
             pull_file(config_file)
