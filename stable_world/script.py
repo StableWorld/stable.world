@@ -135,7 +135,7 @@ def bucket_create(app, name):
 
 @main.command('bucket:list')
 @utils.login_required
-def list_cmd(app):
+def bucket_list(app):
     "list all buckets you have access to"
     buckets = app.client.buckets()
     output.buckets.print_buckets(buckets)
@@ -239,7 +239,7 @@ def bucket_rollback(app, name, when):
 @main.command('bucket:freeze')
 @utils.bucket_name_argument()
 @utils.login_required
-def freeze(app, name):
+def bucket_freeze(app, name):
     "Freeze a bucket so it can not be modified"
     app.client.freeze(name)
     utils.echo_success()
@@ -249,7 +249,7 @@ def freeze(app, name):
 @main.command('bucket:unfreeze')
 @utils.bucket_name_argument()
 @utils.login_required
-def unfreeze(app, name):
+def bucket_unfreeze(app, name):
     "Unfreeze a bucket so it can be modified"
     app.client.unfreeze(name)
     utils.echo_success()
@@ -295,7 +295,7 @@ def ci_bash(app, dir):
 @main.command('ci:circle')
 @utils.dir_option
 @utils.login_required
-def setup_circle(app, dir):
+def ci_circle(app, dir):
     "Set up stable.world in your continuous delivery pipline using circleci"
     setup_bucket(app, dir, 'circleci')
 
