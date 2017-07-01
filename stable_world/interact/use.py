@@ -1,8 +1,6 @@
 from __future__ import print_function
-import sys
 
 import click
-from stable_world import utils
 
 
 def check_bucket(app, bucket_name, token):

@@ -1,5 +1,4 @@
 import unittest
-import traceback
 import mock
 import six
 from stable_world import application

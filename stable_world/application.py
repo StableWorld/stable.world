@@ -1,5 +1,4 @@
 import os
-import json
 from functools import wraps
 import click
 from stable_world import config
