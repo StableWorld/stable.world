@@ -13,9 +13,12 @@ from .interact.use import use_bucket, unuse_bucket
 from .output import error_output
 from .env import env
 from .sw_logging import setup_logging
+from .executors import execute_pip
 from . import utils, output, application, group, errors
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+CONTEXT_SETTINGS = dict(
+    help_option_names=['-h', '--help'],
+)
 
 
 @click.group(
@@ -326,6 +329,26 @@ def setup_custom(app, dir):
 def setup_circle(app, dir):
     "Set up new bucket on circleci"
     setup_bucket(app, dir, 'circleci')
+
+
+# @main.command('pip')
+# @utils.bucket_option(required=True)
+# @utils.login_optional
+# @click.argument('pip_args', nargs=-1, type=click.UNPROCESSED)
+# def pip(app, bucket, pip_args):
+#     print("pip_args", pip_args)
+#     # execute_pip(app, bucket, pip_args)
+
+
+@main.command(context_settings=dict(
+    ignore_unknown_options=True,
+))
+@utils.bucket_option(required=True)
+@click.argument('pip_args', nargs=-1, type=click.UNPROCESSED)
+@utils.login_required
+def pip(app, bucket, pip_args):
+    """A wrapper around Python's timeit."""
+    execute_pip(app, bucket, pip_args)
 
 
 if __name__ == '__main__':
