@@ -122,10 +122,10 @@ class Client(object):
         return self.get(url)
 
     @url('/auth/register')
-    def register(self, url, email, password):
+    def register(self, url, email, password, scopes=None):
 
         res = self.post(
-            url, dict(email=email, password=password)
+            url, dict(email=email, password=password, scopes=None)
         )
         return res['token']
 

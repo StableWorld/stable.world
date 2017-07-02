@@ -80,7 +80,7 @@ class Test(CLITest):
             raise result.exception
         assert result.exit_code == 0
 
-        obj.client.register.assert_called_with('email', 'password')
+        obj.client.register.assert_called_with('email', 'password', scopes=['api', 'bucket'])
         obj.update_netrc.assert_called_with('email', 'myToken')
 
     def test_register_wrong_confirm_password(self):
