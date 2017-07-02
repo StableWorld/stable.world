@@ -32,6 +32,7 @@ CONTEXT_SETTINGS = dict(
 )
 @click.option(
     '--show-traceback/--dont-show-traceback', default=False,
+    envvar='STABLE_WORLD_SHOW_TRACEBACK',
     help='Show full traceback on a critical error'
 )
 @click.option(

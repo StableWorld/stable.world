@@ -4,6 +4,9 @@ from stable_world.script import configure
 from fixture import CLITest
 from click.testing import CliRunner
 
+six.StringIO.__enter__ = lambda self, *args: self
+six.StringIO.__exit__ = lambda *args: None
+
 
 class Test(CLITest):
 

@@ -61,7 +61,7 @@ class StableWorldGroup(click.Group):
             if cmd is None:
                 continue
 
-            rows = categories.setdefault(cmd.category, [])
+            rows = categories.setdefault(getattr(cmd, 'category', []), [])
             help = cmd.short_help or ''
             rows.append((subcommand, help))
         print("categories", categories)
