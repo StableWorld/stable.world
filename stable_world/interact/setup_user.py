@@ -51,7 +51,7 @@ def setup_user(app, login_only=False, confirm_password=True, scopes=None):
                 confirm_password = click.prompt(' %30s' % 'password', hide_input=True)
                 if confirm_password != password:
                     raise errors.UserError("Passwords do no match, pelase try again")
-            token = app.client.register(email, password)
+            token = app.client.register(email, password, scopes=['api', 'bucket'])
             app.update_netrc(email, token)
             click.echo('\n    Registered new user %s\n\n' % email)
             return
