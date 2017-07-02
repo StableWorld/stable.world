@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import click
+from pipes import quote
 from .base import BaseManager
 from stable_world.py_helpers import ConfigParser, platform_uname
 from stable_world import errors
@@ -47,12 +48,12 @@ class PyPIManager(BaseManager):
         parser.set(section, 'cache-dir', self.cache_dir)
 
         if self.dryrun:
-            click.echo('  %-30s %s' % ('Dryrun: Would have written config file', self.config_file))
+            click.echo('  %-30s %s' % ('Dryrun: Would have written config file', quote(self.config_file)))
             click.echo('---')
             parser.write(sys.stdout)
             click.echo('---')
         else:
-            click.echo('  %-30s %s' % ('Writing pip config file', self.config_file))
+            click.echo('  %-30s %s' % ('Writing pip config file', quote(self.config_file)))
 
             if not os.path.exists(os.path.dirname(self.config_file)):
                 os.makedirs(os.path.dirname(self.config_file))

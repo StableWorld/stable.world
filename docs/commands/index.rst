@@ -2,8 +2,6 @@ Command Reference
 =================
 
 
-Setup Commands
------------------------
 
 These commands will help you get started with stable.world
 
@@ -11,12 +9,17 @@ These commands will help you get started with stable.world
    :prog: stable.world
 
 
-.. click:: stable_world.script:setup_circle
-   :prog: stable.world setup:circle
+CI Integration
+-----------------------
+
+Experimental
+
+.. click:: stable_world.script:ci_circle
+   :prog: stable.world ci:circle
 
 
-.. click:: stable_world.script:setup_custom
-   :prog: stable.world setup:custom
+.. click:: stable_world.script:ci_bash
+   :prog: stable.world ci:bash
 
 
 Authentication Commands
@@ -48,12 +51,9 @@ Bucket Commands
 
 These commands manipulate stable.world buckets
 
-.. click:: stable_world.script:diff
-   :prog: stable.world diff
 
-
-.. click:: stable_world.script:list_cmd
-   :prog: stable.world list
+.. click:: stable_world.script:bucket_list
+   :prog: stable.world bucket:list
 
 
 .. click:: stable_world.script:bucket
@@ -88,17 +88,16 @@ These commands manipulate stable.world buckets
    :prog: stable.world bucket:rollback
 
 
-BuildTime Commands
-------------------
+Configuration Commands
+----------------------
 
 These commands can be used in your build script
 
-.. click:: stable_world.script:use
-   :prog: stable.world use
+.. click:: stable_world.script:configure
+   :prog: stable.world configure
 
-
-.. click:: stable_world.script:using
-   :prog: stable.world using
+.. click:: stable_world.script:configure_pip
+   :prog: stable.world configure pip
 
 
 Misc Commands
