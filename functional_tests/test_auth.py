@@ -8,8 +8,7 @@ from fixture import CLITest
 
 class Test(CLITest):
 
-    @mock.patch('stable_world.interact.setup_bucket.BucketConfigurator')
-    def test_main(self, BucketConfigurator):
+    def test_main(self):
 
         runner = CliRunner()
 
@@ -27,11 +26,6 @@ class Test(CLITest):
 
         obj.client.token.assert_called_with('email', 'password', scopes=['api', 'bucket'])
         obj.update_netrc.assert_called_with('email', 'myToken')
-
-        BucketConfigurator.detect().setup.assert_called()
-        BucketConfigurator.detect().setup_bucket_name.assert_called()
-        BucketConfigurator.detect().setup_bucket_env.assert_called()
-        BucketConfigurator.detect().setup_bucket_ci.assert_called()
 
     def test_login(self):
 
