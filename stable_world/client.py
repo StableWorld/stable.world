@@ -125,7 +125,7 @@ class Client(object):
     def register(self, url, email, password, scopes=None):
 
         res = self.post(
-            url, dict(email=email, password=password, scopes=None)
+            url, dict(email=email, password=password, scopes=scopes)
         )
         return res['token']
 
