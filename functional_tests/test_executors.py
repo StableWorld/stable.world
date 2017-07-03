@@ -28,4 +28,4 @@ class Test(CLITest):
         assert kwargs['env']['PIP_INDEX_URL'] == 'mockURL/cache/bl11/pypi/simple/'
 
         assert 'PIP_CACHE_DIR' in kwargs['env']
-        assert kwargs['env']['PIP_CACHE_DIR'] == '~/.cache/stable.world/bl11'
+        assert kwargs['env']['PIP_CACHE_DIR'].endswith('.cache/stable.world/bl11')

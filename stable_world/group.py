@@ -36,10 +36,8 @@ class StableWorldGroup(click.Group):
 
     def list_commands(self, ctx, all=False):
         commands = click.Group.list_commands(self, ctx)
-        print("commands", commands)
         if all:
             return commands
-        print('whut', sorted({cmd.split(':')[0] for cmd in commands}))
         return sorted({cmd.split(':')[0] for cmd in commands})
 
     def get_command(self, ctx, name):
@@ -61,10 +59,9 @@ class StableWorldGroup(click.Group):
             if cmd is None:
                 continue
 
-            rows = categories.setdefault(getattr(cmd, 'category', 'Main'), [])
+            rows = categories.setdefault(getattr(cmd, 'category', ''), [])
             help = cmd.short_help or ''
             rows.append((subcommand, help))
-        print("categories", categories)
         for category, rows in sorted(categories.items()):
             title = '{} Commands'.format(category) if category else 'Commands'
             with formatter.section(title):

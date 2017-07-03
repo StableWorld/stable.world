@@ -19,7 +19,8 @@ def execute_pip(app, bucket_name, pip_args):
     )
     logger.debug('Set envvar PIP_INDEX_URL={}'.format(env['PIP_INDEX_URL']))
 
-    env['PIP_CACHE_DIR'] = os.path.join('~', '.cache', 'stable.world', bucket_name)
+    PIP_CACHE_DIR = os.path.join('~', '.cache', 'stable.world', bucket_name)
+    env['PIP_CACHE_DIR'] = os.path.expanduser(PIP_CACHE_DIR)
     logger.debug('Set envvar PIP_CACHE_DIR={}'.format(env['PIP_CACHE_DIR']))
 
     if not os.path.isdir(env['PIP_CACHE_DIR']):
