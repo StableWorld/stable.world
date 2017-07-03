@@ -73,7 +73,13 @@ def main(ctx, app, show_traceback, ignore_config, dir):
         return
 
     utils.ensure_login(app)
-    setup_bucket(app, dir)
+
+    click.echo("\n  Stable.World CLI Version: ", nl=False)
+    click.secho(sw_version, nl=False, bold=True)
+    click.secho("")
+    click.echo("\n  See other CLI commands with ", nl=False)
+    click.secho("stable.world --help", nl=False, fg='magenta', bold=True)
+    click.secho("\n")
 
 
 @main.command(category='Authentication')
@@ -188,20 +194,6 @@ def bucket_cache_remove(app, name, cache_name):
     click.echo(' Cache %s (%s) was removed' % (info['url'], cache_name))
 
 
-@main.command(category='Build')
-@application.pass_app
-def using(app):
-    "Deactivate a bucket"
-    using = app.config.get('using', None)
-    if not using:
-        click.echo('You are not currently using a bucket')
-        sys.exit(1)
-    else:
-        click.echo('You are using bucket "%(bucket)s"' % using)
-
-    return
-
-
 @main.command('bucket:objects')
 @click.option(
     '-a', '--after', required=False, default=None,
@@ -308,7 +300,7 @@ def ci_circle(app, dir):
 @click.argument('pip_args', nargs=-1, type=click.UNPROCESSED)
 @utils.login_required
 def pip(app, bucket, pip_args):
-    """A wrapper around Python's timeit."""
+    """A wrapper around Python's pip"""
     execute_pip(app, bucket, pip_args)
 
 
