@@ -196,8 +196,9 @@ def bucket_cache_remove(app, name, cache_name):
 
 @main.command('bucket:objects')
 @click.option(
-    '-a', '--after', required=False, default=None,
-    help='Show all objects added to buckets after a date'
+    '-w', '--since', required=True, default=None,
+    type=utils.datetime_type,
+    help='Show objects after date',
 )
 @utils.bucket_name_argument()
 @utils.login_optional
