@@ -25,9 +25,10 @@ class StableWorldApplication:
         self.cli_options = {}
 
     def create_client(self):
+        certfile = os.path.join(self.cache_dirname, 'cacert.pem')
         self.client = Client(
             self.config.get('url'),
-            self.config.get('verify_https', True),
+            self.config.get('verify_https', certfile),
             self.config.get('token'),
         )
 
