@@ -196,17 +196,17 @@ def bucket_cache_remove(app, name, cache_name):
 
 @main.command('bucket:objects')
 @click.option(
-    '-w', '--since', required=True, default=None,
+    '-w', '--since', default=None,
     type=utils.datetime_type,
     help='Show objects after date',
 )
 @utils.bucket_name_argument()
 @utils.login_optional
-def bucket_objects(app, name, after=None):
+def bucket_objects(app, name, since=None):
     """Show the objects added to a bucket since a time"""
 
-    if after:
-        objects = app.client.objects_since(name, after)
+    if since:
+        objects = app.client.objects_since(name, since)
     else:
         objects = app.client.objects(name)
 
