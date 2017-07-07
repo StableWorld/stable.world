@@ -90,6 +90,30 @@ class Test(CLITest):
         assert 'Success: Bucket b1 rolled back to Wed Dec 12 00:00:00 2012' in result.output
         assert result.exit_code == 0
 
+    def test_objects(self):
+        obj = self.application_mock()
+
+        obj.client.objects.return_value = {'objects': [{'source': 'http://object1'}]}
+
+        result = CliRunner().invoke(
+            main, ['--email', 'email', '--token', 'token', 'bucket:objects', 'b1'],
+            obj=obj
+        )
+        assert '- http://object1' in result.output
+        assert result.exit_code == 0
+
+    def test_objects_since(self):
+        obj = self.application_mock()
+
+        obj.client.objects_since.return_value = {'objects': [{'source': 'http://object1'}]}
+
+        result = CliRunner().invoke(
+            main, ['--email', 'email', '--token', 'token', 'bucket:objects', 'b1', '--since', 'yesterday'],
+            obj=obj
+        )
+        assert '- http://object1' in result.output
+        assert result.exit_code == 0
+
     def test_destroy(self):
 
         obj = self.application_mock()
