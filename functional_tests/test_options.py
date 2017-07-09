@@ -6,7 +6,7 @@
 # import requests
 # from stable_world.client import Client
 #
-# STABLE_WORLD_URL = os.getenv('STABLE_WORLD_URL', 'http://probably.stable.world')
+# STABLE_WORLD_URL = os.getenv('STABLE_WORLD_URL', 'http://stable.world')
 # url_templates = list(Client.url_templates().items())
 #
 #
