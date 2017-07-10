@@ -10,7 +10,7 @@ logger = getLogger(__name__)
 def execute_pip(app, bucket_name, pip_args):
     token = app.token
     app.client.check_bucket_token(bucket_name, token)
-    args = ['pipasdf'] + list(pip_args)
+    args = ['pip'] + list(pip_args)
 
     env = os.environ.copy()
 
