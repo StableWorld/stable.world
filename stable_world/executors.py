@@ -10,7 +10,7 @@ logger = getLogger(__name__)
 def execute_pip(app, bucket_name, pip_args):
     token = app.token
     app.client.check_bucket_token(bucket_name, token)
-    args = ['pip'] + list(pip_args)
+    args = ['pipasdf'] + list(pip_args)
 
     env = os.environ.copy()
 
@@ -27,9 +27,16 @@ def execute_pip(app, bucket_name, pip_args):
         os.makedirs(env['PIP_CACHE_DIR'])
 
     logger.debug('Executing {}'.format(' '.join(args)))
-    print("call")
     try:
         check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
+    except OSError as err:
+        if err.errno == 2:
+            raise errors.UserError(
+                "Could not execute the command 'pip'. "
+                "please check that pip is installed"
+            )
+        else:
+            raise
     except CalledProcessError:
         # User friendly error
         raise errors.UserError("Command pip failed")
