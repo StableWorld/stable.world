@@ -3,8 +3,10 @@ from __future__ import print_function, unicode_literals, absolute_import
 import sys
 import os
 from base64 import b64encode
+from tempfile import mktemp
 from subprocess import check_call, CalledProcessError
 from logging import getLogger
+from contextlib import contextmanager
 
 from stable_world import errors
 
@@ -44,6 +46,17 @@ def write_npm_config(fd, obj):
     return
 
 
+@contextmanager
+def remove_file(filename):
+    try:
+        yield
+    finally:
+        try:
+            os.unlink(filename)
+        except:
+            pass
+
+
 def execute_npm(app, bucket_name, npm_args):
 
     token = app.token
@@ -51,23 +64,26 @@ def execute_npm(app, bucket_name, npm_args):
     args = ['npm'] + list(npm_args)
 
     env = os.environ.copy()
-    env['NPM_CONF_USERCONFIG'] = './.tmp-npm-config'
+    env['NPM_CONFIG_USERCONFIG'] = mktemp(prefix='npm', suffix='config')
 
-    npm_config = {}
-    npm_config['always-auth'] = 'true'
-    npm_config['registry'] = '{url}/cache/{bucket}/npm/'.format(
-        url=app.config['url'], bucket=bucket_name,
-    )
-    # TODO: implement me
-    npm_config['_auth'] = b64encode('token:{}'.format(token).encode()).decode()
+    logger.debug('set envvar NPM_CONFIG_USERCONFIG={NPM_CONFIG_USERCONFIG}'.format(**env))
 
-    with open(env['NPM_CONF_USERCONFIG'], 'w') as fd:
-        write_npm_config(fd, npm_config)
+    with remove_file(env['NPM_CONFIG_USERCONFIG']):
+        npm_config = {}
+        npm_config['always-auth'] = 'true'
+        npm_config['registry'] = '{url}/cache/{bucket}/npm/'.format(
+            url=app.config['url'], bucket=bucket_name,
+        )
+        # TODO: implement me
+        npm_config['_auth'] = b64encode('token:{}'.format(token).encode()).decode()
 
-    logger.debug('Executing {}'.format(' '.join(args)))
+        with open(env['NPM_CONFIG_USERCONFIG'], 'w') as fd:
+            write_npm_config(fd, npm_config)
 
-    try:
-        check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
-    except CalledProcessError:
-        # User friendly error
-        raise errors.UserError("Command npm failed")
+        logger.debug('Executing {}'.format(' '.join(args)))
+
+        try:
+            check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
+        except CalledProcessError:
+            # User friendly error
+            raise errors.UserError("Command npm failed")
