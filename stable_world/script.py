@@ -13,7 +13,7 @@ from .interact.use import check_bucket
 from .output import error_output
 from .env import env
 from .sw_logging import setup_logging
-from .executors import execute_pip
+from .executors import execute_pip, execute_npm
 from . import errors, utils, output, application, group
 
 from .managers.pypi import PyPIManager
@@ -303,6 +303,17 @@ def ci_circle(app, dir):
 def pip(app, bucket, pip_args):
     """A wrapper around Python's pip"""
     execute_pip(app, bucket, pip_args)
+
+
+@main.command(context_settings=dict(
+    ignore_unknown_options=True,
+))
+@utils.bucket_option(required=True)
+@click.argument('npm_args', nargs=-1, type=click.UNPROCESSED)
+@utils.login_required
+def npm(app, bucket, npm_args):
+    """A wrapper around NodeJS's npm"""
+    execute_npm(app, bucket, npm_args)
 
 
 @main.group(chain=True)

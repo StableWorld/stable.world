@@ -1,10 +1,38 @@
+from __future__ import print_function, unicode_literals, absolute_import
+
 import sys
 import os
-from stable_world import errors
+from base64 import b64encode
+from tempfile import mktemp
 from subprocess import check_call, CalledProcessError
 from logging import getLogger
+from contextlib import contextmanager
+
+from stable_world import errors
 
 logger = getLogger(__name__)
+
+
+def safe_call(args, env):
+    """
+    Run subprocess.check_call and provide nice error messages on failure
+    """
+
+    logger.debug('Executing {}'.format(' '.join(args)))
+    try:
+        check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
+    except OSError as err:
+        if err.errno == 2:
+            msg = (
+                "Could not execute the command '{0}'. "
+                "please check that {0} is installed"
+            ).format(args[0])
+            raise errors.UserError(msg)
+        else:
+            raise
+    except CalledProcessError:
+        # User friendly error
+        raise errors.UserError("Command {} failed".format(args[0]))
 
 
 def execute_pip(app, bucket_name, pip_args):
@@ -26,17 +54,55 @@ def execute_pip(app, bucket_name, pip_args):
     if not os.path.isdir(env['PIP_CACHE_DIR']):
         os.makedirs(env['PIP_CACHE_DIR'])
 
-    logger.debug('Executing {}'.format(' '.join(args)))
+    safe_call(args, env)
+
+
+def write_npm_config(fd, obj):
+    """
+    format npm config file
+    """
+    for key, value in obj.items():
+        print(key, value, sep='=', file=fd)
+    return
+
+
+@contextmanager
+def remove_file(filename):
+    """
+    remove a file regardless of any exception
+    """
     try:
-        check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
-    except OSError as err:
-        if err.errno == 2:
-            raise errors.UserError(
-                "Could not execute the command 'pip'. "
-                "please check that pip is installed"
-            )
-        else:
-            raise
-    except CalledProcessError:
-        # User friendly error
-        raise errors.UserError("Command pip failed")
+        yield
+    finally:
+        try:
+            os.unlink(filename)
+        except:
+            pass
+
+
+def execute_npm(app, bucket_name, npm_args):
+
+    token = app.token
+    app.client.check_bucket_token(bucket_name, token)
+    args = ['npm'] + list(npm_args)
+
+    env = os.environ.copy()
+    env['NPM_CONFIG_USERCONFIG'] = mktemp(prefix='npm', suffix='config')
+
+    logger.debug('set envvar NPM_CONFIG_USERCONFIG={NPM_CONFIG_USERCONFIG}'.format(**env))
+
+    with remove_file(env['NPM_CONFIG_USERCONFIG']):
+        npm_config = {}
+        npm_config['always-auth'] = 'true'
+        npm_config['registry'] = '{url}/cache/{bucket}/npm/'.format(
+            url=app.config['url'], bucket=bucket_name,
+        )
+        # TODO: implement me
+        npm_config['_auth'] = b64encode('token:{}'.format(token).encode()).decode()
+
+        with open(env['NPM_CONFIG_USERCONFIG'], 'w') as fd:
+            write_npm_config(fd, npm_config)
+
+        logger.debug('Executing {}'.format(' '.join(args)))
+
+        safe_call(args, env)
