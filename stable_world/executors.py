@@ -35,6 +35,14 @@ def execute_pip(app, bucket_name, pip_args):
     logger.debug('Executing {}'.format(' '.join(args)))
     try:
         check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
+    except OSError as err:
+        if err.errno == 2:
+            raise errors.UserError(
+                "Could not execute the command 'pip'. "
+                "please check that pip is installed"
+            )
+        else:
+            raise
     except CalledProcessError:
         # User friendly error
         raise errors.UserError("Command pip failed")
