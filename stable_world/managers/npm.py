@@ -15,8 +15,20 @@ def read_npm_config(fd):
     return results
 
 
-def write_npm_config(fd, obj):
-    for key, value in obj.items():
+def write_npm_config(fd, url, token, extra=None):
+
+    npm_config = dict(extra or {})
+
+    npm_config['always-auth'] = 'true'
+    npm_config['registry'] = url
+
+    # Seems to be depricated ???
+    npm_config['_auth'] = b64encode('token:{}'.format(token).encode()).decode()
+
+    # TODO: figure out when this was implemented
+    scoped_auth = '//{}:_authToken={}'.format(url.split('//', 1)[-1], token)
+    print(scoped_auth, file=fd)
+    for key, value in npm_config.items():
         print(key, value, sep='=', file=fd)
     return
 
@@ -34,19 +46,14 @@ class NPMManager(BaseManager):
 
         if os.path.exists(self.config_file):
             with open(self.config_file) as fd:
-                npm_config = read_npm_config(fd)
+                existing_config = read_npm_config(fd)
         else:
-            npm_config = {}
-
-        npm_config['always-auth'] = 'true'
-        npm_config['registry'] = sw_url
-        # TODO: implement me
-        npm_config['_auth'] = b64encode('token:{}'.format(self.token).encode()).decode()
+            existing_config = {}
 
         if self.dryrun:
             click.echo('  Dryrun: Would have written config file'.format(self.config_file))
             click.echo('  ---')
-            write_npm_config(sys.stdout, npm_config)
+            write_npm_config(sys.stdout, sw_url, self.token, existing_config)
             click.echo('  ---')
         else:
             click.echo('  Writing {} config file "{}"'.format(self.NAME, self.config_file))
@@ -55,6 +62,5 @@ class NPMManager(BaseManager):
                 os.makedirs(os.path.dirname(self.config_file))
 
             with open(self.config_file, 'w') as fd:
-                write_npm_config(fd, npm_config)
-
+                write_npm_config(fd, sw_url, self.token, existing_config)
         return {'config_files': [self.config_file]}
