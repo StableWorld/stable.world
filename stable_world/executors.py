@@ -14,6 +14,10 @@ logger = getLogger(__name__)
 
 
 def safe_call(args, env):
+    """
+    Run subprocess.check_call and provide nice error messages on failure
+    """
+
     logger.debug('Executing {}'.format(' '.join(args)))
     try:
         check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
@@ -54,6 +58,9 @@ def execute_pip(app, bucket_name, pip_args):
 
 
 def write_npm_config(fd, obj):
+    """
+    format npm config file
+    """
     for key, value in obj.items():
         print(key, value, sep='=', file=fd)
     return
@@ -61,6 +68,9 @@ def write_npm_config(fd, obj):
 
 @contextmanager
 def remove_file(filename):
+    """
+    remove a file regardless of any exception
+    """
     try:
         yield
     finally:
