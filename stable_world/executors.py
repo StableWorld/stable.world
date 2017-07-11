@@ -13,6 +13,24 @@ from stable_world import errors
 logger = getLogger(__name__)
 
 
+def safe_call(args, env):
+    logger.debug('Executing {}'.format(' '.join(args)))
+    try:
+        check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
+    except OSError as err:
+        if err.errno == 2:
+            msg = (
+                "Could not execute the command '{0}'. "
+                "please check that {0} is installed"
+            ).format(args[0])
+            raise errors.UserError(msg)
+        else:
+            raise
+    except CalledProcessError:
+        # User friendly error
+        raise errors.UserError("Command {} failed".format(args[0]))
+
+
 def execute_pip(app, bucket_name, pip_args):
     token = app.token
     app.client.check_bucket_token(bucket_name, token)
@@ -32,20 +50,7 @@ def execute_pip(app, bucket_name, pip_args):
     if not os.path.isdir(env['PIP_CACHE_DIR']):
         os.makedirs(env['PIP_CACHE_DIR'])
 
-    logger.debug('Executing {}'.format(' '.join(args)))
-    try:
-        check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
-    except OSError as err:
-        if err.errno == 2:
-            raise errors.UserError(
-                "Could not execute the command 'pip'. "
-                "please check that pip is installed"
-            )
-        else:
-            raise
-    except CalledProcessError:
-        # User friendly error
-        raise errors.UserError("Command pip failed")
+    safe_call(args, env)
 
 
 def write_npm_config(fd, obj):
@@ -90,8 +95,4 @@ def execute_npm(app, bucket_name, npm_args):
 
         logger.debug('Executing {}'.format(' '.join(args)))
 
-        try:
-            check_call(args, stdout=sys.stdout, stderr=sys.stderr, env=env)
-        except CalledProcessError:
-            # User friendly error
-            raise errors.UserError("Command npm failed")
+        safe_call(args, env)
