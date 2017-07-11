@@ -2,7 +2,6 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 import sys
 import os
-from base64 import b64encode
 from tempfile import mktemp
 from subprocess import check_call, CalledProcessError
 from logging import getLogger
