@@ -1,5 +1,3 @@
-import mock
-import io
 from stable_world.script import set as set_config
 from fixture import CLITest
 from click.testing import CliRunner
