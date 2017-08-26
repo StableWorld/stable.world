@@ -11,7 +11,7 @@ machine:
   services:
     - docker
   post:
-    - pyenv global 2.7.12 3.4.4
+    - pyenv global 2.7.12 3.6.2
 
 
 dependencies:
