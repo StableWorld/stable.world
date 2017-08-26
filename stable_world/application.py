@@ -52,6 +52,9 @@ class StableWorldApplication:
         config.load_config(self.config_filename, self.config)
         config.load_netrc(self.netrc_filename, self.config)
 
+    def write_config(self, key, value):
+        config.update_config(self.config_filename, key, value)
+
     def update_config_from_options(self):
         self.config.update(self.cli_options)
         self.create_client()
