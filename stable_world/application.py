@@ -53,7 +53,6 @@ class StableWorldApplication:
         config.load_netrc(self.netrc_filename, self.config)
 
     def write_config(self, key, value):
-        click.echo("write_config")
         config.update_config(self.config_filename, key, value)
 
     def update_config_from_options(self):

@@ -27,7 +27,6 @@ def load_config(config_filename, config):
 
 
 def update_config(config_filename, key, value):
-    print("update_config")
     parser = ConfigParser()
     if os.path.isfile(config_filename):
         logger.info("load config from %s" % (config_filename))
