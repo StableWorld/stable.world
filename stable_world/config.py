@@ -26,6 +26,25 @@ def load_config(config_filename, config):
         logger.info("no config file %s" % (config_filename))
 
 
+def update_config(config_filename, key, value):
+    print("update_config")
+    parser = ConfigParser()
+    if os.path.isfile(config_filename):
+        logger.info("load config from %s" % (config_filename))
+        with open(config_filename) as fd:
+            parser.read_file(fd, config_filename)
+            # _config = parser._sections.get(CONFIG_SECTION, {})
+    else:
+        logger.info("no config file %s" % (config_filename))
+
+    if not parser.has_section(CONFIG_SECTION):
+        parser.add_section(CONFIG_SECTION)
+
+    parser.set(CONFIG_SECTION, key, value)
+    with open(config_filename, 'w') as fd:
+        parser.write(fd)
+
+
 def make_directories(cache_dirname, config_filename):
     try:
         if not os.path.isdir(cache_dirname):

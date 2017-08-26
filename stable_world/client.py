@@ -117,6 +117,9 @@ class Client(object):
     def api_info(self, url):
         return self.get(url)
 
+    def get_cache_url(self):
+        return self.api_info()['cache_url']
+
     @url('/cache/', test_method='get')
     def cache_info(self, url):
         return self.get(url)

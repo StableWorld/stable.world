@@ -82,6 +82,22 @@ def main(ctx, app, show_traceback, ignore_config, dir):
     click.secho("\n")
 
 
+@main.command(category='Config')
+@click.argument('key')
+@click.argument('value')
+@application.pass_app
+def set(app, key, value):
+    """Set a config value
+
+    e.g:
+
+    """
+    app.write_config(key, value)
+    utils.echo_success()
+    click.echo('key "{}" was set'.format(key))
+    return
+
+
 @main.command(category='Authentication')
 @application.email_option
 @application.password_option
