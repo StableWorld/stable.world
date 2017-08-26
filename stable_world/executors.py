@@ -99,7 +99,7 @@ def execute_npm(app, bucket_name, npm_args):
     args = ['npm'] + list(npm_args)
 
     env = os.environ.copy()
-    env['NPM_CONFIG_USERCONFIG'] = mktemp(prefix='npm', suffix='config')
+    env['NPM_CONFIG_USERCONFIG'] = mktemp(suffix='.npmrc')
 
     logger.debug('set envvar NPM_CONFIG_USERCONFIG={NPM_CONFIG_USERCONFIG}'.format(**env))
 
