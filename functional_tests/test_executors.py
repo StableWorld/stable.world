@@ -62,4 +62,4 @@ class Test(CLITest):
         assert 'NPM_CONFIG_USERCONFIG' in kwargs['env']
         assert kwargs['env']['NPM_CONFIG_USERCONFIG'].endswith('.npmrc')
 
-        #TODO: test config file values
+        # TODO: test config file values
