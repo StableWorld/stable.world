@@ -16,7 +16,7 @@ class CLITest(unittest.TestCase):
     def application_mock(self):
         app = mock.Mock()
         app.client.site = 'mockURL'
-        app.config = {'url': 'mockURL'}
+        app.config = {'STABLE_WORLD_URL': 'mockURL'}
         options = {}
 
         def update_config_from_options():

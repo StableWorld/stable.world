@@ -12,7 +12,18 @@ class EnvProperty(object):
         self.default = default
         self.doc = doc
 
+    @property
+    def exists(self):
+        return self.key in os.environ
+
+    @property
+    def value(self):
+        return os.getenv(self.key, self.default)
+
     def __get__(self, instance, owner):
+        if instance is None:
+            return self
+
         return os.getenv(self.key, self.default)
 
 
@@ -61,6 +72,22 @@ class Environment(object):
         '',
         'Enable debug output'
     )
+
+    @classmethod
+    def env_props(cls):
+        return [prop for prop in vars(cls).values() if isinstance(prop, EnvProperty)]
+
+    @property
+    def overrides(self):
+        """
+        Get only the config vars that should be overridden by the environment
+        """
+        result = {}
+        for env_prop in self.env_props():
+            if env_prop.exists:
+                result[env_prop.key] = env_prop.value
+
+        return result
 
 
 env = Environment()
