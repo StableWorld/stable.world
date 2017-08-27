@@ -79,6 +79,9 @@ class Environment(object):
 
     @property
     def overrides(self):
+        """
+        Get only the config vars that should be overridden by the environment
+        """
         result = {}
         for env_prop in self.env_props():
             if env_prop.exists:
