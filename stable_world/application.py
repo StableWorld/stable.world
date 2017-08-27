@@ -19,7 +19,7 @@ class StableWorldApplication:
         self.cache_dirname = config.abs_expand(env.STABLE_WORLD_CACHE_DIR)
 
         self.config = {
-            'url': env.STABLE_WORLD_URL
+            'STABLE_WORLD_URL': env.STABLE_WORLD_URL
         }
         self.create_client()
         self.cli_options = {}
@@ -27,7 +27,7 @@ class StableWorldApplication:
     def create_client(self):
         certfile = os.path.join(self.cache_dirname, 'cacert.pem')
         self.client = Client(
-            self.config.get('url'),
+            self.config.get('STABLE_WORLD_URL'),
             self.config.get('verify_https', certfile),
             self.config.get('token'),
         )
@@ -51,6 +51,7 @@ class StableWorldApplication:
     def read_config(self):
         config.load_config(self.config_filename, self.config)
         config.load_netrc(self.netrc_filename, self.config)
+        self.config.update(env.overrides)
 
     def write_config(self, key, value):
         config.update_config(self.config_filename, key, value)
@@ -62,7 +63,7 @@ class StableWorldApplication:
     def update_netrc(self, email, token):
         self.config.update(email=email, token=token)
         config.update_netrc_file(
-            self.netrc_filename, self.config['url'],
+            self.netrc_filename, self.config['STABLE_WORLD_URL'],
             email=email, token=token
         )
 

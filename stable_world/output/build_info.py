@@ -56,10 +56,11 @@ def echo_auth_info(client):
 
 
 def echo_cache_info(client):
+    cache_url = client.get_cache_url()
     click.echo("  CACHE: ", nl=False)
     info = None
     with echo_response_time():
-        info = client.cache_info()
+        info = client.cache_info(cache_url)
 
     echo_info(info)
 

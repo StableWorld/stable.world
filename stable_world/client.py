@@ -121,8 +121,15 @@ class Client(object):
         return self.api_info()['cache_url']
 
     @url('/cache/', test_method='get')
-    def cache_info(self, url):
-        return self.get(url)
+    def cache_info(self, url, cache_url):
+        if not cache_url:
+            cache_url = self.get_cache_url()
+
+        res = self._session.request('GET', cache_url)
+        logger.debug('[%s] %s - %s', 'GET', url, res.status_code)
+        self._check_response(res)
+        logger.debug(res.json())
+        return res.json()
 
     @url('/auth/register')
     def register(self, url, email, password, scopes=None):
