@@ -112,7 +112,7 @@ def unpack_cache_files(cache_dirname):
 
 def load_netrc(netrc_filename, config):
 
-    HOST = urlparse(config['url']).netloc.split(':', 1)[0]
+    HOST = urlparse(config['STABLE_WORLD_URL']).netloc.split(':', 1)[0]
     if os.path.isfile(netrc_filename):
         logger.info("load netrc host %s from %s" % (HOST, netrc_filename))
         EMAIL, _, TOKEN = netrc(netrc_filename).authenticators(HOST) or (None, None, None)

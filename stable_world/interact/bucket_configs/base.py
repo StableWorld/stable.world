@@ -43,7 +43,7 @@ class BucketConfigurator(object):
 
     @property
     def site_url(self):
-        return self.app.config['url']
+        return self.app.config['STABLE_WORLD_URL']
 
     def setup_bucket_name(self):
         raise NotImplementedError()
