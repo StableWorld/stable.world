@@ -15,6 +15,7 @@ def info(app):
     output.build_info.build_info(app.client)
 
 
+@main.command()
 @click.argument('key')
 @click.argument('value')
 @application.pass_app

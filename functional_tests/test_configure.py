@@ -1,6 +1,6 @@
 import mock
 import six
-from stable_world.script import configure
+from stable_world.commands.execute import configure
 from fixture import CLITest
 from click.testing import CliRunner
 

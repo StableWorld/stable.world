@@ -1,4 +1,4 @@
-from stable_world.script import set as set_config
+from stable_world.commands.misc import set as set_config
 from fixture import CLITest
 from click.testing import CliRunner
 
@@ -13,6 +13,9 @@ class Test(CLITest):
             obj=obj
         )
         print(result.output)
+        if result.exception:
+            raise result.exception
+
         assert result.exit_code == 0
 
         assert obj.write_config.called

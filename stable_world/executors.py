@@ -14,9 +14,11 @@ logger = getLogger(__name__)
 
 
 def whereis(exe):
+    'Find the pull path to executable, linux only'
     for path in os.environ['PATH'].split(os.pathsep):
         if os.path.isfile(os.path.join(path, exe)):
             return os.path.join(path, exe)
+    return path
 
 
 CURL = whereis('curl')
