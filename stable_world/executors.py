@@ -13,6 +13,19 @@ from stable_world import errors
 logger = getLogger(__name__)
 
 
+def whereis(exe):
+    'Find the pull path to executable, linux only'
+    for path in os.environ['PATH'].split(os.pathsep):
+        if os.path.isfile(os.path.join(path, exe)):
+            return os.path.join(path, exe)
+    return exe
+
+
+CURL = whereis('curl')
+NPM = whereis('npm')
+PIP = whereis('pip')
+
+
 def add_basic_auth(url, token):
     """
     Adds basic auth token to url eg
@@ -56,11 +69,11 @@ def execute_pip(app, bucket_name, pip_args):
     token = app.token
     app.client.check_bucket_token(bucket_name, token)
     cache_url = add_basic_auth(app.client.get_cache_url(), token)
-    args = ['pip'] + list(pip_args)
+    args = [PIP] + list(pip_args)
 
     env = os.environ.copy()
 
-    pip_index_url = '{url}/cache/{bucket}/pypi/simple/'.format(
+    pip_index_url = '{url}{bucket}/pypi/simple/'.format(
         url=cache_url, bucket=bucket_name,
     )
     env['PIP_INDEX_URL'] = pip_index_url
@@ -72,6 +85,27 @@ def execute_pip(app, bucket_name, pip_args):
 
     if not os.path.isdir(env['PIP_CACHE_DIR']):
         os.makedirs(env['PIP_CACHE_DIR'])
+
+    safe_call(args, env)
+
+
+def execute_curl(app, bucket_name, curl_args):
+    token = app.token
+    app.client.check_bucket_token(bucket_name, token)
+    cache_url = add_basic_auth(app.client.get_cache_url(), token)
+    args = [CURL] + list(curl_args)
+
+    if not urlparse(args[-1]).netloc:
+        raise errors.UserError(
+            "stable.world curl url argument must be "
+            "last and must start with http(s)://"
+        )
+
+    env = os.environ.copy()
+
+    args[-1] = '{url}{bucket}/-/{path}'.format(
+        url=cache_url, bucket=bucket_name, path=args[-1]
+    )
 
     safe_call(args, env)
 
@@ -96,7 +130,7 @@ def execute_npm(app, bucket_name, npm_args):
     token = app.token
     app.client.check_bucket_token(bucket_name, token)
     cache_url = app.client.get_cache_url()
-    args = ['npm'] + list(npm_args)
+    args = [NPM] + list(npm_args)
 
     env = os.environ.copy()
     env['NPM_CONFIG_USERCONFIG'] = mktemp(suffix='.npmrc')
@@ -104,7 +138,7 @@ def execute_npm(app, bucket_name, npm_args):
     logger.debug('set envvar NPM_CONFIG_USERCONFIG={NPM_CONFIG_USERCONFIG}'.format(**env))
 
     with remove_file(env['NPM_CONFIG_USERCONFIG']):
-        registry = '{url}/cache/{bucket}/npm/'.format(
+        registry = '{url}{bucket}/npm/'.format(
             url=cache_url, bucket=bucket_name,
         )
 
