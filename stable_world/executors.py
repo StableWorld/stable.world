@@ -18,7 +18,7 @@ def whereis(exe):
     for path in os.environ['PATH'].split(os.pathsep):
         if os.path.isfile(os.path.join(path, exe)):
             return os.path.join(path, exe)
-    return path
+    return exe
 
 
 CURL = whereis('curl')
