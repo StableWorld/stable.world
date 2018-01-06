@@ -21,19 +21,19 @@ dependencies:
 
 compile:
   override:
-    - yarn build:app
+    make buildApp
     - cp ./bin/stable.world $CIRCLE_ARTIFACTS
 
-    - yarn build:docker:py2
-    - yarn build:docker:py3
+    - make buildDockerPY2
+    - make buildDockerPY3
 
 test:
   pre:
-    - flake8
+    - make lint
   override:
 
-    - yarn test:py2
-    - yarn test:py3
+    - make testPY2
+    - make testPY3
     - ./bin/stable.world --help
 
   post:
@@ -46,13 +46,13 @@ deployment:
     branch: develop
     commands:
       - pyenv global 2.7.12
-      - yarn run deploy:fetch
-      - yarn run deploy:authorize
-      - yarn run deploy:development
+      - make deployFetch
+      - make deployAuthorize
+      - make deployDevelopment
   master:
     branch: master
     commands:
       - pyenv global 2.7.12
-      - yarn run deploy:fetch
-      - yarn run deploy:authorize
-      - yarn run deploy:master
+      - make deployFetch
+      - make deployAuthorize
+      - make deployMaster
