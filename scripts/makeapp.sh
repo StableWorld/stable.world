@@ -1,4 +1,4 @@
-set -euo pipefail
+set -eu
 
 git clean -xdf dist app
 python3.6 setup.py sdist
