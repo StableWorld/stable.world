@@ -21,7 +21,7 @@ dependencies:
 
 compile:
   override:
-    make buildApp
+    - make buildApp
     - cp ./bin/stable.world $CIRCLE_ARTIFACTS
 
     - make buildDockerPY2
