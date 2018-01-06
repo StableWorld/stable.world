@@ -15,9 +15,9 @@
     "lint": "flake8",
     "test:functional": "py.test functional_tests/",
     "deploy:fetch": "rm -rf deployment && git clone https://gist.github.com/befb8025b4fdf52d7db8391a1cbe0c22.git deployment",
-    "deploy:authorize": "bash deployment/init.sh",
-    "deploy:master": "bash deployment/master-cli.sh",
-    "deploy:development": "bash deployment/development-cli.sh",
+    "deploy:authorize": "sh deployment/init.sh",
+    "deploy:master": "sh deployment/master-cli.sh",
+    "deploy:development": "sh deployment/development-cli.sh",
     "release": "gsutil  -h \"Content-Type:text/plain\" cp gs://stable-world-downloads/rc gs://stable-world-downloads/latest"
   }
 }
