@@ -2,22 +2,31 @@ set -eux
 
 git clean -xdf dist app
 
-docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
-  python setup.py sdist
+docker build -f scripts/Dockerfile -t makeapp:build .
 
-docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
-  pip install --target app dist/stable.world-*.tar.gz
+docker create --name extract makeapp:build
+docker cp extract:/project/bin/stable.world ./bin/stable.world
+docker rm -f extract
 
-docker run -v $(pwd):/sw -w /sw circleci/python:2.7 \
-  python -m compileall app/
-
-docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
-  python -m compileall app/
-
-docker run  -v $(pwd):/sw -w /sw circleci/python:3.6 \
-  python -m zipapp app -o ./bin/stable.world.pyz
-
-cat ./app/header.sh ./bin/stable.world.pyz > ./bin/stable.world
-# TODO: windows deploy
-# cat ./app/header.bat ./bin/stable.world.pyz > ./bin/stable.world.bat
-chmod +x ./bin/stable.world
+# docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
+#   ls -al
+#
+# docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
+#   python setup.py sdist
+#
+# docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
+#   pip install --target app dist/stable.world-*.tar.gz
+#
+# docker run -v $(pwd):/sw -w /sw circleci/python:2.7 \
+#   python -m compileall app/
+#
+# docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
+#   python -m compileall app/
+#
+# docker run  -v $(pwd):/sw -w /sw circleci/python:3.6 \
+#   python -m zipapp app -o ./bin/stable.world.pyz
+#
+# cat ./app/header.sh ./bin/stable.world.pyz > ./bin/stable.world
+# # TODO: windows deploy
+# # cat ./app/header.bat ./bin/stable.world.pyz > ./bin/stable.world.bat
+# chmod +x ./bin/stable.world
