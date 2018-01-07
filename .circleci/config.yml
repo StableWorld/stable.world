@@ -41,8 +41,28 @@ jobs:
 #     - python setup.py sdist bdist_wheel
 #     - cp ./dist/* $CIRCLE_ARTIFACTS
 #
-# deployment:
-#   development:
+  deploy:
+    working_directory: /app
+    docker:
+      - image: google/cloud-sdk
+        # Environment variable for all commands executed in the primary container
+        environment: *env
+    steps:
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: /app
+      - run:
+          name: "Install Dependencies"
+          command: .circleci/InstallDeployDependencies.sh
+      - run:
+          name: "Authorize Google Cloud"
+          command: |
+            make deploy-fetch
+            make deploy-authorize
+      - run:
+          name: "Rollout to Stage"
+          command: |
+            echo Deploy
 #     branch: develop
 #     commands:
 #       - pyenv global 2.7.12
@@ -56,3 +76,15 @@ jobs:
 #       - make deployFetch
 #       - make deployAuthorize
 #       - make deployMaster
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          # filters:
+          #   branches:
+          #     only: master
+          requires:
+            - build
