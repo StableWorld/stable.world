@@ -1,12 +1,12 @@
 set -eux
 
 git clean -xdf dist app
-
 docker build -f scripts/Dockerfile -t makeapp:build .
-
 docker create --name extract makeapp:build
 docker cp extract:/project/bin/stable.world ./bin/stable.world
-docker rm -f extract
+echo "OK!"
+
+# docker rm -f extract
 
 # docker run -v $(pwd):/sw -w /sw circleci/python:3.6 \
 #   ls -al
