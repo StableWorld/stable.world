@@ -48,6 +48,7 @@ jobs:
         # Environment variable for all commands executed in the primary container
         environment: *env
     steps:
+      - checkout
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: /app
@@ -62,20 +63,7 @@ jobs:
       - run:
           name: "Rollout to Stage"
           command: |
-            echo Deploy
-#     branch: develop
-#     commands:
-#       - pyenv global 2.7.12
-#       - make deployFetch
-#       - make deployAuthorize
-#       - make deployDevelopment
-#   master:
-#     branch: master
-#     commands:
-#       - pyenv global 2.7.12
-#       - make deployFetch
-#       - make deployAuthorize
-#       - make deployMaster
+            make deployDevelopment
 
 workflows:
   version: 2
