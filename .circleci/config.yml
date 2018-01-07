@@ -24,7 +24,6 @@ jobs:
           name: Build apps
           command: |
             make buildApp
-            cp ./bin/stable.world $CIRCLE_ARTIFACTS
             make buildDockerPY2
             make buildDockerPY3
       - run:
