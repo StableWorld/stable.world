@@ -45,7 +45,7 @@ jobs:
           paths:
             - bin/stable.world
 
-  deploy:
+  deploy-develop:
     working_directory: /workspace
     docker:
       - image: google/cloud-sdk
@@ -62,21 +62,20 @@ jobs:
       - run:
           name: "Authorize Google Cloud"
           command: |
-            make deploy-fetch
             make deploy-authorize
       - run:
           name: "Rollout to Stage"
           command: |
-            make deploy-development
+            make deploy
 
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
       - build
-      - deploy:
-          # filters:
-          #   branches:
-          #     only: master
+      - deploy-develop:
+          filters:
+            branches:
+              only: develop
           requires:
             - build

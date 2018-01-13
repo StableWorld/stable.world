@@ -38,11 +38,21 @@ deploy-authorize: ## authorize gcloud
 	gcloud auth activate-service-account --key-file $${HOME}/gcloud-service-key.json
 	gcloud config set project $$GCLOUD_PROJECT
 
-deploy-master: ## deploy master version
-	sh deployment/master-cli.sh
+deploy: export VERSION = $(git describe --always)
+deploy: Env = probably.stable.world
+deploy: ## deploy version
+	echo Development Deployment "$$VERSION"
 
-deploy-development: ## deploy development version
-	sh deployment/development-cli.sh
+	echo "Uploading gs://stable-world-downloads/$(Env)/versions/$${VERSION}"
+	gsutil  -h "Content-Type:text/plain" \
+		cp ./bin/stable.world \
+		   gs://stable-world-downloads/$(Env)/versions/$${VERSION}
+
+	echo Uploading gs://stable-world-downloads/$(Env)/latest ...
+
+	gsutil  -h "Content-Type:text/plain" \
+		cp gs://stable-world-downloads/$(Env)/versions/$${VERSION} \
+			 gs://stable-world-downloads/$(Env)/latest
 
 release: ## upload release
 	gsutil  -h "Content-Type:text/plain" cp gs://stable-world-downloads/rc gs://stable-world-downloads/latest
