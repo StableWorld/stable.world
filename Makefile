@@ -6,11 +6,11 @@ buildDocs: ## build docs
 		(cd docs/ && make html)
 
 buildDockerPY2: ## build python2 docker image
-	echo \"FROM python:2\" | cat - Dockerfile.test.template > Dockerfile.py2
+	echo "FROM python:2" | cat - Dockerfile.test.template > Dockerfile.py2
 	docker build -f Dockerfile.py2 -t testpy2 .
 
 buildDockerPY3: ## build python3 docker image
-	echo \"FROM python:3\" | cat - Dockerfile.test.template > Dockerfile.py3
+	echo "FROM python:3" | cat - Dockerfile.test.template > Dockerfile.py3
 	docker build -f Dockerfile.py3 -t testpy3 .
 
 test: ## test code
@@ -43,7 +43,7 @@ deployDevelopment: ## deploy development version
 	sh deployment/development-cli.sh
 
 release: ## upload release
-	gsutil  -h \"Content-Type:text/plain\" cp gs://stable-world-downloads/rc gs://stable-world-downloads/latest
+	gsutil  -h "Content-Type:text/plain" cp gs://stable-world-downloads/rc gs://stable-world-downloads/latest
 
 .PHONY: help
 
