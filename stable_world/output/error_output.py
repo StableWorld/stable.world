@@ -32,7 +32,7 @@ def write_error_log(cache_dirname, exctype, value, tb):
             tb = '\n'.join(traceback.format_exception(exctype, value, tb))
             print(tb, file=fd)
         click.echo('\n    Wrote full traceback to "{}"\n'.format(logfile), err=True)
-    except:
+    except Exception:
         click.echo("Failed to write logfile", err=True)
         original_excepthook(exctype, value, tb)
 
