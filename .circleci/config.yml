@@ -7,7 +7,7 @@ environment: &env
 version: 2
 jobs:
   build:
-    working_directory: /app
+    working_directory: /workspace
     docker:
       - image: docker:17.05.0-ce-git
     steps:
@@ -44,7 +44,7 @@ jobs:
 #     - cp ./dist/* $CIRCLE_ARTIFACTS
 #
   deploy:
-    working_directory: /app
+    working_directory: /workspace
     docker:
       - image: google/cloud-sdk
         # Environment variable for all commands executed in the primary container
@@ -53,7 +53,7 @@ jobs:
       - checkout
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /app
+          at: /workspace
       - run:
           name: "Install Dependencies"
           command: .circleci/InstallDeployDependencies.sh

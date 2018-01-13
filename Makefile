@@ -34,7 +34,9 @@ deploy-fetch: ## fetch deploy repo
 	git clone https://gist.github.com/befb8025b4fdf52d7db8391a1cbe0c22.git deployment
 
 deploy-authorize: ## authorize gcloud
-	sh deployment/init.sh
+	echo $$GCLOUD_SERVICE_KEY | base64 --decode > $${HOME}/gcloud-service-key.json
+	gcloud auth activate-service-account --key-file $${HOME}/gcloud-service-key.json
+	gcloud config set project $$GCLOUD_PROJECT
 
 deploy-master: ## deploy master version
 	sh deployment/master-cli.sh
