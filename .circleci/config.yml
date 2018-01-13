@@ -38,11 +38,13 @@ jobs:
             make testPY2
             make testPY3
             ./bin/stable.world --help
-#   post:
-#
-#     - python setup.py sdist bdist_wheel
-#     - cp ./dist/* $CIRCLE_ARTIFACTS
-#
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory
+          root: /workspace
+          # Must be relative path from root
+          paths:
+            - bin/stable.world
+
   deploy:
     working_directory: /workspace
     docker:
