@@ -29,17 +29,17 @@ testPY3: ## test with python3
 testFunctional: ## run functional_tests
 	py.test functional_tests/
 
-deployFetch: ## fetch deploy repo
+deploy-fetch: ## fetch deploy repo
 	rm -rf deployment
 	git clone https://gist.github.com/befb8025b4fdf52d7db8391a1cbe0c22.git deployment
 
-deployAuthorize: ## authorize gcloud
+deploy-authorize: ## authorize gcloud
 	sh deployment/init.sh
 
-deployMaster: ## deploy master version
+deploy-master: ## deploy master version
 	sh deployment/master-cli.sh
 
-deployDevelopment: ## deploy development version
+deploy-development: ## deploy development version
 	sh deployment/development-cli.sh
 
 release: ## upload release

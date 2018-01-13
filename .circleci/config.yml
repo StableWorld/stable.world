@@ -65,7 +65,7 @@ jobs:
       - run:
           name: "Rollout to Stage"
           command: |
-            make deployDevelopment
+            make deploy-development
 
 workflows:
   version: 2
