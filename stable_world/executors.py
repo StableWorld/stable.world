@@ -121,7 +121,7 @@ def remove_file(filename):
         try:
             pass
             # os.unlink(filename)
-        except:
+        except Exception:
             pass
 
 
